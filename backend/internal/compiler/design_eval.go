@@ -13,6 +13,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/l10n"
 	"github.com/nightCode42/plux3/backend/internal/l10n/mf"
 	"github.com/nightCode42/plux3/backend/internal/pxl"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 )
 
 // designPageCacheSize bounds the pages a DesignEvaluator keeps compiled.
@@ -64,7 +65,9 @@ type DesignRequest struct {
 	Items  []DesignItem   `json:"items"`
 }
 
-// DesignPageSource is a page as the canvas draws it, unsaved edits included.
+// DesignPageSource is a page as the canvas draws it, unsaved edits included,
+// or a component, whose own expressions (reading `props` and `component`)
+// are evaluated as the loaded project holds it.
 type DesignPageSource struct {
 	File string          `json:"file"`
 	Data json.RawMessage `json:"data"`
@@ -207,7 +210,13 @@ func (d *DesignEvaluator) page(v *Validator, src DesignPageSource) *designPage {
 	if p, ok := d.pages[src.File]; ok && p.validator == v && bytes.Equal(p.data, src.Data) {
 		return p
 	}
-	u, _, ok := v.checkPage(src.File, src.Data)
+	var u *unit
+	var ok bool
+	if place, known := schema.PlaceOf(src.File); known && place.Kind == schema.KindComponent {
+		u, ok = v.checkComponent(src.File)
+	} else {
+		u, _, ok = v.checkPage(src.File, src.Data)
+	}
 	if !ok {
 		return nil
 	}

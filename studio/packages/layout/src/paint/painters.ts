@@ -13,7 +13,15 @@ import type { ColorRole } from "../material-color/scheme.ts";
 import { barPainters, barSurface } from "./bars.ts";
 import { buttonGlyph, checkboxMark, controlForeground, controlPainters } from "./controls.ts";
 import { cupertinoForeground, cupertinoPainterOf, cupertinoPainters } from "./cupertino.ts";
-import { fieldModel, fieldPaint, fieldTypes, type PaintText, type PlacedGlyph, searchBarPaint } from "./fields.ts";
+import {
+  dropdownFieldProps,
+  fieldModel,
+  fieldPaint,
+  fieldTypes,
+  type PaintText,
+  type PlacedGlyph,
+  searchBarPaint,
+} from "./fields.ts";
 import { layer2Paint, layer2Parts } from "./layer2.ts";
 import { mediaPaint } from "./media.ts";
 import {
@@ -506,6 +514,14 @@ const MEDIA_TYPES: ReadonlySet<string> = new Set([
   "ImageGallery",
 ]);
 
+/** A `DropdownMenu` as its field draws it: its field's props and the text of its `label` widget (build log row 295). */
+function dropdownPaintProps(node: PaintNode): Record<string, unknown> {
+  const slots = (node as { slots?: Record<string, unknown> }).slots;
+  const label = slots?.["label"] as { props?: { data?: unknown } } | undefined;
+  const text = label?.props?.data;
+  return { ...dropdownFieldProps(node.props ?? {}), ...(typeof text === "string" ? { labelText: text } : {}) };
+}
+
 /** What a widget that places its own parts paints: a Cupertino widget, a field, a search bar, a bar. */
 function partsPaintOf(
   node: PaintNode,
@@ -517,6 +533,9 @@ function partsPaintOf(
   const cupertino = cupertinoPainterOf(node, theme);
   if (cupertino !== undefined) {
     return cupertino(node, r, theme, rectOf);
+  }
+  if (node.type === "DropdownMenu") {
+    return fieldPaint(fieldModel(dropdownPaintProps(node)), node.id, r, theme, rectOf);
   }
   if (fieldTypes.has(node.type ?? "")) {
     return fieldPaint(fieldModel(node.props ?? {}), node.id, r, theme, rectOf);

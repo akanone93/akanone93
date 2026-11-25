@@ -464,15 +464,20 @@ const infiniteList: WidgetBuilder = (node, ctx) => {
   const items = node.props?.["items"];
   const count = Array.isArray(items) ? items.length : 0;
   const item = node.slots?.["item"];
-  if (count === 0 || item === undefined) {
+  // Studio's canvas lays the list out from its copies of the item template, one per item, as its children (row 138).
+  const copies = node.children ?? [];
+  if (copies.length === 0 && (count === 0 || item === undefined)) {
     return named(node, slotted(node, ctx, "empty")[0] ?? sized(0, 0));
   }
   const status = text(node, "status");
-  const rows = Array.from({ length: count }, (_, index) => {
-    const row = ctx.build(item);
-    row.debugId = index === 0 ? item.id : null;
-    return row;
-  });
+  const rows =
+    copies.length > 0
+      ? copies.map((copy) => ctx.build(copy))
+      : Array.from({ length: count }, (_, index) => {
+          const row = ctx.build(item as WidgetNode);
+          row.debugId = index === 0 ? (item as WidgetNode).id : null;
+          return row;
+        });
   const footer = status === "loading" || status === "error" ? slotted(node, ctx, status) : [];
   return named(
     node,

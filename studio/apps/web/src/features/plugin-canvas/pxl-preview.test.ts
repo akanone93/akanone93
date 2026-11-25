@@ -186,4 +186,26 @@ describe("ADR-0112 the PXL engine evaluates design-time expressions for the canv
     r.preview.flush();
     expect(r.batches[0]?.values[0]?.roots["flags"]).toEqual({ maxWorkshops: 2 });
   });
+  test("a component's own expressions go to the engine as its file's, with its props and state (ADR-0112 follow-up)", () => {
+    const r = rig(() => undefined);
+    r.preview.begin(context());
+    const chip = { file: "components/status-chip.component.json", doc: { kind: "component", id: "chip" } };
+    const inner: DesignScope = {
+      ...scope,
+      props: { status: "live" },
+      component: { pressed: false },
+      evaluate: r.preview.forComponent("a", chip, data),
+    };
+    expect(evaluateMockBinding("props.label ?? props.status", new Map(), {}, inner)).toBeUndefined();
+    // A page's evaluator leaves a component's roots alone.
+    const outer = { ...scope, evaluate: r.preview.forScreen("a", page, data) };
+    expect(evaluateMockBinding("props.label ?? props.status", new Map(), {}, outer)).toBeUndefined();
+    r.preview.flush();
+    expect(r.batches).toHaveLength(1);
+    const [batch] = r.batches;
+    expect(batch?.pages).toEqual([{ file: chip.file, data: chip.doc }]);
+    expect(batch?.items.map((i) => i.src)).toEqual(["props.label ?? props.status"]);
+    expect(batch?.values[0]?.roots["props"]).toEqual({ status: "live" });
+    expect(batch?.values[0]?.roots["component"]).toEqual({ pressed: false });
+  });
 });

@@ -111,3 +111,29 @@ func TestDesignEvaluateFailsSafely(t *testing.T) {
 		}
 	}
 }
+
+// Verifies: STU-005 (ADR-0112).
+// A component's own expressions evaluate with its instance's props and the
+// app's values, as the loaded project holds the component; a path that is
+// not a component's checks nothing.
+func TestDesignEvaluateComponent(t *testing.T) {
+	t.Parallel()
+	v := newValidator(t, project(t, routingDir))
+	d := NewDesignEvaluator()
+	comp := map[string]any{"file": counterCard, "data": json.RawMessage(`{}`)}
+	got := designAnswer(t, d, v, map[string]any{
+		"locale": "en",
+		"pages":  []any{comp, map[string]any{"file": "plugins/nav/nothing.json", "data": json.RawMessage(`{}`)}},
+		"values": []any{map[string]any{"roots": map[string]any{"props": map[string]any{"label": "Taps"}, "app": map[string]any{"counter": 3}}}},
+		"items": []map[string]any{
+			{"page": 0, "values": 0, "src": `props.label + " " + string(app.counter)`},
+			{"page": 1, "values": 0, "src": "1"},
+		},
+	})
+	if got[0]["value"] != "Taps 3" {
+		t.Errorf("component expression: got %v", got[0])
+	}
+	if got[1]["error"] == nil {
+		t.Errorf("not a component: got %v, want an error", got[1])
+	}
+}

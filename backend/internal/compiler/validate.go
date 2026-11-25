@@ -184,6 +184,23 @@ func (v *Validator) checkPage(file string, data []byte) (*unit, plxerr.Diagnosti
 	return u, diags, true
 }
 
+// checkComponent runs the checking stages over a component of the loaded
+// project as it is, compiling its own expressions in their scopes (props,
+// component state) for the canvas's design-time evaluation (ADR-0112);
+// false when file is not a component's path or the project did not load.
+func (v *Validator) checkComponent(file string) (*unit, bool) {
+	if place, ok := schema.PlaceOf(file); !ok || place.Kind != schema.KindComponent || v.project == nil {
+		return nil, false
+	}
+	u := newUnit(v.opts)
+	u.project = v.project
+	u.focus = map[string]bool{file: true}
+	u.validating = true
+	checks := slices.DeleteFunc(slices.Clone(pipeline), func(s stage) bool { return !s.checking })
+	run(u, checks)
+	return u, true
+}
+
 // PXLSite is where a PXL expression of a page can be written: the binding
 // object's JSON Pointer and what an expression there can read (PXL-007).
 type PXLSite struct {

@@ -3,6 +3,8 @@
 
 import { describe, expect, test } from "bun:test";
 import { componentsOf, expandInstances, instanceMarks, instanceRef } from "./component-instances.ts";
+import { bindMocks, type DesignScope, emptyScope, INSTANCE_MARK, OUTER_MARK } from "./mock-bindings.ts";
+import type { Node } from "./plugin-model.ts";
 
 const card = {
   kind: "component",
@@ -105,5 +107,60 @@ describe("PC-37 component instances drawn as their components [STU-084] [STU-085
       i2: { component: "c1", name: "Card", version: 2, latest: 2, overrides: 0, known: true },
       i3: { component: "gone", name: "gone", version: 1, latest: 1, overrides: 0, known: false },
     });
+  });
+  test("ADR-0112 an instance inside a component expands, and each drawn root names its component and props (row 138)", () => {
+    const shell = {
+      kind: "component",
+      id: "shell",
+      props: [{ name: "org", type: "Org", required: true }],
+      root: {
+        id: "frame",
+        component: { id: "c1", version: 2 },
+        props: { title: { $expr: "props.org.name" } },
+        slots: { body: { id: "city", type: "Text", props: { data: { $expr: "props.org.city" } } } },
+      },
+    };
+    const all = componentsOf([doc(card), doc(shell)]);
+    const inst = { id: "i3", component: { id: "shell", version: 1 }, props: { org: { $expr: "page.org" } } };
+    const drawn = expandInstances(inst, all) as unknown as Record<string, unknown> & { type: string };
+    // The shell's root is the card's instance, drawn as the card's tree.
+    expect(drawn.type).toBe("Column");
+    expect(drawn[INSTANCE_MARK]).toEqual([
+      { component: "shell", props: { org: { $expr: "page.org" } } },
+      { component: "c1", props: { tone: "calm", title: { $expr: "props.org.name" } } },
+    ]);
+    // Bound, the shell's props take their values in the page, the card's in the shell, each component's in its own.
+    const scope: DesignScope = {
+      ...emptyScope,
+      page: { org: { name: "Nordvia Bank", city: "Berlin" } },
+      componentScope: () => ({ state: {} }),
+    };
+    const bound = JSON.stringify(bindMocks(drawn as unknown as Node, new Map(), {}, scope));
+    expect(bound).toContain('"data":"Nordvia Bank"');
+    expect(bound).toContain('"data":"Berlin"');
+    expect(bound).toContain('"data":"calm"');
+    expect(bound).not.toContain(INSTANCE_MARK);
+    expect(bound).not.toContain(OUTER_MARK);
+  });
+
+  test("ADR-0112 a slot's fill is bound in the scope its instance stands in, the component's parts in the component's", () => {
+    const evaluated: string[] = [];
+    const inst = {
+      id: "i4",
+      component: { id: "c1", version: 2 },
+      props: { title: "T" },
+      slots: { body: { id: "mine", type: "Text", props: { data: { $expr: "props.label" } } } },
+    };
+    const drawn = expandInstances(inst, components) as unknown as Node;
+    const scope: DesignScope = {
+      ...emptyScope,
+      // The page is itself inside a component that has a `label` prop; the card has none.
+      props: { label: "outer" },
+      componentScope: () => ({ state: {}, evaluate: (expr) => void evaluated.push(expr) }),
+    };
+    const bound = JSON.stringify(bindMocks(drawn, new Map(), {}, scope));
+    expect(bound).toContain('"data":"outer"');
+    expect(bound).toContain('"data":"T"');
+    expect(evaluated).toEqual([]);
   });
 });

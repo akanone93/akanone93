@@ -217,22 +217,32 @@ export function placeModel(
   });
 }
 
-/** The design-time evaluation over the plugin's pages as drawn: each page's file and document by page id (ADR-0112). */
+/**
+ * The design-time evaluation over the plugin's pages as drawn (ADR-0112): each page's file and document by page id, and
+ * each component's, the app's and the plugin's, by component id, whose own expressions it evaluates too.
+ */
 function designEvaluation(
   evaluate: (request: string) => Promise<unknown>,
   live: readonly { readonly path: string; readonly parsed: unknown }[],
+  app: readonly { readonly path: string; readonly content: Uint8Array }[] | undefined,
 ): DesignEvaluation {
   const pages = new Map<string, PageSource>();
-  for (const d of live) {
-    const doc = d.parsed;
-    if (typeof doc === "object" && doc !== null && (doc as { kind?: unknown }).kind === "page") {
-      const id = (doc as { id?: unknown }).id;
-      if (typeof id === "string") {
-        pages.set(id, { file: d.path, doc });
-      }
+  const components = new Map<string, PageSource>();
+  const add = (path: string, doc: unknown) => {
+    const { kind, id } = typeof doc === "object" && doc !== null ? (doc as { kind?: unknown; id?: unknown }) : {};
+    if (typeof id === "string" && (kind === "page" || kind === "component")) {
+      (kind === "page" ? pages : components).set(id, { file: path, doc: doc as object });
+    }
+  };
+  for (const d of app ?? []) {
+    if (d.path.endsWith(".component.json")) {
+      add(d.path, documentJson(d));
     }
   }
-  return { evaluate, pages };
+  for (const d of live) {
+    add(d.path, d.parsed);
+  }
+  return { evaluate, pages, components };
 }
 
 /** The screens' style: live with the Interact tool (PC-15). */
@@ -845,8 +855,8 @@ function PluginCanvasView({
   // The PXL engine evaluates the screens' expressions with design-time values (ADR-0112), on the documents as drawn.
   const evaluate = loaded.state === "done" ? loaded.evaluate : undefined;
   const evaluation = useMemo(
-    () => (evaluate === undefined ? undefined : designEvaluation(evaluate, live)),
-    [evaluate, live],
+    () => (evaluate === undefined ? undefined : designEvaluation(evaluate, live, appDocs.data)),
+    [evaluate, live, appDocs.data],
   );
   const sources = useMemo(() => dataSourcesOf(docs.data ?? []), [docs.data]);
   const brands = useBrands(appDocs.data);

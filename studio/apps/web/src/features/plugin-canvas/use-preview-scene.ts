@@ -8,7 +8,7 @@ import { withoutHidden } from "../panels/studio-meta.ts";
 import type { MockState, PreviewRender } from "../preview/switches.ts";
 import { componentsOf, expandInstances } from "./component-instances.ts";
 import { applyConditions, type BranchPick } from "./conditions.ts";
-import { designScopes, type FormPreview } from "./design-scope.ts";
+import { designScopes, type FormPreview, stateDefaults } from "./design-scope.ts";
 import { expandLists, type ListState, type StateTexts } from "./list-preview.ts";
 import { applyLive, emptyLive, type LiveState, withImpliedButtons } from "./live.ts";
 import {
@@ -20,7 +20,14 @@ import {
   pageDataSourcesOf,
   resolveTheme,
 } from "./look.ts";
-import { bindMocks, type DesignScope, emptyScope, evaluateMockBinding, readsItem } from "./mock-bindings.ts";
+import {
+  bindMocks,
+  type ComponentScope,
+  type DesignScope,
+  emptyScope,
+  evaluateMockBinding,
+  readsItem,
+} from "./mock-bindings.ts";
 import { withMotion } from "./motion.ts";
 import type { Playing } from "./motion-player.ts";
 import { type DrawerSide, withOpenDrawers } from "./page-parts.ts";
@@ -137,14 +144,29 @@ function scopeOf(
   id: string,
   scopes: ReadonlyMap<string, DesignScope>,
   preview: PxlPreview | undefined,
-  pages: ReadonlyMap<string, PageSource> | undefined,
+  evaluation: DesignEvaluation | undefined,
   data: ScreenData,
+  components: ReturnType<typeof componentsOf>,
 ): DesignScope | undefined {
   const found = scopes.get(id);
-  const page = pages?.get(id);
-  return preview === undefined || page === undefined
-    ? found
-    : { ...(found ?? emptyScope), evaluate: preview.forScreen(id, page, data) };
+  const page = evaluation?.pages.get(id);
+  if (preview === undefined || page === undefined) {
+    return found;
+  }
+  // A component's own expressions evaluate in its scope, as its file holds them, once per component and screen.
+  const kept = new Map<string, ComponentScope | undefined>();
+  const componentScope = (component: string): ComponentScope | undefined => {
+    if (!kept.has(component)) {
+      const source = evaluation?.components?.get(component);
+      const state = stateDefaults(components.get(component)?.["state"]);
+      kept.set(component, {
+        state,
+        ...(source === undefined ? {} : { evaluate: preview.forComponent(id, source, data) }),
+      });
+    }
+    return kept.get(component);
+  };
+  return { ...(found ?? emptyScope), evaluate: preview.forScreen(id, page, data), componentScope };
 }
 
 /** A screen's data: the plugin's sources and its page's own, which win on a name both use. */
@@ -251,6 +273,8 @@ export interface DesignEvaluation {
   readonly evaluate: (request: string) => Promise<unknown>;
   /** Each page's file and document as the canvas draws them, by page id. */
   readonly pages: ReadonlyMap<string, PageSource>;
+  /** Each component's file and document, the app's and the plugin's, by component id. */
+  readonly components?: ReadonlyMap<string, PageSource>;
 }
 
 /**
@@ -310,7 +334,7 @@ export function usePreviewScene(
   );
   const cache = useRef<LocalizedRoots | undefined>(undefined);
   const { preview, answers } = usePxlPreview(evaluation, cache);
-  const pages = evaluation?.pages;
+
   const [opened] = useState(() => new WeakMap<Node, { side: DrawerSide; node: Node }>());
   const [routes] = useState(() => new RouteCache());
   const [implied] = useState(() => new WeakMap<Node, { key: string; node: Node }>());
@@ -342,7 +366,7 @@ export function usePreviewScene(
       roots.set(s.id, s.root);
       if (!byRoot.has(s.root)) {
         const data = screenData(s.id, sources, own, plugin, look);
-        const scope = scopeOf(s.id, scopes, preview, pages, data);
+        const scope = scopeOf(s.id, scopes, preview, evaluation, data, pass.components);
         byRoot.set(s.root, designRoot(s.root, scope, data === plugin ? pass : { ...pass, ...data }));
       }
       const drawer = scrubbing(
@@ -368,7 +392,7 @@ export function usePreviewScene(
     playing,
     scrubbed,
     preview,
-    pages,
+    evaluation,
     answers,
   ]);
   // What the pass left to evaluate goes to the engine after the screens are drawn, in one batch.

@@ -49,6 +49,7 @@ import { buildPopupMenu, buildPopupMenuDivider, buildPopupMenuItem } from "../fl
 import { type FabLocation, RenderScaffold } from "../flutter/material/scaffold.ts";
 import { buildTab, buildTabBar, type TabAlignment, tabPreferredHeight } from "../flutter/material/tab-bar.ts";
 import {
+  kMinInteractiveDimension,
   kToolbarHeight,
   MaterialTapTargetSize,
   m3TextStyle,
@@ -59,6 +60,7 @@ import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
 import type { RenderBox } from "../flutter/render-box.ts";
 import { RenderPadding } from "../flutter/shifted-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
+import { dropdownFieldProps } from "../paint/fields.ts";
 import { leafBuilders } from "./material-leaves.ts";
 import { moreBuilders, safeBottom } from "./material-more.ts";
 import type { SceneNode, SceneText, TextDefaults, ViewPadding } from "./scene.ts";
@@ -281,22 +283,33 @@ function dropdownWidth(node: SceneNode, ctx: MaterialContext, trailing: boolean)
   return Math.max(112, widest + (trailing ? 56 : 0) + 20);
 }
 
-/** `DropdownMenu`: an outlined field as wide as its entries, with the trailing arrow; the menu is not open at design time. */
+/**
+ * `DropdownMenu`: an outlined field as wide as its entries, with the trailing arrow; the menu is not open at design
+ * time. Its `label` is the field's label and its `leadingIcon` the field's prefix icon, as Flutter's `DropdownMenu`
+ * decorates its text field; the selected entry's label is the field's text (build log row 295).
+ */
 function buildDropdownMenu(node: SceneNode, ctx: MaterialContext): RenderBox {
-  if (only(node, "leadingIcon") !== null || only(node, "label") !== null) {
-    throw new Error(`node "${node.id}": a DropdownMenu with a leading icon or a label has no port`);
-  }
   const trailing = prop(node.props, "showTrailingIcon") !== false;
+  const label = only(node, "label");
+  const leading = only(node, "leadingIcon");
+  const labelText = label === null ? undefined : prop(label.props, "data");
   const field = buildTextField(
     {
       id: node.id,
       type: "TextField",
-      props: { border: "outline", hintText: node.props["hintText"], helperText: node.props["helperText"] },
+      props: {
+        ...dropdownFieldProps(node.props),
+        ...(typeof labelText === "string" ? { labelText } : {}),
+      },
+      ...(leading === null ? {} : { children: [{ ...leading, slot: "prefixIcon" }] }),
     },
     ctx,
     trailing,
   );
-  const width = typeof node.props["width"] === "number" ? node.props["width"] : dropdownWidth(node, ctx, trailing);
+  const width =
+    typeof node.props["width"] === "number"
+      ? node.props["width"]
+      : dropdownWidth(node, ctx, trailing) + (leading === null ? 0 : kMinInteractiveDimension);
   return new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width }), child: field });
 }
 

@@ -12,6 +12,7 @@
 
 import { COPY_MARK } from "./list-preview.ts";
 import { type DocLike, jsonOf } from "./look.ts";
+import { INSTANCE_MARK, type InstanceOf, OUTER_MARK } from "./mock-bindings.ts";
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -90,9 +91,11 @@ function slotFill(v: Obj, inst: Obj, e: Expansion): unknown {
   if (fill === undefined) {
     return undefined;
   }
-  return Array.isArray(fill)
+  // The instance's own widgets: bound in the scope the instance stands in, not its component's (OUTER_MARK).
+  const own = Array.isArray(fill)
     ? { id: `${String(inst["id"])}${COPY_MARK}s${String(v["id"])}`, type: "Column", children: expandList(fill, e) }
     : expandNode(fill, e);
+  return isObj(own) ? { ...own, [OUTER_MARK]: true } : own;
 }
 
 /** The component's own widget copied under the instance: its id marked, its prop bindings and slots filled. */
@@ -113,8 +116,13 @@ function copyPart(v: unknown, inst: Obj, values: Obj, e: Expansion): unknown {
   }
   const out: Obj = {};
   for (const [k, x] of Object.entries(v)) {
-    out[k] =
-      k === "id" && typeof x === "string" ? `${String(inst["id"])}${COPY_MARK}c${x}` : copyPart(x, inst, values, e);
+    if (k === "component" && isObj(x)) {
+      // A nested instance's reference to its component keeps the component's id, or it would never expand.
+      out[k] = x;
+    } else {
+      out[k] =
+        k === "id" && typeof x === "string" ? `${String(inst["id"])}${COPY_MARK}c${x}` : copyPart(x, inst, values, e);
+    }
   }
   return instanceRef(out) === undefined ? out : instanceTree(out, { ...e, depth: e.depth + 1 });
 }
@@ -135,7 +143,10 @@ function instanceTree(inst: Obj, e: Expansion): Obj {
   };
   const tree = copyPart(comp["root"], inst, values, { ...e, depth: e.depth + 1 }) as Obj;
   const own = Object.fromEntries(OWN.flatMap((k) => (inst[k] === undefined ? [] : [[k, inst[k]]])));
-  return { ...tree, ...own, id: inst["id"] };
+  // A component whose root is an instance of another: this instance's scope first, then the inner one's.
+  const mark: InstanceOf = { component: ref?.id ?? "", props: values };
+  const inner = Array.isArray(tree[INSTANCE_MARK]) ? (tree[INSTANCE_MARK] as InstanceOf[]) : [];
+  return { ...tree, ...own, id: inst["id"], [INSTANCE_MARK]: [mark, ...inner] };
 }
 
 /** The tree with every component instance drawn as its component (PC-37); the tree itself when it has none. */

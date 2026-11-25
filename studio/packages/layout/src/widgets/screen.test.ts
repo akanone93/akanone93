@@ -1096,6 +1096,42 @@ describe("bound content on painted screens (build log row 138) [STU-005]", () =>
     expect(textsOf(layout, "shown")).toEqual(["•••"]);
   });
 
+  test("an InfiniteList lays out the canvas's copies of its item template, one per item", () => {
+    const layout = layoutScreen(
+      column({
+        id: "list",
+        type: "InfiniteList",
+        props: { items: [{ name: "Nordvia Bank" }, { name: "Aster University" }], status: "ready" },
+        children: [text("list~item0", "Nordvia Bank"), text("list~item1", "Aster University")],
+      }),
+      { engine, theme, paint },
+    );
+    expect(textsOf(layout, "list~item0")).toEqual(["Nordvia Bank"]);
+    expect(textsOf(layout, "list~item1")).toEqual(["Aster University"]);
+  });
+
+  test("a DropdownMenu with a label lays out as an outlined, labelled field and shows its selected entry (row 295)", () => {
+    const layout = layoutScreen(
+      column({
+        id: "dd",
+        type: "DropdownMenu",
+        props: {
+          dropdownMenuEntries: [
+            { value: "salary", label: "Salary" },
+            { value: "other", label: "Other" },
+          ],
+          initialSelection: "other",
+        },
+        slots: { label: text("ddl", "Source of funds") },
+      }),
+      { engine, theme, paint },
+    );
+    expect(layout.unbuilt).toBeUndefined();
+    const painted = layout.boxes.find((b) => b.id === "dd")?.paint;
+    expect(painted?.texts?.map((t) => t.text)).toEqual(expect.arrayContaining(["Source of funds", "Other"]));
+    expect(painted?.boxes?.[0]?.border).toMatchObject({ kind: "all" });
+  });
+
   test("a RangeSlider paints its track, the range between its values and a thumb at each end", () => {
     const layout = layoutScreen(
       column({

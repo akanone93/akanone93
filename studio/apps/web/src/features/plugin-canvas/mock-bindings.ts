@@ -20,8 +20,9 @@ export type SourceMocks = ReadonlyMap<string, unknown>;
 const binding = /^\s*data\.(\w+)\.(value|loading|error)((?:\??\.\w+|\[\d+\])*)(?:\s*\?\?\s*(.+?))?\s*$/;
 /** `item` (then member steps) or `index`, inside an item template, optionally `?? <JSON literal>`. */
 const itemPath = /^\s*(item|index)((?:\??\.\w+|\[\d+\])*)(?:\s*\?\?\s*(.+?))?\s*$/;
-/** `params`, `page`, `plugin` or `app` then member steps, optionally `?? <JSON literal>`. */
-const scoped = /^\s*(params|page|plugin|app|device|flags)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
+/** A scope root (`params`, `page`, `props`, …) then member steps, optionally `?? <JSON literal>`. */
+const scoped =
+  /^\s*(params|page|plugin|app|device|flags|props|component)((?:\??\.\w+|\[\d+\])+)(?:\s*\?\?\s*(.+?))?\s*$/;
 
 /** `item` or `index` as a root, not a member (`page.item`): an expression that reads a list item. */
 const ITEM_ROOT = /(?<![.\w$])(item|index)\b/;
@@ -41,6 +42,12 @@ export interface DesignScope {
   readonly device?: Readonly<Obj>;
   /** PXL's `flags` root at design time: each flag the app declares at its default (build log row 138). */
   readonly flags?: Readonly<Obj>;
+  /** Inside a component instance's drawn tree: the props it was given, at their design-time values (ADR-0112). */
+  readonly props?: Readonly<Obj>;
+  /** Inside a component instance's drawn tree: the component's state, at its defaults. */
+  readonly component?: Readonly<Obj>;
+  /** The scope of a component's own expressions, by component id; absent, they stay as they are. */
+  readonly componentScope?: (id: string) => ComponentScope | undefined;
   /** Inside a list's item template (PC-24): the item a copy is built for, and its index. */
   readonly item?: unknown;
   readonly index?: number;
@@ -51,6 +58,32 @@ export interface DesignScope {
   readonly evaluate?: (expr: string, scope: DesignScope) => unknown;
 }
 
+/**
+ * The field of a component instance's drawn root that names its component and the props it was given (the instance's
+ * values over the defaults, as written: literals and page expressions), so its component's own expressions are
+ * evaluated with them (ADR-0112): a list, outermost first, where a component's root is itself an instance. Canvas-only:
+ * the binder reads it and leaves it out.
+ */
+export const INSTANCE_MARK = "x-instance";
+
+/** The field of a slot's fill: the instance's own widgets, bound in the scope the instance stands in. Canvas-only. */
+export const OUTER_MARK = "x-outer";
+
+/** What an instance's drawn root says of it: its component and the props it was given. */
+export interface InstanceOf {
+  readonly component: string;
+  readonly props: Readonly<Obj>;
+}
+
+/** A component's design-time scope (ADR-0112): its state's defaults and the evaluator of its own expressions. */
+export interface ComponentScope {
+  readonly state: Readonly<Obj>;
+  readonly evaluate?: (expr: string, scope: DesignScope) => unknown;
+}
+
+/** The roots the readers here resolve a path under. */
+type ScopeRoot = "params" | "page" | "plugin" | "app" | "device" | "flags" | "props" | "component";
+
 export const emptyScope: DesignScope = { params: {}, page: {}, plugin: {}, app: {} };
 
 const scopeSize = (s: DesignScope) =>
@@ -58,7 +91,8 @@ const scopeSize = (s: DesignScope) =>
   Object.keys(s.page).length +
   Object.keys(s.plugin).length +
   Object.keys(s.app).length +
-  Object.keys(s.flags ?? {}).length;
+  Object.keys(s.flags ?? {}).length +
+  Object.keys(s.props ?? {}).length;
 
 /** The value at `steps` (`.a?.b[0]`) under `start`; null when a step reaches nothing. */
 function walk(start: unknown, steps: string): unknown {
@@ -117,7 +151,7 @@ function scopeValue(expr: string, scope: DesignScope): unknown {
   if (m === null) {
     return undefined;
   }
-  const root = scope[m[1] as "params" | "page" | "plugin" | "app" | "device" | "flags"];
+  const root = scope[m[1] as ScopeRoot];
   const first = /^\??\.(\w+)/.exec(m[2] ?? "")?.[1];
   return root === undefined || first === undefined || !(first in root)
     ? undefined
@@ -188,14 +222,56 @@ interface Env {
   readonly mocks: SourceMocks;
   readonly states: Readonly<Record<string, MockState>>;
   readonly scope: DesignScope;
+  /** Inside a component instance's tree: the environment the instance stands in. */
+  readonly outer?: Env;
 }
 
+/**
+ * A binding's value in `env`, else in the environments around it: a component's tree also holds what its instance
+ * wrote (a prop's expression in place of a plain `props.<name>`), which only the instance's scope evaluates.
+ */
 function resolved(value: unknown, env: Env): unknown {
   const expr = isObj(value) && Object.keys(value).length === 1 ? value["$expr"] : undefined;
-  return typeof expr === "string" ? evaluateMockBinding(expr, env.mocks, env.states, env.scope) : undefined;
+  if (typeof expr !== "string") {
+    return undefined;
+  }
+  for (let at: Env | undefined = env; at !== undefined; at = at.outer) {
+    const found = evaluateMockBinding(expr, at.mocks, at.states, at.scope);
+    if (found !== undefined) {
+      return found;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * The environment of a component instance's drawn tree (ADR-0112): its props at their values in the instance's own
+ * scope, its component's state and the evaluator of its own expressions; a list item's values stay outside.
+ */
+function instanceEnv(mark: unknown, env: Env): Env {
+  const inst = isObj(mark) ? mark : {};
+  const given = isObj(inst["props"]) ? (bindValue(inst["props"], env) as Obj) : {};
+  const component = typeof inst["component"] === "string" ? env.scope.componentScope?.(inst["component"]) : undefined;
+  const { item: _item, index: _index, evaluate: _evaluate, ...outer } = env.scope;
+  const scope: DesignScope = {
+    ...outer,
+    props: given,
+    component: component?.state ?? {},
+    ...(component?.evaluate === undefined ? {} : { evaluate: component.evaluate }),
+  };
+  return { ...env, scope, outer: env };
 }
 
 function bindValue(value: unknown, env: Env): unknown {
+  if (isObj(value) && value[INSTANCE_MARK] !== undefined) {
+    const { [INSTANCE_MARK]: marks, ...node } = value;
+    const inner = (Array.isArray(marks) ? marks : [marks]).reduce<Env>((at, mark) => instanceEnv(mark, at), env);
+    return bindValue(node, inner);
+  }
+  if (isObj(value) && value[OUTER_MARK] !== undefined) {
+    const { [OUTER_MARK]: _outer, ...node } = value;
+    return bindValue(node, env.outer ?? env);
+  }
   if (Array.isArray(value)) {
     return value.map((v) => {
       const bound = resolved(v, env);
@@ -228,7 +304,8 @@ export function bindMocks(
   states: Readonly<Record<string, MockState>>,
   scope: DesignScope = emptyScope,
 ): Node | undefined {
-  return root === undefined || (mocks.size === 0 && scopeSize(scope) === 0 && scope.evaluate === undefined)
+  return root === undefined ||
+    (mocks.size === 0 && scopeSize(scope) === 0 && scope.evaluate === undefined && scope.componentScope === undefined)
     ? root
     : (bindValue(root, { mocks, states, scope }) as Node);
 }

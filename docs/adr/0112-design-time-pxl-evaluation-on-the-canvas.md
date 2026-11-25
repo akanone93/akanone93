@@ -53,9 +53,14 @@ Chosen option: **3**.
   answers redraw only its screens. Answers are kept by page version, values and expression, so an unchanged screen
   asks nothing again; a change of locale or messages drops them. An expression that does not evaluate is drawn as
   before and not asked again.
-- **What is not asked.** A component's own expressions (`props`, `component`), compiled with the component, and an
-  action's (`event`, `steps`), which no widget draws; and an expression that reads `item` outside a copy of its list's
-  template. Texts whose arguments read `item` are localised after the lists are drawn.
+- **Components.** A component instance is drawn as its component's tree in the scope of the component: its `props` at
+  the values the instance gives them (evaluated where the instance stands), its `component` state at its defaults. Its
+  own expressions are evaluated as its file holds them: the engine checks the component of the loaded project and
+  evaluates them with those roots beside the page's (revised 2026-11-25, the follow-up below). A slot's fill and a
+  value the instance wrote are the instance's own and are evaluated where it stands.
+- **What is not asked.** An action's expressions (`event`, `steps`), which no widget draws; a component's roots as a
+  page's; and an expression that reads `item` outside a copy of its list's template. Texts whose arguments read `item`
+  are localised after the lists are drawn.
 
 ## Consequences
 
@@ -63,6 +68,7 @@ Chosen option: **3**.
   as the device draws them, from the same engine; first load and frame time are unchanged (measured on a 40-screen
   plugin: the loading state ended at 4.36–4.44 s with evaluation, 4.43–4.74 s without).
 - **Negative:** a screen first draws with the unevaluated values and takes the evaluated ones a moment later; a large
-  plugin's pages fill in one by one while the worker evaluates them. Expressions inside components are not evaluated
-  yet.
-- **Follow-up:** evaluate a component's own expressions with its instance's props.
+  plugin's pages fill in one by one while the worker evaluates them. A component's own expressions are evaluated as
+  the loaded project holds the component, so an unsaved edit of it shows once it is saved.
+- **Follow-up (done 2026-11-25):** a component's own expressions are evaluated with its instance's props (build log
+  row 138).

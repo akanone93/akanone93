@@ -52,10 +52,14 @@ const FAILED = Symbol("failed");
 const ANSWERS_KEPT = 20_000;
 
 /**
- * The roots of expressions the canvas does not ask the engine for: a component's own (`props`, `component`), compiled
- * with the component and not the page, and an action's (`event`, `steps`), which no widget draws.
+ * The roots of expressions the canvas does not ask the engine for as a page's: a component's own (`props`,
+ * `component`), compiled with the component and asked for as its (`forComponent`), and an action's (`event`, `steps`),
+ * which no widget draws.
  */
 const NOT_ASKED = /(?<![.\w$])(props|component|event|steps)\b/;
+
+/** Inside a component, its own roots are asked for; an action's still are not. */
+const NOT_ASKED_IN_COMPONENT = /(?<![.\w$])(event|steps)\b/;
 
 /** A request waiting for the next batch. */
 interface Ask {
@@ -119,6 +123,8 @@ function pageRoots(scope: DesignScope, data: Record<string, unknown>): Record<st
     data,
     ...(scope.device === undefined ? {} : { device: scope.device }),
     ...(scope.flags === undefined ? {} : { flags: scope.flags }),
+    ...(scope.props === undefined ? {} : { props: scope.props }),
+    ...(scope.component === undefined ? {} : { component: scope.component }),
   };
 }
 
@@ -171,11 +177,23 @@ export class PxlPreview {
 
   /** The evaluator a screen's design scopes carry; its expressions are the page's, its data the screen's. */
   forScreen(screen: string, page: PageSource, data: ScreenData): Evaluate {
+    return this.#evaluator(screen, page, data, NOT_ASKED);
+  }
+
+  /**
+   * The evaluator of a component's own expressions on a screen (ADR-0112): they read the instance's `props` and the
+   * component's state, which the scope of its drawn tree holds, beside the screen's data.
+   */
+  forComponent(screen: string, component: PageSource, data: ScreenData): Evaluate {
+    return this.#evaluator(screen, component, data, NOT_ASKED_IN_COMPONENT);
+  }
+
+  #evaluator(screen: string, page: PageSource, data: ScreenData, notAsked: RegExp): Evaluate {
     const version = this.#versionOf(page.doc);
     const root = this.#dataRoot(data);
     return (src, scope) => {
       // An expression of a list's item template has its value only in a copy, with the copy's item.
-      if ((scope.index === undefined && readsItem(src)) || NOT_ASKED.test(src)) {
+      if ((scope.index === undefined && readsItem(src)) || notAsked.test(src)) {
         return undefined;
       }
       const values = this.#setOf(scope, root);
@@ -352,6 +370,8 @@ export class PxlPreview {
       was.app === scope.app &&
       was.device === scope.device &&
       was.flags === scope.flags &&
+      was.props === scope.props &&
+      was.component === scope.component &&
       kept.set.roots["data"] === data.roots
     ) {
       return kept.set;

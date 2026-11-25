@@ -67,6 +67,25 @@ export interface FieldModel {
   readonly icons: Readonly<Record<"prefixIcon" | "suffixIcon" | "icon", unknown>>;
 }
 
+/**
+ * A `DropdownMenu`'s field as a text field's flat props: outlined, its hint, helper and error, and the label of the
+ * entry its `initialSelection` names as the text (build log row 295). Its `label` widget is added by the caller.
+ */
+export function dropdownFieldProps(props: Obj): Obj {
+  const entries = Array.isArray(props["dropdownMenuEntries"]) ? props["dropdownMenuEntries"].filter(isObj) : [];
+  const chosen = props["initialSelection"];
+  const selected =
+    chosen === undefined ? undefined : entries.find((e) => JSON.stringify(e["value"]) === JSON.stringify(chosen));
+  const copy = (name: string) => (typeof props[name] === "string" ? { [name]: props[name] } : {});
+  return {
+    border: "outline",
+    ...copy("hintText"),
+    ...copy("helperText"),
+    ...copy("errorText"),
+    ...(typeof selected?.["label"] === "string" ? { text: selected["label"] } : {}),
+  };
+}
+
 /** The field model of a `TextField` or `TextFormField` node, or of a field-like composite's flat props. */
 export function fieldModel(props: Obj): FieldModel {
   const d = isObj(props["decoration"]) ? props["decoration"] : props;
