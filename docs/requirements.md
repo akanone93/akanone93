@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.25.0
+**Version:** 1.26.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-11-24
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -2491,6 +2491,7 @@ Layer 1 widgets are built by `plux_flutter` unless their descriptor names a pack
 | `DecoratedBox` | P3 | `ColoredBox` | P3 |
 | `ClipRRect` | P3 | `ClipOval` | P3 |
 | `Opacity` | P3 | `BackdropFilter` | P5 |
+| `PositionedDirectional` | P11 | | |
 
 ### C.3 Layer 1 — scrolling and collections
 
@@ -3136,10 +3137,11 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.25.0 |
+| Version | 1.26.0 |
 | Status | Draft (living document) |
 | Date | 2026-11-25 |
-| Supersedes | 1.24.0 |
+| Supersedes | 1.25.0 |
+| 1.26.0 | 2026-11-25 | Appendix C.2 adds `PositionedDirectional` (P11): a child of a `Stack` placed by its start and end edges, which follow the reading direction, as Flutter's widget of that name (build log row 148). |
 | 1.25.0 | 2026-11-25 | `STU-024`: an app export names the app's server-side setup in its manifest without any value, and an import or a duplicate lists what the new app lacks as still to do (maintainer decision of 2026-11-24, build log row 178; ADR-0102, Revision 2026-11-25). |
 | 1.24.0 | 2026-11-25 | `STU-034`: a plugin is exported as a `.plux` archive with the translation keys, messages and assets it uses, and imported from one into another app; a plugin archive is manifest version 2 (maintainer decision of 2026-11-24, build log row 264; ADR-0102, Revision 2026-11-25). |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |

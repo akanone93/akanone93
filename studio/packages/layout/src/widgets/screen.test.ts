@@ -414,6 +414,39 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(rtl("b")?.x).toBeCloseTo((rtl("a")?.x ?? 0) - 200, 5);
   });
 
+  test("a PositionedDirectional places its child by its start edge, the left in English and the right in Arabic (#148)", () => {
+    const stack: WidgetNode = {
+      id: "frame",
+      type: "SizedBox",
+      props: { height: 100 },
+      slots: {
+        child: {
+          id: "stack",
+          type: "Stack",
+          children: [
+            {
+              id: "pin",
+              type: "PositionedDirectional",
+              props: { start: 10, top: 5 },
+              slots: { child: { id: "badge", type: "SizedBox", props: { width: 40, height: 20 } } },
+            },
+          ],
+        },
+      },
+    };
+    const boxes = (textDirection: TextDirection) => {
+      const paint = { scheme: colorSchemeFromSeed(0xff6750a4, false) };
+      const layout = layoutScreen(stack, { engine, theme, paint, textDirection });
+      return (id: string) => layout.boxes.find((b) => b.id === id);
+    };
+    const ltr = boxes(TextDirection.ltr);
+    expect(ltr("badge")?.x).toBeCloseTo((ltr("stack")?.x ?? 0) + 10, 5);
+    expect(ltr("badge")?.y).toBeCloseTo((ltr("stack")?.y ?? 0) + 5, 5);
+    const rtl = boxes(TextDirection.rtl);
+    const end = (rtl("stack")?.x ?? 0) + (rtl("stack")?.w ?? 0);
+    expect((rtl("badge")?.x ?? 0) + 40).toBeCloseTo(end - 10, 5);
+  });
+
   test("sizes Material buttons, the FAB and list tiles as Flutter does (S4.3)", () => {
     const button = (id: string, type: string, props: Record<string, unknown>): WidgetNode => ({
       id,

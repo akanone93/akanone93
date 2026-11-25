@@ -63,7 +63,7 @@ var layoutProps = map[string]bool{
 // object, so nothing can wrap them to animate them.
 func parentDataWidgets(typ string) bool {
 	switch typ {
-	case "Expanded", "Flexible", "Spacer", "Positioned", "AnimatedPositioned":
+	case "Expanded", "Flexible", "Spacer", "Positioned", "PositionedDirectional", "AnimatedPositioned":
 		return true
 	}
 	return strings.HasPrefix(typ, "Sliver")

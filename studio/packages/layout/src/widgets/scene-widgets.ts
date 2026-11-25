@@ -57,6 +57,7 @@ const boxTypes: readonly string[] = [
   "Stack",
   "IndexedStack",
   "Positioned",
+  "PositionedDirectional",
   "Spacer",
   "Wrap",
   "Table",

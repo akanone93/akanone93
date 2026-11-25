@@ -2761,6 +2761,22 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "PositionedDirectional", ID: 208, Layer: 1, Phase: "P11", Revision: 1, Runtimes: []string{"0.6.0"},
+		Category: "layout", Icon: "open_with", Description: "Positions its child inside a Stack by its start and end edges, which follow the reading direction: the start is the left edge in a left-to-right language and the right edge in Arabic.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 4, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "start", ID: 1, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
+			{Name: "top", ID: 2, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
+			{Name: "end", ID: 3, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
+			{Name: "bottom", ID: 4, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
+			{Name: "width", ID: 5, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
+			{Name: "height", ID: 6, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "PriceTag", ID: 166, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "commerce", Icon: "sell", Description: "A price, with the original price struck through and announced as the former price.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleText, Interactive: false,

@@ -77,6 +77,77 @@ void main() {
   ];
 
   testWidgets(
+    'PositionedDirectional places its child by start and end, which follow the reading direction [WGT-002]',
+    (tester) async {
+      final sized = _widget('SizedBox');
+      final stack = _widget('Stack');
+      final positioned = _widget('PositionedDirectional');
+      fbs.ValueObjectBuilder num(double d) =>
+          fbs.ValueObjectBuilder(kind: fbs.ValueKind.Double, d: d);
+      List<fbs.NodeObjectBuilder> pinned(
+        int first,
+        fbs.TextDirectionOverride direction,
+        int label,
+      ) => [
+        fbs.NodeObjectBuilder(
+          widget: sized.id,
+          props: [
+            fbs.PropObjectBuilder(id: sized.props['height'], value: num(40)),
+          ],
+          slots: [
+            fbs.SlotFillObjectBuilder(
+              id: sized.slots['child'],
+              nodes: [first + 1],
+            ),
+          ],
+        ),
+        fbs.NodeObjectBuilder(
+          widget: stack.id,
+          children: [first + 2],
+          direction: direction,
+        ),
+        fbs.NodeObjectBuilder(
+          widget: positioned.id,
+          props: [
+            fbs.PropObjectBuilder(
+              id: positioned.props['start'],
+              value: num(10),
+            ),
+            fbs.PropObjectBuilder(id: positioned.props['top'], value: num(0)),
+          ],
+          slots: [
+            fbs.SlotFillObjectBuilder(
+              id: positioned.slots['child'],
+              nodes: [first + 3],
+            ),
+          ],
+        ),
+        fbs.NodeObjectBuilder(
+          widget: text.id,
+          props: [
+            fbs.PropObjectBuilder(id: text.props['data'], value: _str(label)),
+          ],
+        ),
+      ];
+      await show(
+        tester,
+        _galleryWith(
+          [
+            fbs.NodeObjectBuilder(widget: column.id, children: [1, 5]),
+            ...pinned(1, fbs.TextDirectionOverride.Ltr, 2),
+            ...pinned(5, fbs.TextDirectionOverride.Rtl, 3),
+          ],
+          ['', 'layout', 'ltr', 'rtl'],
+        ),
+      );
+      expect(codes(), isEmpty);
+      final width = tester.getSize(find.byType(PluxView)).width;
+      expect(tester.getTopLeft(find.text('ltr')).dx, 10);
+      expect(tester.getTopRight(find.text('rtl')).dx, width - 10);
+    },
+  );
+
+  testWidgets(
     'unknown widgets, native slots and bad values are contained; testId and semantics apply [WGT-014] [WGT-013] [RT-020]',
     (tester) async {
       await show(

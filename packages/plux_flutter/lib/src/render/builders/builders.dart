@@ -39,6 +39,7 @@ const Map<int, NodeBuilder> manualBuilders = {
   WidgetIds.sliverList: _sliverList,
   WidgetIds.sliverGrid: _sliverGrid,
   WidgetIds.transform: _transform,
+  positionedDirectionalWidgetId: _positionedDirectional,
   WidgetIds.icon: _icon,
   WidgetIds.image: _image,
   WidgetIds.floatingActionButton: _floatingActionButton,
@@ -48,6 +49,24 @@ const Map<int, NodeBuilder> manualBuilders = {
   WidgetIds.offlineBanner: buildOfflineBanner,
   WidgetIds.skeletonLoader: buildSkeletonLoader,
 };
+
+/// The permanent ID of `PositionedDirectional` (P11, so not among the
+/// generated `WidgetIds`; build log #148).
+const int positionedDirectionalWidgetId = 208;
+
+/// A child of a Stack placed by its start and end edges, which follow the
+/// reading direction, so an overlay stays on the same side as the text in
+/// Arabic. Its props are those of `Positioned` with start and end for left
+/// and right.
+Widget _positionedDirectional(NodeContext c) => PositionedDirectional(
+  start: c.decode(1, asDouble),
+  top: c.decode(2, asDouble),
+  end: c.decode(3, asDouble),
+  bottom: c.decode(4, asDouble),
+  width: c.decode(5, asDouble),
+  height: c.decode(6, asDouble),
+  child: c.slot(1) ?? c.missing('child'),
+);
 
 // ── Structural primitives ──────────────────────────────────────────────────
 

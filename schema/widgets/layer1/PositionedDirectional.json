@@ -1,0 +1,86 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "PositionedDirectional",
+  "id": 208,
+  "layer": 1,
+  "phase": "P11",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.6.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "PositionedDirectional",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "layout",
+  "icon": "open_with",
+  "description": "Positions its child inside a Stack by its start and end edges, which follow the reading direction: the start is the left edge in a left-to-right language and the right edge in Arabic.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 4,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "start",
+      "id": 1,
+      "type": "double",
+      "flutter": "start"
+    },
+    {
+      "name": "top",
+      "id": 2,
+      "type": "double",
+      "flutter": "top"
+    },
+    {
+      "name": "end",
+      "id": 3,
+      "type": "double",
+      "flutter": "end"
+    },
+    {
+      "name": "bottom",
+      "id": 4,
+      "type": "double",
+      "flutter": "bottom"
+    },
+    {
+      "name": "width",
+      "id": 5,
+      "type": "double",
+      "flutter": "width"
+    },
+    {
+      "name": "height",
+      "id": 6,
+      "type": "double",
+      "flutter": "height"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    }
+  ]
+}

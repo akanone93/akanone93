@@ -8,17 +8,17 @@ How the widget descriptors and value types cover the constructor parameters of t
 
 | | Count |
 |---|---|
-| Flutter classes | 172 |
-| Constructor parameters | 2549 |
-| Supported as props | 1353 |
+| Flutter classes | 173 |
+| Constructor parameters | 2557 |
+| Supported as props | 1359 |
 | Supported as events | 215 |
-| Supported as slots | 166 |
+| Supported as slots | 167 |
 | Supported as the children list | 9 |
 | Supported as value-type fields | 203 |
 | Excluded: callback→event | 4 |
 | Excluded: controller→state | 77 |
 | Excluded: builder→template | 18 |
-| Excluded: non-serialisable | 204 |
+| Excluded: non-serialisable | 205 |
 | Excluded: deprecated | 26 |
 | Excluded: deferred | 274 |
 | Mirrored enums | 68 |
@@ -2018,6 +2018,19 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `left` | `double?` | prop `left` |  |
 | `top` | `double?` | prop `top` |  |
 | `right` | `double?` | prop `right` |  |
+| `bottom` | `double?` | prop `bottom` |  |
+| `width` | `double?` | prop `width` |  |
+| `height` | `double?` | prop `height` |  |
+| `child` | `Widget` | slot `child` |  |
+
+### PositionedDirectional · `PositionedDirectional`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `start` | `double?` | prop `start` |  |
+| `top` | `double?` | prop `top` |  |
+| `end` | `double?` | prop `end` |  |
 | `bottom` | `double?` | prop `bottom` |  |
 | `width` | `double?` | prop `width` |  |
 | `height` | `double?` | prop `height` |  |

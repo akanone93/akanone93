@@ -17640,6 +17640,60 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#PositionedDirectional": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "start",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "top",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "end",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "bottom",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "width",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "height",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#RotationTransition": {
       "constructors": {
         "": [

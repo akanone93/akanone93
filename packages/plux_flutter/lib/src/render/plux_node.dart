@@ -73,6 +73,7 @@ final Set<int> _unwrapped = {
       'Flexible',
       'Spacer',
       'Positioned',
+      'PositionedDirectional',
       'AnimatedPositioned',
     }.contains(d.type))
       d.id,

@@ -146,6 +146,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [PieChart](#piechart) | 2 | display | P5 | A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table. |
 | [PopupMenuButton](#popupmenubutton) | 1 | navigation | P5 | A button that opens a menu of `items`; choosing one fires `onSelected` with its value. |
 | [Positioned](#positioned) | 1 | layout | P3 | Positions its child inside a Stack. |
+| [PositionedDirectional](#positioneddirectional) | 1 | layout | P11 | Positions its child inside a Stack by its start and end edges, which follow the reading direction: the start is the left edge in a left-to-right language and the right edge in Arabic. |
 | [PriceTag](#pricetag) | 2 | commerce | P5 | A price, with the original price struck through and announced as the former price. |
 | [ProductCard](#productcard) | 2 | commerce | P5 | A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings. |
 | [ProfileHeader](#profileheader) | 2 | layout | P5 | A person's avatar, name and subtitle with an actions row. |
@@ -3405,6 +3406,25 @@ ID 28 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Positioned` · 
 | `left` | 1 | `double` | — |  |
 | `top` | 2 | `double` | — |  |
 | `right` | 3 | `double` | — |  |
+| `bottom` | 4 | `double` | — |  |
+| `width` | 5 | `double` | — |  |
+| `height` | 6 | `double` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### PositionedDirectional
+
+Positions its child inside a Stack by its start and end edges, which follow the reading direction: the start is the left edge in a left-to-right language and the right edge in Arabic.
+
+ID 208 · Layer 1 · P11 · revision 1 (runtime 0.6.0) · Flutter `PositionedDirectional` · android, ios · cost 4 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `start` | 1 | `double` | — |  |
+| `top` | 2 | `double` | — |  |
+| `end` | 3 | `double` | — |  |
 | `bottom` | 4 | `double` | — |  |
 | `width` | 5 | `double` | — |  |
 | `height` | 6 | `double` | — |  |

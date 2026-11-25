@@ -1292,6 +1292,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'PositionedDirectional',
+    208,
+    layer: 1,
+    revision: 1,
+    props: {'start': 1, 'top': 2, 'end': 3, 'bottom': 4, 'width': 5, 'height': 6},
+    slots: {'child': 1},
+  ),
+  WidgetDescriptor(
     'PriceTag',
     166,
     layer: 2,

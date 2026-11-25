@@ -299,6 +299,7 @@ const LAYOUT_ONLY: ReadonlySet<string> = new Set([
   "LimitedBox",
   "Padding",
   "Positioned",
+  "PositionedDirectional",
   "Row",
   "SafeArea",
   "SizedBox",
