@@ -356,7 +356,7 @@ Plux.state<int>('unreadCount').watch().listen(setAppIconBadge);
 
 - [ ] Typography tab: Latin, Arabic, Ethiopic families with fallbacks (above); 🧪 Amharic text shows no tofu on canvas and device
 - [ ] **Host app fonts**: upload `Inter-Variable.ttf`, `NotoNaskhArabic.ttf`, `NotoSansEthiopic.ttf`, `IBMPlexSans.ttf`, `SourceSerif4.otf`, `JetBrainsMono.ttf`; **Add font** each with its family name
-- [ ] Icons: Material Symbols and Cupertino sets on; **Add icon** a custom set `ar` (SVG assets `ar-logo`, `ar-pass`, `ar-verified`) — used by Launch and Passes
+- [ ] Icons: Material Symbols and Cupertino need nothing; **Upload SVG icons** a custom set (`ar-logo.svg`, `ar-pass.svg`, `ar-verified.svg`, stored under `icons/`) — shown with an `Image` on Launch and Passes
 
 ### C4. Assets (plugin canvas › Assets; upload once per plugin that uses them)
 

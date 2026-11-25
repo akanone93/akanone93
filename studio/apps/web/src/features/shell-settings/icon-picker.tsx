@@ -3,22 +3,16 @@
 
 import { createClient } from "@connectrpc/connect";
 import { useLingui } from "@lingui/react";
-import { type Asset, AssetService, PluginService } from "@plux/api";
+import { AssetService, PluginService } from "@plux/api";
 import { FileDrop } from "@plux/ui";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useId, useState } from "react";
 import { withReason } from "../../components/refusal.tsx";
-import { objectUrl } from "../../lib/object-url.ts";
+import { previewUrlOf } from "../../lib/asset-forms.ts";
 import { useApp } from "../../lib/use-app.tsx";
 import { Choice } from "../new-app/choice.tsx";
 import { assetNameOf, uploadUnderAppLock } from "../panels/upload-asset.ts";
 import { shellSettingsMessages } from "./shell-settings.messages.ts";
-
-/** The first URL of an asset's processed forms, or undefined while it has none. */
-function urlOf(asset: Asset): string | undefined {
-  const url = asset.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
-  return url === undefined ? undefined : objectUrl(url);
-}
 
 /**
  * The icon of the app (GEN-004): the default icon, or one of the app's PNG assets, each with a preview. The server
@@ -86,7 +80,7 @@ export function IconPicker({
           onChange={() => onChange("")}
         />
         {images.map((asset) => {
-          const url = urlOf(asset);
+          const url = previewUrlOf(asset);
           return (
             <Choice
               key={asset.id}

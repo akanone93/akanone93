@@ -24,7 +24,7 @@ describe("[AST-002] the images the canvas loads", () => {
     expect([...assetRefsOf(tree)].sort()).toEqual(["a", "b"]);
   });
 
-  test("a raster form CanvasKit decodes, PNG first at the highest density; none for a vector", () => {
+  test("a raster form CanvasKit decodes, PNG first at the highest density; an SVG's stored file", () => {
     const photo = asset("p", "image/jpeg", [
       form("avif", 2, "/avif"),
       form("webp", 2, "/webp2"),
@@ -33,7 +33,8 @@ describe("[AST-002] the images the canvas loads", () => {
     ]);
     expect(imageUrlOf(photo)).toBe("/png3");
     expect(imageUrlOf(asset("o", "image/jpeg", [form("original", 0, "/orig")]))).toBe("/orig");
-    expect(imageUrlOf(asset("v", "image/svg+xml", [form("original", 0, "/svg")]))).toBeUndefined();
+    const svg = asset("v", "image/svg+xml", [form("vector", 0, "/vec"), form("original", 0, "/svg")]);
+    expect(imageUrlOf(svg)).toBe("/svg");
     expect(imageUrlOf(asset("f", "font/ttf", [form("original", 0, "/font")]))).toBeUndefined();
   });
 
@@ -47,5 +48,19 @@ describe("[AST-002] the images the canvas loads", () => {
     const got = await loadAssetImages(assets, new Set(["a", "b", "c"]), fetchBytes, new Set(["asset:b"]));
     expect(got).toEqual([{ key: "asset:a", bytes: new Uint8Array([1]) }]);
     expect(fetchBytes.mock.calls.map((c) => c[0])).toEqual(["/a", "/c"]);
+  });
+
+  test("an SVG is drawn to a PNG before the canvas gets it; one the browser cannot draw is left out", async () => {
+    const assets = [
+      asset("s", "image/svg+xml", [form("vector", 0, "/s.vec"), form("original", 0, "/s.svg")]),
+      asset("t", "image/svg+xml", [form("original", 0, "/t.svg")]),
+    ];
+    const fetchBytes = mock(async (url: string) => new TextEncoder().encode(url));
+    const rasterise = mock(async (svg: Uint8Array) =>
+      new TextDecoder().decode(svg) === "/s.svg" ? new Uint8Array([137, 80]) : null,
+    );
+    const got = await loadAssetImages(assets, new Set(["s", "t"]), fetchBytes, new Set(), rasterise);
+    expect(got).toEqual([{ key: "asset:s", bytes: new Uint8Array([137, 80]) }]);
+    expect(fetchBytes.mock.calls.map((c) => c[0])).toEqual(["/s.svg", "/t.svg"]);
   });
 });

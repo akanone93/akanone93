@@ -274,24 +274,6 @@ describe("[STU-112] A16 to A18", () => {
     expect(screen.getByText("No brand overlays yet.")).toBeTruthy();
   });
 
-  test("an icon is not added without a valid set and name and a source", async () => {
-    renderApp(`${base}/icons`, state);
-    await screen.findByText("home", {}, { timeout: 10000 });
-    const set = screen.getByLabelText("Icon set");
-    await waitFor(() => expect((set as HTMLInputElement).disabled).toBe(false));
-    const add = () => screen.getByRole("button", { name: "Add icon" }) as HTMLButtonElement;
-    const disabled = () => add().disabled || add().getAttribute("aria-disabled") === "true";
-    fireEvent.change(set, { target: { value: "core" } });
-    fireEvent.change(screen.getByLabelText("Icon name"), { target: { value: "bad name" } });
-    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
-    expect(disabled()).toBe(true);
-    fireEvent.change(screen.getByLabelText("Icon name"), { target: { value: "search" } });
-    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "" } });
-    expect(disabled()).toBe(true);
-    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
-    expect(disabled()).toBe(false);
-  });
-
   test("the server refusing the autosave of a brand overlay is reported and the overlay is undone", async () => {
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
     renderApp(`${base}/themes`, { ...state, sent, patchRefusal: { message: "not allowed", paths: ["theme.json"] } });
@@ -326,36 +308,81 @@ describe("[STU-112] A16 to A18", () => {
     fireEvent.blur(field);
     expect(await screen.findByText("Ethiopic: 2 fonts")).toBeTruthy();
   });
-
-  test("icons lists the sets and adds an icon", async () => {
-    renderApp(`${base}/icons`, state);
-    expect(await screen.findByText("home", {}, { timeout: 10000 })).toBeTruthy();
-    const set = screen.getByLabelText("Icon set");
-    await waitFor(() => expect((set as HTMLInputElement).disabled).toBe(false));
-    fireEvent.change(set, { target: { value: "core" } });
-    fireEvent.change(screen.getByLabelText("Icon name"), { target: { value: "search" } });
-    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
-    fireEvent.click(screen.getByRole("button", { name: "Add icon" }));
-    expect(await screen.findByText("search")).toBeTruthy();
-  });
 });
 
-describe("[STU-112] A18 icon form: server refusal", () => {
-  test("the server refusing the autosave of an icon is reported and the icon is undone", async () => {
+describe("[THM-005] A18 icons: custom icons are SVG assets (build log rows 25, 39)", () => {
+  test("lists the app's SVG assets by folder, drawn from their stored file, and says which devices cannot draw", async () => {
+    renderApp(`${base}/icons`, {
+      ...state,
+      assets: ["images/photo.png"],
+      svgAssets: [
+        { name: "icons/star.svg" },
+        { name: "icons/brand/logo.svg", processing: "failed", problem: "the SVG uses a filter" },
+        { name: "images/wave.svg", processing: "pending" },
+      ],
+    });
+    const icons = await screen.findByRole("region", { name: "icons" }, { timeout: 10000 });
+    const star = within(icons).getByTitle("icons/star.svg");
+    expect(star.querySelector("img")?.getAttribute("src")).toBe("/api/v1/objects/assets/s0");
+    const brand = screen.getByRole("region", { name: "icons/brand" });
+    expect(within(brand).getByText("Devices cannot draw it").getAttribute("title")).toBe("the SVG uses a filter");
+    expect(within(screen.getByRole("region", { name: "images" })).getByText("Compiling…")).toBeTruthy();
+    // A raster image is not an icon.
+    expect(screen.queryByText("photo.png")).toBeNull();
+  });
+
+  test("uploads SVG files under icons/ and refuses another kind of file before sending it", async () => {
+    const uploaded: string[] = [];
+    renderApp(`${base}/icons`, { ...state, permissions: ["app.read", "app.edit"], svgAssets: [], uploaded });
+    expect(await screen.findByText("No custom icons yet.", {}, { timeout: 10000 })).toBeTruthy();
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+    if (input === null) {
+      throw new Error("no file input");
+    }
+    await waitFor(() => expect(input.disabled).toBe(false));
+    const svg = new File(['<svg xmlns="http://www.w3.org/2000/svg"/>'], "Home Star.svg", { type: "image/svg+xml" });
+    const png = new File([new Uint8Array([137, 80])], "photo.png", { type: "image/png" });
+    fireEvent.change(input, { target: { files: [svg, png] } });
+    expect((await screen.findByRole("alert")).textContent).toContain("photo.png is not an SVG file.");
+    await waitFor(() => expect(uploaded).toEqual(["icons/home-star.svg"]));
+    expect(await screen.findByTitle("icons/home-star.svg")).toBeTruthy();
+  });
+
+  test("names Material Symbols and Cupertino as the built-in sets", async () => {
+    renderApp(`${base}/icons`, state);
+    expect(
+      await screen.findByText(/Material Symbols and Cupertino icons are chosen by name/, {}, { timeout: 10000 }),
+    ).toBeTruthy();
+  });
+
+  test("icon tokens an earlier Studio saved are listed as unread, and removed", async () => {
+    renderApp(`${base}/icons`, { ...state, permissions: ["app.read", "app.edit"] });
+    const tokens = await screen.findByRole("region", { name: "Icon tokens nothing reads" }, { timeout: 10000 });
+    expect(within(tokens).getByText("core.home")).toBeTruthy();
+    const remove = within(tokens).getByRole("button", { name: /icons\.core\.home/ });
+    await waitFor(() => expect((remove as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(remove);
+    await waitFor(() =>
+      expect(screen.queryByRole("region", { name: "Icon tokens nothing reads" }) === null).toBe(true),
+    );
+  });
+
+  test("the server refusing the removal of an icon token is reported and the token stays", async () => {
     const sent: NonNullable<Parameters<typeof renderApp>[1]>["sent"] = [];
-    renderApp(`${base}/icons`, { ...state, sent, patchRefusal: { message: "not allowed" } });
-    await screen.findByText("home", {}, { timeout: 10000 });
-    const set = screen.getByLabelText("Icon set");
-    await waitFor(() => expect((set as HTMLInputElement).disabled).toBe(false));
-    fireEvent.change(set, { target: { value: "core" } });
-    fireEvent.change(screen.getByLabelText("Icon name"), { target: { value: "search" } });
-    fireEvent.change(screen.getByLabelText(/Icon source/), { target: { value: "e002" } });
-    fireEvent.click(screen.getByRole("button", { name: "Add icon" }));
+    renderApp(`${base}/icons`, {
+      ...state,
+      permissions: ["app.read", "app.edit"],
+      sent,
+      patchRefusal: { message: "not allowed" },
+    });
+    const tokens = await screen.findByRole("region", { name: "Icon tokens nothing reads" }, { timeout: 10000 });
+    const remove = within(tokens).getByRole("button", { name: /icons\.core\.home/ });
+    await waitFor(() => expect((remove as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(remove);
     const alert = await screen.findByRole("alert", {}, { timeout: 10000 });
     expect(alert.textContent).toBe("The server refused this change. It was undone.");
     expect(sent?.length).toBeGreaterThan(0);
-    await waitFor(() => expect(screen.queryByText("search") === null).toBe(true));
-    expect(screen.getByText("home")).toBeTruthy();
+    expect(await screen.findByText("core.home")).toBeTruthy();
   });
 });
 

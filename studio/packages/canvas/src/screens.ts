@@ -259,7 +259,14 @@ function imageOf(box: BoxPaint, style: ScreenStyle): Partial<RectSpec> {
   const placeholder = box.fill === undefined ? { placeholder: style.box } : {};
   return {
     ...(image.asset === undefined ? {} : { image: assetImageKey(image.asset) }),
-    imageFit: { fit: image.fit, alignX: image.alignX, alignY: image.alignY, ...placeholder },
+    imageFit: {
+      fit: image.fit,
+      alignX: image.alignX,
+      alignY: image.alignY,
+      ...placeholder,
+      ...(image.tint === undefined ? {} : { tint: image.tint }),
+      ...(image.blend === undefined ? {} : { blend: image.blend }),
+    },
   };
 }
 

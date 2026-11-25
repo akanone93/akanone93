@@ -171,12 +171,15 @@ export interface TextSpec {
   readonly z: number;
 }
 
-/** An image's `BoxFit` and alignment (`x` and `y` from -1 to 1) in its box, and its placeholder's colour. */
+/** An image's `BoxFit` and alignment (`x` and `y` from -1 to 1) in its box, its placeholder's colour and its tint. */
 export interface ImageFitSpec {
   readonly fit: "fill" | "contain" | "cover" | "fitWidth" | "fitHeight" | "none" | "scaleDown";
   readonly alignX: number;
   readonly alignY: number;
   readonly placeholder?: ColorRgba;
+  /** A colour blended with each pixel of the image, as `blend` (a Flutter `BlendMode` name, `srcIn` by default) says. */
+  readonly tint?: ColorRgba;
+  readonly blend?: string;
 }
 
 /** One run of a rich text: its characters and what differs from the text's own style. */

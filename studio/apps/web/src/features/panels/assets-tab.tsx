@@ -9,7 +9,7 @@ import { Button as IconButton } from "@plux/ui/components/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@plux/ui/components/input-group";
 import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
 import { withReason } from "../../components/refusal.tsx";
-import { objectUrl } from "../../lib/object-url.ts";
+import { previewUrlOf } from "../../lib/asset-forms.ts";
 import { type AssetUse, assetBudget, assetFileLimit } from "../plugin-canvas/asset-uses.ts";
 import { AssetDetails } from "./asset-details.tsx";
 import { assetsMessages } from "./assets.messages.ts";
@@ -38,7 +38,7 @@ function kb(n: number): string {
 }
 
 /** Two sizes that must read as different: exact bytes when the rounded sizes would look the same. */
-function apart(a: number, b: number): [string, string] {
+export function apart(a: number, b: number): [string, string] {
   return kb(a) === kb(b) ? [`${a.toLocaleString("en")} B`, `${b.toLocaleString("en")} B`] : [kb(a), kb(b)];
 }
 
@@ -70,14 +70,14 @@ export function assetKind(a: Pick<Asset, "mediaType" | "name">): AssetKind {
   return "other";
 }
 
-/** The drag data type of an image dragged from the Assets tab: its asset id; dropped on a screen it becomes an `Image`. */
+/**
+ * The drag data type of an image or an SVG dragged from the Assets tab or the Icons page: its asset id; dropped on a
+ * screen it becomes an `Image`.
+ */
 export const ASSET_DRAG_TYPE = "application/x-plux-asset";
 
-/** The first URL of an asset's processed forms, for a raster image's thumbnail. */
-function thumbOf(a: Asset): string | undefined {
-  const url = a.variants.map((v) => v.artifact?.urls[0]).find((u) => u !== undefined && u !== "");
-  return url === undefined ? undefined : objectUrl(url);
-}
+/** Whether an asset of `kind` is a picture an `Image` shows: a raster image or an SVG (a custom icon). */
+export const isPicture = (kind: AssetKind): boolean => kind === "image" || kind === "vector";
 
 /**
  * The Assets tab: the app's files, upload with progress through the chunked RPCs (resumable after a
@@ -94,12 +94,12 @@ function AssetCard(p: {
   const m = assetsMessages(useLingui().i18n);
   const { a } = p;
   const k = assetKind(a);
-  const thumb = k === "image" ? thumbOf(a) : undefined;
+  const thumb = isPicture(k) ? previewUrlOf(a) : undefined;
   return (
     <li
       className="asset-card"
       title={a.name}
-      draggable={k === "image"}
+      draggable={isPicture(k)}
       onDragStart={(e) => {
         e.dataTransfer.setData(ASSET_DRAG_TYPE, a.id);
         e.dataTransfer.effectAllowed = "copy";
@@ -329,7 +329,7 @@ export function AssetsTab({
       {open !== null && (
         <AssetDetails
           asset={open}
-          thumb={assetKind(open) === "image" ? thumbOf(open) : undefined}
+          thumb={isPicture(assetKind(open)) ? previewUrlOf(open) : undefined}
           size={kb(Number(open.size))}
           uses={usesOf(open.id).length}
           canReplace={onReplaceUses !== undefined}

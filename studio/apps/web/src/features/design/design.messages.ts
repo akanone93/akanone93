@@ -433,23 +433,93 @@ export function designMessages(i18n: I18n) {
         values: { script, n },
         comment: "A script with its number of fonts.",
       }),
-    iconsTitle: i18n._({ id: "design.iconsTitle", message: "Icon sets", comment: "Heading of the icon sets page." }),
+    iconsTitle: i18n._({ id: "design.iconsTitle", message: "Icons", comment: "Heading of the icons page." }),
     iconsCaption: i18n._({
       id: "design.iconsCaption",
-      message: "The icons each set provides to the app, by name.",
-      comment: "Caption under the icon sets heading.",
+      message: "The app's own icons, and the built-in sets.",
+      comment: "Caption under the icons heading.",
     }),
-    noIcons: i18n._({ id: "design.noIcons", message: "No icon sets yet.", comment: "Empty state." }),
-    iconSet: i18n._({ id: "design.iconSet", message: "Icon set", comment: "Field label." }),
-    iconName: i18n._({ id: "design.iconName", message: "Icon name", comment: "Field label." }),
-    iconSource: i18n._({
-      id: "design.iconSource",
-      message: "Icon source (asset or code point)",
-      comment: "Field label.",
+    customIconsTitle: i18n._({
+      id: "design.customIconsTitle",
+      message: "Custom icons",
+      comment: "Heading of the app's own icons, its SVG assets.",
     }),
-    addIcon: i18n._({ id: "design.addIcon", message: "Add icon", comment: "Button." }),
-    removeIcon: (icon: string) =>
-      i18n._({ id: "design.removeIcon", message: "Remove icon {icon}", values: { icon }, comment: "Button." }),
+    customIconsNote: i18n._({
+      id: "design.customIconsNote",
+      message:
+        "A custom icon is an SVG asset, shown with an Image: drag it from the Assets panel onto a screen, or pick it as an image's source. Give the image a colour to tint a one-colour icon. Devices draw it from the compiled vector form.",
+      comment: "How custom icons are used. Assets panel and Image are names of Studio panels and widgets.",
+    }),
+    uploadIcons: i18n._({
+      id: "design.uploadIcons",
+      message: "Upload SVG icons",
+      comment: "Label of the drop zone that uploads SVG files as custom icons.",
+    }),
+    uploadIconsHint: i18n._({
+      id: "design.uploadIconsHint",
+      message: "Drop SVG files here, or click to choose them. They are stored under icons/.",
+      comment: "Hint of the icon drop zone. icons/ is a folder name: keep it.",
+    }),
+    uploadingIcons: (n: number) =>
+      i18n._({
+        id: "design.uploadingIcons",
+        message: "{n, plural, one {Uploading # icon…} other {Uploading # icons…}}",
+        values: { n },
+        comment: "Shown while icons upload.",
+      }),
+    notSvg: (name: string) =>
+      i18n._({
+        id: "design.notSvg",
+        message: "{name} is not an SVG file. Upload other files in the Assets panel.",
+        values: { name },
+        comment: "A file dropped on the icon upload that is not an SVG.",
+      }),
+    noCustomIcons: i18n._({
+      id: "design.noCustomIcons",
+      message: "No custom icons yet.",
+      comment: "Empty state of the custom icons.",
+    }),
+    iconsUnavailable: i18n._({
+      id: "design.iconsUnavailable",
+      message: "The app's assets could not be listed.",
+      comment: "Shown when the asset list fails to load.",
+    }),
+    iconsAtRoot: i18n._({
+      id: "design.iconsAtRoot",
+      message: "Outside a folder",
+      comment: "Heading of the icons whose name has no folder.",
+    }),
+    iconPending: i18n._({
+      id: "design.iconPending",
+      message: "Compiling…",
+      comment: "The server is still compiling the SVG for devices.",
+    }),
+    iconFailed: i18n._({
+      id: "design.iconFailed",
+      message: "Devices cannot draw it",
+      comment: "The server could not compile the SVG for devices; the reason is in the tooltip.",
+    }),
+    builtInIconsTitle: i18n._({
+      id: "design.builtInIconsTitle",
+      message: "Built-in sets",
+      comment: "Heading of the Material Symbols and Cupertino icon sets.",
+    }),
+    builtInIconsNote: i18n._({
+      id: "design.builtInIconsNote",
+      message:
+        "Material Symbols and Cupertino icons are chosen by name in an icon property, such as an Icon's icon. A plugin carries only the icons it uses.",
+      comment: "How the built-in icon sets are used. Material Symbols and Cupertino are product names: keep them.",
+    }),
+    unreadIconTokens: i18n._({
+      id: "design.unreadIconTokens",
+      message: "Icon tokens nothing reads",
+      comment: "Heading of icon design tokens an earlier Studio saved, which no widget uses.",
+    }),
+    unreadIconTokensNote: i18n._({
+      id: "design.unreadIconTokensNote",
+      message: "An earlier version of this page saved icons as design tokens. No widget reads them; remove them.",
+      comment: "Explains the unused icon tokens.",
+    }),
     libraryTitle: i18n._({
       id: "design.libraryTitle",
       message: "Component library",

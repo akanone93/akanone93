@@ -29,4 +29,6 @@ The fonts are pinned in `backend/internal/icons/fonts` (`icons.lock`); `import.s
 
 ## 3. Custom icon sets
 
-A custom icon is an SVG asset shown with the `Image` widget; the server compiles it to `vector_graphics` (`CMP-031`).
+A custom icon is an SVG asset shown with the `Image` widget; the server compiles it to `vector_graphics` (`CMP-031`). The `Image`'s `color` tints it, blended as `colorBlendMode` says (`srcIn` by default, as Flutter's `Image`), so a one-colour icon takes the colour of its place.
+
+Studio's **Icons** page lists the app's SVG assets by folder and uploads new ones under `icons/`. The canvas draws an SVG from its stored file: the browser draws it to a PNG at four times its declared size (the longer side 256 to 1024 pixels), with no script and nothing fetched, and CanvasKit draws that picture with the tint. The API lists the stored file as the asset's `original` form, beside the `vector` form devices read.

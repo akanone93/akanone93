@@ -427,10 +427,10 @@ Labels in **bold** are the interface's own; if a label differs in your build, no
 ### L2-STU-036 — Icons
 
 - **Needs:** R-APP
-- **Do:** open **Icons** (`/design/icons`); **Add icon** with a name and an asset source; use it from a widget.
-- **Expect:** the icon appears in the icon list and on the canvas.
-- **Why:** icon sets are part of the design system.
-- **Look at:** the name resolves in the **Problems** drawer (no unknown-icon error).
+- **Do:** open **Icons** (`/design/icons`); drop an SVG on **Upload SVG icons**; in a plugin canvas, drag it from the **Assets** panel onto a screen and give the image a **color**.
+- **Expect:** the icon appears under `icons/` on the Icons page, then on the canvas in the colour given; publish and open the app: the device draws it the same.
+- **Why:** custom icons are SVG assets shown with an `Image` (ADR-0032, `THM-005`).
+- **Look at:** the Icons page shows no **Devices cannot draw it** for the icon.
 - **Result:** ☐ pass ☐ fail — notes:
 
 ### L2-STU-037 — Library: component and template, create R-TEMPLATE

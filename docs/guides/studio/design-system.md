@@ -43,8 +43,15 @@ fonts, so measurements match the device. Changing the list needs permission to m
 
 ## Icons
 
-**Icons** lists the icon sets and the icons each provides to the app, by name. **Add icon** takes an
-icon name and its source, an asset or a code point.
+**Icons** shows the app's own icons and the built-in sets. A **custom icon** is an SVG asset: drop SVG
+files on **Upload SVG icons** (they are stored under `icons/`), or upload them in the **Assets** panel.
+Each icon shows as the browser draws it, by folder; **Compiling…** means the server is still making
+the form devices draw, and **Devices cannot draw it** names, in its tooltip, why the server could not.
+Show an icon with an **Image**: drag it from the **Assets** panel onto a screen, or pick it as an
+image's **source**. Give the image a **color** to tint a one-colour icon; the canvas draws the tint
+as the device does. **Material Symbols** and **Cupertino** icons need nothing here: pick one by name
+in an icon property, such as an **Icon**'s **icon**, and a plugin carries only the icons it uses.
+Icon design tokens an earlier Studio saved are listed under **Icon tokens nothing reads**, to remove.
 
 ## Reuse components and templates
 

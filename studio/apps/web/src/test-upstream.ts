@@ -317,6 +317,12 @@ export interface UpstreamData {
   assets?: string[];
   /** TrueType font assets of the app (`font-<n>`), listed after `assets`. */
   fontAssets?: string[];
+  /**
+   * SVG assets of the app (`svg-<n>`, custom icons), listed after `fontAssets`, with how far the server got compiling
+   * each; `uploaded` gets the name of every upload, which is then listed too (build log rows 25, 39).
+   */
+  svgAssets?: { name: string; processing?: string; problem?: string }[];
+  uploaded?: string[];
   /** The font files of the host app the app lists; `updateApp` replaces them when it sets them. */
   hostFonts?: { family: string; assetId: string }[];
   experiments?: ExperimentsFixture;
@@ -1042,8 +1048,29 @@ export function createUpstream(state: UpstreamData) {
           ...(state.fontAssets ?? []).map((name, i) =>
             create(AssetSchema, { id: `font-${i}`, name, mediaType: "font/ttf", size: 1n }),
           ),
+          ...(state.svgAssets ?? []).map((a, i) =>
+            create(AssetSchema, {
+              id: `svg-${i}`,
+              name: a.name,
+              mediaType: "image/svg+xml",
+              size: 1n,
+              processing: a.processing ?? "ready",
+              diagnostics: a.problem === undefined ? [] : [{ message: a.problem }],
+              variants: [
+                { kind: "vector", artifact: { urls: [`https://plux.example/v1/objects/assets/v${i}`] } },
+                { kind: "original", artifact: { urls: [`https://plux.example/v1/objects/assets/s${i}`] } },
+              ],
+            }),
+          ),
         ],
       }),
+      beginAssetUpload: (req) => {
+        state.uploaded?.push(req.name);
+        state.svgAssets = [...(state.svgAssets ?? []), { name: req.name, processing: "pending" }];
+        return { uploadId: `up-${req.name}`, chunkSize: 1n << 20n };
+      },
+      uploadAssetChunk: (req) => ({ received: req.offset + BigInt(req.chunk.length) }),
+      finishAssetUpload: () => ({}),
     });
     service(DocumentService, {
       validateDraft: () => ({

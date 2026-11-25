@@ -11,6 +11,7 @@ import {
   type PaintTheme,
   parseHexColor,
   resolveColor,
+  roleColor,
 } from "./paint.ts";
 import { type PaintNode, paintTree } from "./painters.ts";
 
@@ -251,6 +252,35 @@ describe("[AST-002] images as Flutter's paintImage draws them", () => {
       alignY: 0,
     });
     expect(paints.get("x")?.role).toBe("placeholder");
+  });
+
+  test("an Image's colour tints it, a token resolved, blended as colorBlendMode says", () => {
+    const root: PaintNode = {
+      id: "col",
+      type: "Column",
+      children: [
+        { id: "i", type: "Image", props: { source: { asset: { $asset: "star" } }, color: "#CC2200" } },
+        {
+          id: "j",
+          type: "Image",
+          props: {
+            source: { asset: { $asset: "star" } },
+            color: { $token: "color.primary" },
+            colorBlendMode: "modulate",
+          },
+        },
+      ],
+    };
+    const paints = paintTree(root, rects(["col", "i", "j"]), theme);
+    expect(paints.get("i")?.boxes[0]?.image).toEqual({
+      asset: "star",
+      fit: "scaleDown",
+      alignX: 0,
+      alignY: 0,
+      tint: 0xcc2200ff,
+    });
+    expect(paints.get("j")?.boxes[0]?.image?.tint).toBe(roleColor(theme, "primary"));
+    expect(paints.get("j")?.boxes[0]?.image?.blend).toBe("modulate");
   });
 
   test("a CircleAvatar is a circle in primaryContainer, its images covering it, its texts in onPrimaryContainer", () => {

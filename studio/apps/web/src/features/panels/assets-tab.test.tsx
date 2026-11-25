@@ -15,7 +15,12 @@ import { assetNameOf } from "./upload-asset.ts";
 afterEach(cleanup);
 
 interface Server {
-  assets: { id: string; name: string }[];
+  assets: {
+    id: string;
+    name: string;
+    mediaType?: string;
+    variants?: { kind: string; artifact: { urls: string[] } }[];
+  }[];
   held: Uint8Array;
   declared: Uint8Array;
   failNextChunk: boolean;
@@ -27,7 +32,7 @@ function stub(server: Server) {
   const transport = createRouterTransport(({ service }) => {
     service(AssetService, {
       listAssets: () => ({
-        assets: server.assets.map((a) => create(AssetSchema, { ...a, mediaType: "image/png", size: 2048n })),
+        assets: server.assets.map((a) => create(AssetSchema, { mediaType: "image/png", size: 2048n, ...a })),
       }),
       deleteAsset: (req) => {
         server.deleted.push(req.id);
@@ -123,6 +128,28 @@ describe("S2.6 the Assets tab [SRV-060]", () => {
     await waitFor(() => expect(server.calls).toContain("finish"));
     expect(server.calls).toEqual(["begin", "chunk@0", "chunk@4", "get", "chunk@4", "chunk@8", "finish"]);
     expect(Array.from(server.held)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  });
+
+  test("an SVG is a picture: its stored file is its thumbnail, and it is dragged onto a screen as an image", async () => {
+    const server = fresh();
+    server.assets = [
+      {
+        id: "s1",
+        name: "icons/star.svg",
+        mediaType: "image/svg+xml",
+        variants: [
+          { kind: "vector", artifact: { urls: ["https://plux.example/v1/objects/assets/vec"] } },
+          { kind: "original", artifact: { urls: ["https://plux.example/v1/objects/assets/svg"] } },
+        ],
+      },
+      { id: "f1", name: "fonts/inter.ttf", mediaType: "font/ttf" },
+    ];
+    renderTab(server);
+    const star = (await screen.findByText("icons/star.svg")).closest("li") as HTMLElement;
+    expect(star.getAttribute("draggable")).toBe("true");
+    expect(star.querySelector("img")?.getAttribute("src")).toBe("/api/v1/objects/assets/svg");
+    const font = screen.getByText("fonts/inter.ttf").closest("li") as HTMLElement;
+    expect(font.getAttribute("draggable")).toBe("false");
   });
 
   test("delete asks for confirmation first", async () => {

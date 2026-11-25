@@ -644,6 +644,17 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
           props: { source: { asset: { $asset: "logo" } }, fit: "cover", width: 80, height: 40 },
         },
         { id: "w", type: "Image", props: { source: { url: "https://example.com/a.png" }, width: 80, height: 40 } },
+        {
+          id: "t",
+          type: "Image",
+          props: {
+            source: { asset: { $asset: "star" } },
+            color: "#CC2200",
+            colorBlendMode: "modulate",
+            width: 24,
+            height: 24,
+          },
+        },
       ],
     };
     const items = new Map(
@@ -658,6 +669,11 @@ describe("ADR-0013 screens laid out in the canvas worker [STU-005] [STU-056]", (
     });
     expect(items.get("s/w#paint0")).not.toHaveProperty("image");
     expect(items.get("s/w#paint0web")).toMatchObject({ kind: "text", text: String.fromCodePoint(0xe3f4) });
+    // A custom icon's colour tints it, blended as colorBlendMode says.
+    expect(items.get("s/t#paint0")).toMatchObject({
+      image: "asset:star",
+      imageFit: { fit: "scaleDown", tint: 0xcc2200ff, blend: "modulate" },
+    });
     engine.dispose();
   });
 

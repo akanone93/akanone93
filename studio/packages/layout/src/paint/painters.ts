@@ -223,10 +223,19 @@ export function imageOf(
   };
 }
 
-/** `Image`: its source fitted to its box; Flutter fits an image with no fit by scaling it down. */
-function image(props: Obj, r: Rect): Painted {
+/**
+ * `Image`: its source fitted to its box; Flutter fits an image with no fit by scaling it down. A `color` tints it,
+ * blended as `colorBlendMode` says (`srcIn` by default, as Flutter's `Image`): a one-colour icon takes the colour.
+ */
+function image(props: Obj, r: Rect, theme: PaintTheme): Painted {
   const paint = imageOf(props["source"], props["fit"], props["alignment"], "scaleDown");
-  return paint === undefined ? {} : { boxes: [{ ...r, image: paint }] };
+  if (paint === undefined) {
+    return {};
+  }
+  const tint = resolveColor(props["color"], theme);
+  const blend = props["colorBlendMode"];
+  const tinted = tint === undefined ? paint : { ...paint, tint, ...(typeof blend === "string" ? { blend } : {}) };
+  return { boxes: [{ ...r, image: tinted }] };
 }
 
 /**

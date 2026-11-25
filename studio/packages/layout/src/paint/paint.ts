@@ -111,6 +111,10 @@ export interface ImagePaint {
   readonly fit: BoxFitName;
   readonly alignX: number;
   readonly alignY: number;
+  /** `Image.color`: blended with each pixel as `blend` says, Flutter's `srcIn` when the document names none. */
+  readonly tint?: Rgba;
+  /** `Image.colorBlendMode`, a Flutter `BlendMode` name. */
+  readonly blend?: string;
 }
 
 /** How one widget is drawn: its boxes, the opacity and clips of its ancestors, and its text colour. */

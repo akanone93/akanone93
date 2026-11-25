@@ -8,7 +8,16 @@
  * uniform stroke keep the batched path; these are the ones that cannot be batched.
  */
 
-import type { Canvas, CanvasKit, Image as CkImage, Paint, ParagraphStyle, Shader, TextStyle } from "canvaskit-wasm";
+import type {
+  BlendMode,
+  Canvas,
+  CanvasKit,
+  Image as CkImage,
+  Paint,
+  ParagraphStyle,
+  Shader,
+  TextStyle,
+} from "canvaskit-wasm";
 import { color4f } from "./batch.ts";
 import type { ClipSpec, ColorRgba, GradientSpec, ImageFitSpec, RectSpec, TextRunSpec, TextSpec } from "./protocol.ts";
 
@@ -106,6 +115,9 @@ function drawImage(
   canvas.save();
   canvas.clipRRect(rrect(spec.x, spec.y, spec.w, spec.h, corners), ck.ClipOp.Intersect, true);
   paint.setColor(color4f(ck, faded(0x000000ff, opacity)));
+  const tint =
+    fill.tint === undefined ? null : ck.ColorFilter.MakeBlend(color4f(ck, fill.tint), blendModeOf(ck, fill.blend));
+  paint.setColorFilter(tint);
   canvas.drawImageRectOptions(
     image,
     ck.LTRBRect(...src),
@@ -114,8 +126,22 @@ function drawImage(
     ck.MipmapMode.None,
     paint,
   );
+  if (tint !== null) {
+    paint.setColorFilter(null);
+    tint.delete();
+  }
   canvas.restore();
   return 1;
+}
+
+/**
+ * CanvasKit's blend mode of a Flutter `BlendMode` name (`srcATop` is `SrcATop`); `srcIn`, the mode Flutter's `Image`
+ * tints with, for none or a name it does not have.
+ */
+export function blendModeOf(ck: Pick<CanvasKit, "BlendMode">, name: string | undefined): BlendMode {
+  const key = name === undefined || name === "" ? "" : `${name[0]?.toUpperCase()}${name.slice(1)}`;
+  const modes = ck.BlendMode as unknown as Readonly<Record<string, BlendMode | undefined>>;
+  return (key === "" ? undefined : modes[key]) ?? ck.BlendMode.SrcIn;
 }
 
 /** Flutter's `Shadow.convertRadiusToSigma`: the blur radius of a box shadow as a Gaussian sigma. */

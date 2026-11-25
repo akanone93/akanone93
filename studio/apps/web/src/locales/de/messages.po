@@ -898,6 +898,12 @@ msgstr "{n, plural, one {# Warnung} other {# Warnungen}}"
 msgid "style.stylePasted"
 msgstr "{n, plural, one {Stil auf # Widget eingefügt} other {Stil auf # Widgets eingefügt}}"
 
+#. Shown while icons upload.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.uploadingIcons"
+msgstr "{n, plural, one {# Symbol wird hochgeladen…} other {# Symbole werden hochgeladen…}}"
+
 #. How many widgets on the plugin's screens use the token.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/theme-card.messages.ts
@@ -975,6 +981,12 @@ msgstr "{name} ist {size} groß, mehr als die {max}, die eine Datei haben darf (
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.usedElsewhere"
 msgstr "{name} wird auch außerhalb dieses Plugins verwendet: {places}. Wenn du es löschst, fehlt dort das Bild."
+
+#. A file dropped on the icon upload that is not an SVG.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.notSvg"
+msgstr "{name} ist keine SVG-Datei. Laden Sie andere Dateien im Assets-Bereich hoch."
 
 #. Explains why deleting a screen needs typing its name (STU-074).
 #. js-lingui-explicit-id
@@ -1479,6 +1491,12 @@ msgstr "Eine .plux-Datei, standardmäßig bis zu {size}. Das Limit Ihrer Organis
 #: apps/web/src/features/rust-editor/rust-editor.messages.ts
 msgid "rustEditor.vendorNote"
 msgstr "Ein hier hinzugefügtes Crate wirkt, sobald der Quellcode zusammen mit seinen gebündelten Quellen erneut hochgeladen wird."
+
+#. How custom icons are used. Assets panel and Image are names of Studio panels and widgets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.customIconsNote"
+msgstr "Ein eigenes Symbol ist ein SVG-Asset, angezeigt mit einem Image: Ziehen Sie es aus dem Assets-Bereich auf einen Bildschirm, oder wählen Sie es als Quelle eines Bildes. Geben Sie dem Bild eine Farbe, um ein einfarbiges Symbol einzufärben. Geräte zeichnen es aus der kompilierten Vektorform."
 
 #. Finding shown when the text is JSON but not an object.
 #. js-lingui-explicit-id
@@ -2038,12 +2056,6 @@ msgstr "Schrift hinzufügen"
 msgid "admin.addGrant"
 msgstr "Berechtigung hinzufügen"
 
-#. Button.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.addIcon"
-msgstr "Icon hinzufügen"
-
 #. Button that appends an item to a list property.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/panels.messages.ts
@@ -2450,6 +2462,12 @@ msgstr "Immer (z. B. page.items.isNotEmpty)"
 #: apps/web/src/features/shell/notify.messages.ts
 msgid "notify.mute.locked"
 msgstr "Immer aktiv"
+
+#. Explains the unused icon tokens.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.unreadIconTokensNote"
+msgstr "Eine frühere Version dieser Seite hat Symbole als Design-Tokens gespeichert. Kein Widget liest sie; entfernen Sie sie."
 
 #. Placeholder of a link parameter's value field.
 #. js-lingui-explicit-id
@@ -3527,6 +3545,12 @@ msgstr "Gebaut"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupBuiltin"
 msgstr "Eingebaut"
+
+#. Heading of the Material Symbols and Cupertino icon sets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.builtInIconsTitle"
+msgstr "Integrierte Sätze"
 
 #. Short bundle hash of a plugin build.
 #. js-lingui-explicit-id
@@ -4680,6 +4704,12 @@ msgstr "Mit der zuletzt veröffentlichten Version vergleichen"
 msgid "publish.rollout.windowMinutes"
 msgstr "Vergleichsfenster (Minuten, 0: sechs Stunden)"
 
+#. The server is still compiling the SVG for devices.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconPending"
+msgstr "Wird kompiliert…"
+
 #. State of a rollout.
 #. js-lingui-explicit-id
 #: apps/web/src/features/releases/releases.messages.ts
@@ -5267,6 +5297,12 @@ msgstr "Eigene Farbe"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.customFrame"
 msgstr "Eigener Rahmen"
+
+#. Heading of the app's own icons, its SVG assets.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.customIconsTitle"
+msgstr "Eigene Symbole"
 
 #. Legend of the custom health gates.
 #. js-lingui-explicit-id
@@ -6054,6 +6090,12 @@ msgstr "Geräte"
 msgid "gateway.tier.live"
 msgstr "Geräte (live)"
 
+#. The server could not compile the SVG for devices; the reason is in the tooltip.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconFailed"
+msgstr "Geräte können es nicht zeichnen"
+
 #. Help under the app's read-only key in the app settings.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -6281,6 +6323,12 @@ msgstr "Verwerfen"
 #: apps/web/src/features/designers/designers.messages.ts
 msgid "designers.dbPlanDrop"
 msgstr "Felder verwerfen (durch Komma getrennt)"
+
+#. Hint of the icon drop zone. icons/ is a folder name: keep it.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.uploadIconsHint"
+msgstr "SVG-Dateien hier ablegen oder zum Auswählen klicken. Sie werden unter icons/ gespeichert."
 
 #. Menu item above a screen: make a copy of it.
 #. js-lingui-explicit-id
@@ -8554,35 +8602,23 @@ msgstr "Anpassen"
 msgid "auth.device.mine"
 msgstr "Ich habe diese Anmeldung selbst gestartet, und der Code stimmt mit meinem Terminal überein"
 
-#. Field label.
+#. Heading of icon design tokens an earlier Studio saved, which no widget uses.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
-msgid "design.iconName"
-msgstr "Icon-Name"
-
-#. Field label.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.iconSet"
-msgstr "Icon-Set"
-
-#. Heading of the icon sets page.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.iconsTitle"
-msgstr "Icon-Sets"
-
-#. Field label.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.iconSource"
-msgstr "Icon-Quelle (Asset oder Codepoint)"
+msgid "design.unreadIconTokens"
+msgstr "Symbol-Tokens, die nichts liest"
 
 #. Link to the icon sets page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.iconsLink"
 msgstr "Icons"
+
+#. Heading of the icons page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconsTitle"
+msgstr "Symbole"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -10475,6 +10511,12 @@ msgstr "Passende Sprachen"
 msgid "preview.material"
 msgstr "Material"
 
+#. How the built-in icon sets are used. Material Symbols and Cupertino are product names: keep them.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.builtInIconsNote"
+msgstr "Material Symbols und Cupertino-Symbole werden in einer Symboleigenschaft, etwa dem icon eines Icon, per Name gewählt. Ein Plugin enthält nur die Symbole, die es verwendet."
+
 #. Column heading: the most width or height; empty is unbounded.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/layout-panel.messages.ts
@@ -11429,6 +11471,12 @@ msgstr "Keine Änderungen zu übernehmen."
 msgid "releases.noChanges"
 msgstr "Keine Änderungen."
 
+#. Empty state of the custom icons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.noCustomIcons"
+msgstr "Noch keine eigenen Symbole."
+
 #. Shown when the range holds no events.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -11560,12 +11608,6 @@ msgstr "Es wurde noch keine Zustandsprüfung ausgeführt."
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.hostFontsNone"
 msgstr "Es sind keine Host-Schriften eingetragen."
-
-#. Empty state.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.noIcons"
-msgstr "Noch keine Icon-Sets."
 
 #. Shown in the icon picker when no icon name contains the search.
 #. js-lingui-explicit-id
@@ -12958,6 +13000,12 @@ msgstr "Ausgabe"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.capOutput"
 msgstr "Ausgabeschema"
+
+#. Heading of the icons whose name has no folder.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconsAtRoot"
+msgstr "Außerhalb eines Ordners"
 
 #. Status word: the page has more nodes than the budget allows.
 #. js-lingui-explicit-id
@@ -14673,12 +14721,6 @@ msgstr "Feld entfernen"
 #: apps/web/src/features/panels/page-settings.messages.ts
 msgid "pageSettings.removeGuard"
 msgstr "Wächter {name} entfernen"
-
-#. Button.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.removeIcon"
-msgstr "Icon {icon} entfernen"
 
 #. Accessible name of the button that removes a list item.
 #. js-lingui-explicit-id
@@ -18291,6 +18333,12 @@ msgstr "Die Asset-Liste der App nennt diese Datei, aber es ist keine Datei mit d
 msgid "assets.list"
 msgstr "Die Assets der App"
 
+#. Shown when the asset list fails to load.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconsUnavailable"
+msgstr "Die Assets der App konnten nicht aufgelistet werden."
+
 #. Shown when the app's Assets page could not load the app's documents.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -18326,6 +18374,12 @@ msgstr "Die Sprachen der App sind noch nicht verfügbar. Wählen Sie sie in den 
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.caption"
 msgstr "Name und Beschreibung der App, die Einstellungen ihrer installierten App und ihre Limit-Auslastung."
+
+#. Caption under the icons heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.iconsCaption"
+msgstr "Die eigenen Symbole der App und die integrierten Sätze."
 
 #. Caption under the heading of the localisation grid.
 #. js-lingui-explicit-id
@@ -18842,12 +18896,6 @@ msgstr "Die Gateway-Einstellungen konnten nicht geladen werden."
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.icon.upload-failed"
 msgstr "Das Symbol wurde nicht hochgeladen."
-
-#. Caption under the icon sets heading.
-#. js-lingui-explicit-id
-#: apps/web/src/features/design/design.messages.ts
-msgid "design.iconsCaption"
-msgstr "Die Icons, die jedes Set der App bereitstellt, nach Namen."
 
 #. Help text under the field for the identifier of an uploaded function source.
 #. js-lingui-explicit-id
@@ -20751,6 +20799,12 @@ msgstr "Symbol hochladen"
 #: apps/web/src/features/panels/assets.messages.ts
 msgid "assets.upload"
 msgstr "Datei hochladen"
+
+#. Label of the drop zone that uploads SVG files as custom icons.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.uploadIcons"
+msgstr "SVG-Symbole hochladen"
 
 #. Label of the field that takes the identifier of an uploaded function source.
 #. js-lingui-explicit-id

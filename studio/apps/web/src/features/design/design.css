@@ -147,3 +147,43 @@
   border: 1px solid color-mix(in oklch, currentColor 25%, transparent);
   border-radius: var(--radius-sm);
 }
+
+/* The custom icons: a grid of small cards, each the icon as the browser draws it over its file name. */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: calc(var(--spacing) * 2);
+}
+
+.icon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  padding: calc(var(--spacing) * 2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.icon-card-preview {
+  display: grid;
+  place-items: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  color: var(--muted-foreground);
+}
+
+.icon-card-preview img {
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  object-fit: contain;
+}
+
+.icon-card-name {
+  max-inline-size: 100%;
+  overflow: hidden;
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
