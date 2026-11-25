@@ -3,7 +3,7 @@
 
 import { afterEach, describe, expect, test } from "bun:test";
 import { createStudioI18n } from "@plux/i18n";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { I18nProvider } from "../../i18n-provider.tsx";
 import { loadSourceCatalogue } from "../../test-harness.tsx";
@@ -121,6 +121,30 @@ describe("[STU-063] localisation table V4", () => {
     expect(screen.queryByText("home.cta")).toBeNull();
     expect(screen.getByText("Willkommen")).toBeDefined();
     expect((screen.getByLabelText("home.title in en") as HTMLInputElement).value).toBe("Welcome");
+  });
+
+  test("every locale is a field; focusing another locale's makes it the locale to edit (#245)", async () => {
+    const chosen: string[] = [];
+    overlay({ onLocale: (l) => chosen.push(l) });
+    const de = (await screen.findByLabelText("home.title in de")) as HTMLTextAreaElement;
+    expect(de.value).toBe("Willkommen");
+    // Until it is the locale to edit, which takes its lock (I18N-008), it is read-only.
+    expect(de.readOnly).toBe(true);
+    fireEvent.focus(de);
+    expect(chosen).toEqual(["de"]);
+    // The chosen locale's own field does not switch anything.
+    fireEvent.focus(screen.getByLabelText("home.title in en"));
+    expect(chosen).toEqual(["de"]);
+  });
+
+  test("a locale is added from above the table, which then edits its column (#246)", async () => {
+    const added: string[] = [];
+    overlay({ onAddLocale: (code) => added.push(code) });
+    fireEvent.click(await screen.findByRole("button", { name: "Add a locale" }));
+    const dialog = await screen.findByRole("dialog", { name: "Add a locale" });
+    fireEvent.change(within(dialog).getByRole("textbox"), { target: { value: "fr" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Add/ }));
+    await waitFor(() => expect(added).toEqual(["fr"]));
   });
 
   test("editing a cell goes through the edit pipeline into the locale's document", async () => {
@@ -330,6 +354,7 @@ describe("[I18N-007] extraction dialog", () => {
       canEditKeys,
       messages,
       canEditMessages: true,
+      addLocale: () => undefined,
     };
     const replaced: unknown[] = [];
     let closed = 0;

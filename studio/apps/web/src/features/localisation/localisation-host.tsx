@@ -96,6 +96,7 @@ export function LocalisationHost(props: LocalisationHostProps) {
       usage={usage}
       schemaVersion={schemaVersion}
       newId={uuidv7}
+      onAddLocale={sessions.addLocale}
     />
   );
 }

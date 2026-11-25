@@ -7,6 +7,7 @@ import { type CSSProperties, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { SheetEmpty, SheetLayout, SheetNavHead, SheetSection } from "../../components/editor-sheet.tsx";
 import type { EditSession, JsonValue } from "../editor/index.ts";
+import { AddLocaleForm } from "./dialogs.tsx";
 import {
   addKeyRecipe,
   dropKeyRecipe,
@@ -46,6 +47,8 @@ export interface LocalisationOverlayProps {
   readonly usage: ReadonlyMap<string, readonly string[]>;
   readonly schemaVersion: JsonValue;
   readonly newId: () => string;
+  /** Adds a locale and its column (#246); absent where locales are not added here. */
+  readonly onAddLocale?: (code: string) => void;
 }
 
 const filtered = (scope: KeyScope, id: string, p: LocalisationOverlayProps): boolean =>
@@ -65,6 +68,7 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
   const mine = useMemo(() => readMessages(messagesDoc), [messagesDoc]);
   const rows = keys.filter((k) => filtered(scope, k.id, props));
   const [deleting, setDeleting] = useState<{ readonly id: string; readonly key: string } | null>(null);
+  const [addingLocale, setAddingLocale] = useState(false);
   // One undo step across the keys and every locale's messages, as an extraction is: the key goes with its message and
   // review state in every locale, so no document keeps text for a key that is gone, and undo brings them all back. The
   // other locales are written under the draft's lock, which lets an app manager write every locale (I18N-008).
@@ -129,6 +133,21 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
               />
             </Field>
             <AddKey {...props} keys={keys} keysDoc={keysDoc} />
+            {props.onAddLocale !== undefined && (
+              <>
+                <Button variant="secondary" disabled={!props.canEditKeys} onClick={() => setAddingLocale(true)}>
+                  <Icon name="plus" />
+                  {m.addLocale}
+                </Button>
+                <AddLocaleForm
+                  open={addingLocale}
+                  onClose={() => setAddingLocale(false)}
+                  locales={props.locales}
+                  canAdd={props.canEditKeys}
+                  onAdd={props.onAddLocale}
+                />
+              </>
+            )}
           </div>
         }
       >
@@ -174,20 +193,21 @@ export function LocalisationOverlay(props: LocalisationOverlayProps) {
                       </th>
                       {shown.map((c) => (
                         <td key={c.locale}>
-                          {c.locale === props.locale ? (
-                            // As tall as its text, so a long message reads whole, as the other locales' do (#221).
-                            <Textarea
-                              aria-label={m.messageOf(k.key, c.locale)}
-                              value={mine[k.id] ?? ""}
-                              placeholder={m.missing}
-                              readOnly={!props.canEditMessages}
-                              onChange={(e) => writeMessage(props, messagesDoc, k.id, e.target.value)}
-                            />
-                          ) : (
-                            <span className="text-sm">
-                              {c.messages?.[k.id] ?? <span className="text-muted-foreground italic">{m.missing}</span>}
-                            </span>
-                          )}
+                          {/*
+                           * Every locale's message is a field, as tall as its text (#221). Focusing another locale's
+                           * makes it the locale to edit, which takes that locale's lock (I18N-008), so all
+                           * translations are seen and edited in one place (#245).
+                           */}
+                          <Textarea
+                            aria-label={m.messageOf(k.key, c.locale)}
+                            value={c.messages?.[k.id] ?? ""}
+                            placeholder={m.missing}
+                            readOnly={c.locale !== props.locale || !props.canEditMessages}
+                            onFocus={() => c.locale !== props.locale && props.onLocale(c.locale)}
+                            onChange={(e) =>
+                              c.locale === props.locale && writeMessage(props, messagesDoc, k.id, e.target.value)
+                            }
+                          />
                         </td>
                       ))}
                       <td>

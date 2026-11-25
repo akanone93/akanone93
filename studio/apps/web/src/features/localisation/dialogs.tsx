@@ -28,24 +28,48 @@ const formatOptions = FORMATS.map((f) => ({ value: f, label: f.toUpperCase() }))
  * (`pt-BR`, `am-ET`) is taken as it is.
  */
 export function AddLocaleDialog(props: { readonly open: boolean; readonly onClose: () => void }): ReactElement {
-  const { i18n } = useLingui();
-  const m = localisationAreaMessages(i18n);
   const area = useArea();
   const navigate = useNavigate();
+  return (
+    <AddLocaleForm
+      open={props.open}
+      onClose={props.onClose}
+      locales={area.sessions.locales}
+      canAdd={area.sessions.canEditKeys}
+      onAdd={(code) => {
+        addLocale(area, code);
+        void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, locale: code }) });
+      }}
+    />
+  );
+}
+
+/**
+ * The add-locale dialog over any app: the app's locales, whether this person may add one (the draft's lock and
+ * `app.manage`), and what adding does. The Localisation page and the plugin canvas's localisation table share it (#246).
+ */
+export function AddLocaleForm(props: {
+  readonly open: boolean;
+  readonly onClose: () => void;
+  readonly locales: readonly string[];
+  readonly canAdd: boolean;
+  readonly onAdd: (code: string) => void;
+}): ReactElement {
+  const { i18n } = useLingui();
+  const m = localisationAreaMessages(i18n);
   const [query, setQuery] = useState("");
   const [shown, setShown] = useState(false);
   const code = canonicalLocale(query) ?? query.trim();
   const results = useMemo(
-    () => (query.trim() === "" ? [] : searchLocales(query, i18n.locale, area.sessions.locales).slice(0, 8)),
-    [query, i18n.locale, area.sessions.locales],
+    () => (query.trim() === "" ? [] : searchLocales(query, i18n.locale, props.locales).slice(0, 8)),
+    [query, i18n.locale, props.locales],
   );
   const setCode = (next: string) => setQuery(next);
-  const problem = localeProblem(code, area.sessions.locales);
+  const problem = localeProblem(code, props.locales);
   const submit = () => {
     setShown(true);
-    if (problem === undefined && area.sessions.canEditKeys) {
-      addLocale(area, code);
-      void navigate({ to: ".", resetScroll: false, search: (prev: object) => ({ ...prev, locale: code }) });
+    if (problem === undefined && props.canAdd) {
+      props.onAdd(code);
       setCode("");
       setShown(false);
       props.onClose();
@@ -86,7 +110,7 @@ export function AddLocaleDialog(props: { readonly open: boolean; readonly onClos
             ))}
           </ul>
         )}
-        <Button onClick={submit} disabled={!area.sessions.canEditKeys}>
+        <Button onClick={submit} disabled={!props.canAdd}>
           {m.addLocaleConfirm}
         </Button>
       </div>

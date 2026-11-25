@@ -47,6 +47,11 @@ export function localisationMessages(i18n: I18n) {
       message: "All keys of the app",
       comment: "Option: every translation key of the app.",
     }),
+    addLocale: i18n._({
+      id: "l10n.addLocale",
+      message: "Add a locale",
+      comment: "Button above the localisation table: add a language to the app and its column to the table.",
+    }),
     editLocale: i18n._({
       id: "l10n.editLocale",
       message: "Locale to edit",

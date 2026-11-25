@@ -12,6 +12,7 @@ import {
   useLock,
   useUndoManager,
 } from "../editor/index.ts";
+import { addLocaleRecipe } from "./grid-model.ts";
 import { KEYS_PATH, localePath, localeScope, readLocales } from "./l10n-model.ts";
 
 /** What the localisation features of the plugin canvas edit: the app's keys and one locale's messages. */
@@ -25,6 +26,8 @@ export interface L10nSessions {
   readonly canEditKeys: boolean;
   readonly messages: EditSession;
   readonly canEditMessages: boolean;
+  /** Adds a locale to the app (its `app.json`, under the draft's lock) and makes it the locale to edit (#246). */
+  readonly addLocale: (code: string) => void;
 }
 
 const Context = createContext<L10nSessions | null>(null);
@@ -83,11 +86,15 @@ export function L10nSessionsProvider(props: {
   readonly children: ReactNode;
 }): ReactElement {
   const { appId, documents, addedLocales, onRejected, onEdit } = props;
+  // Locales added here, shown before the app document that lists them is read back.
+  const [addedHere, setAddedHere] = useState<readonly string[]>([]);
   const app = useMemo(() => {
     const read = readLocales(parse(documents?.find((d) => d.path === "app.json")));
-    const added = (addedLocales ?? []).filter((l) => read?.supported.includes(l) === false);
+    const added = [...new Set([...(addedLocales ?? []), ...addedHere])].filter(
+      (l) => read?.supported.includes(l) === false,
+    );
     return read === undefined ? undefined : { ...read, supported: [...read.supported, ...added] };
-  }, [documents, addedLocales]);
+  }, [documents, addedLocales, addedHere]);
   const [chosen, setLocale] = useState<string | undefined>(undefined);
   const locale = chosen !== undefined && app?.supported.includes(chosen) ? chosen : (app?.defaultLocale ?? "");
   const keyDocs = useMemo(
@@ -118,6 +125,11 @@ export function L10nSessionsProvider(props: {
             canEditKeys: keys.canEdit,
             messages: messages.session,
             canEditMessages: messages.canEdit,
+            addLocale: (code: string) => {
+              keys.session.edit("app.json", addLocaleRecipe(code), { group: `l10n-locale:${code}` });
+              setAddedHere((cur) => (cur.includes(code) ? cur : [...cur, code]));
+              setLocale(code);
+            },
           },
     [app, keys, messages, locale],
   );

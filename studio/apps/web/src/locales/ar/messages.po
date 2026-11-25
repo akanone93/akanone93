@@ -1942,6 +1942,12 @@ msgstr "إضافة لغة"
 msgid "l10n.area.addLocaleTitle"
 msgstr "إضافة لغة"
 
+#. Button above the localisation table: add a language to the app and its column to the table.
+#. js-lingui-explicit-id
+#: apps/web/src/features/localisation/localisation.messages.ts
+msgid "l10n.addLocale"
+msgstr "إضافة لغة"
+
 #. Explains the invite-a-teammate onboarding step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/onboarding/onboarding.messages.ts
