@@ -62,6 +62,10 @@ type fake struct {
 	// its bundles by hash.
 	release []*pluxv1.PluginVersion
 	blobs   map[string][]byte
+	// extraPlugins are plugins the app has beside loans; deletedPlugins the
+	// IDs DeletePlugin moved to the trash.
+	extraPlugins   []*pluxv1.Plugin
+	deletedPlugins []string
 }
 
 // point moves a channel to a release, not yet signed.
@@ -148,8 +152,23 @@ func (f *fake) ListChannels(_ context.Context, r *connect.Request[pluxv1.ListCha
 	return connect.NewResponse(out), nil
 }
 
-func (*fake) ListPlugins(context.Context, *connect.Request[pluxv1.ListPluginsRequest]) (*connect.Response[pluxv1.ListPluginsResponse], error) {
-	return connect.NewResponse(&pluxv1.ListPluginsResponse{Plugins: []*pluxv1.Plugin{{Id: "p1", Key: "loans"}}}), nil
+func (f *fake) ListPlugins(context.Context, *connect.Request[pluxv1.ListPluginsRequest]) (*connect.Response[pluxv1.ListPluginsResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	plugins := []*pluxv1.Plugin{{Id: "p1", Key: "loans"}}
+	for _, p := range f.extraPlugins {
+		if !slices.Contains(f.deletedPlugins, p.GetId()) {
+			plugins = append(plugins, proto.CloneOf(p))
+		}
+	}
+	return connect.NewResponse(&pluxv1.ListPluginsResponse{Plugins: plugins}), nil
+}
+
+func (f *fake) DeletePlugin(_ context.Context, req *connect.Request[pluxv1.DeletePluginRequest]) (*connect.Response[pluxv1.DeletePluginResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.deletedPlugins = append(f.deletedPlugins, req.Msg.GetId())
+	return connect.NewResponse(&pluxv1.DeletePluginResponse{}), nil
 }
 
 func (f *fake) ExportDraft(_ context.Context, _ *connect.Request[pluxv1.ExportDraftRequest], s *connect.ServerStream[pluxv1.ExportDraftResponse]) error {
@@ -409,6 +428,16 @@ func TestServerCommands(t *testing.T) { //nolint:paralleltest // the keychain mo
 	if !slices.Equal(f.released, []string{"@plux-cli", "p1@plux-cli"}) {
 		t.Errorf("the import kept its editing locks: released %v", f.released)
 	}
+	// A plugin the app has and the project does not, such as a Studio starter, is named and kept; --prune moves it to
+	// the trash, an archived one is left alone (build log row 209). This project holds app.json alone, so loans is one.
+	f.extraPlugins = []*pluxv1.Plugin{{Id: "p2", Key: "main"}, {Id: "p3", Key: "old", Archived: true}}
+	if code, out, _ := cli(t, config, "import", "-C", project); code != exitOK || !strings.Contains(out, "plugins the project does not: loans, main.") || len(f.deletedPlugins) != 0 {
+		t.Errorf("an import beside a leftover plugin: %d %s %v", code, out, f.deletedPlugins)
+	}
+	if code, out, _ := cli(t, config, "import", "-C", project, "--prune"); code != exitOK || !strings.Contains(out, "Moved to the trash") || !slices.Equal(f.deletedPlugins, []string{"p1", "p2"}) {
+		t.Errorf("an import with --prune: %d %s %v", code, out, f.deletedPlugins)
+	}
+	f.extraPlugins, f.deletedPlugins = nil, nil
 	f.drafts["app.json"] = []byte(`{"a":2,"b":1}`) // canonical on the server
 	if code, out, _ := cli(t, config, "diff", "-C", project); code != exitOK || out != "" {
 		t.Errorf("diff after import: %d %q", code, out)

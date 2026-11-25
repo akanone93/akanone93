@@ -497,6 +497,7 @@ func (e env) importCmd(args []string) int {
 	var c common
 	set := flag.NewFlagSet("import", flag.ContinueOnError)
 	c.register(set, true)
+	prune := set.Bool("prune", false, "move the app's plugins the project does not have to the trash")
 	if _, code, ok := parse(set, args, e.stderr, importUsage, 0); !ok {
 		return code
 	}
@@ -514,11 +515,65 @@ func (e env) importCmd(args []string) int {
 	if err != nil {
 		return e.fail("import", err)
 	}
-	res, err := importDraft(context.Background(), cl, c.app, files)
+	ctx := context.Background()
+	res, err := importDraft(ctx, cl, c.app, files)
 	if err != nil {
 		return e.fail("import", err)
 	}
-	return e.emit(c.json, map[string]any{"files": len(files), "revision": res.GetRevision()}, fmt.Sprintf("Imported %d files.", len(files)))
+	left, err := leftoverPlugins(ctx, cl, c.app, files)
+	if err != nil {
+		return e.fail("import", err)
+	}
+	out := map[string]any{"files": len(files), "revision": res.GetRevision(), "leftover": keysOf(left)}
+	text := fmt.Sprintf("Imported %d files.", len(files))
+	switch {
+	case len(left) > 0 && *prune:
+		for _, p := range left {
+			if _, err := cl.plugin.DeletePlugin(ctx, connect.NewRequest(&pluxv1.DeletePluginRequest{Id: p.GetId()})); err != nil {
+				return e.fail("import", fmt.Errorf("move plugin %s to the trash: %w", p.GetKey(), err))
+			}
+		}
+		out["pruned"] = keysOf(left)
+		text += fmt.Sprintf("\nMoved to the trash, as the project does not have them: %s. They stay restorable for 30 days.", strings.Join(keysOf(left), ", "))
+	case len(left) > 0:
+		text += fmt.Sprintf("\nThe app also has plugins the project does not: %s. They are left as they are, and the imported app.json may no longer list them; "+
+			"move them to the trash with plux import --prune, or in Studio.", strings.Join(keysOf(left), ", "))
+	}
+	return e.emit(c.json, out, text)
+}
+
+// leftoverPlugins are the app's plugins, archived ones aside, that the
+// imported project has no directory for (build log row 209): the import
+// replaces the drafts it names and leaves the others as they are.
+func leftoverPlugins(ctx context.Context, cl *clients, app string, files map[string][]byte) ([]*pluxv1.Plugin, error) {
+	inProject := map[string]bool{}
+	for path := range files {
+		if rest, ok := strings.CutPrefix(path, "plugins/"); ok {
+			key, _, _ := strings.Cut(rest, "/")
+			inProject[key] = true
+		}
+	}
+	res, err := cl.plugin.ListPlugins(ctx, connect.NewRequest(&pluxv1.ListPluginsRequest{AppId: app, Page: &pluxv1.Page{PageSize: 1000}}))
+	if err != nil {
+		return nil, err //nolint:wrapcheck // reported as is
+	}
+	var out []*pluxv1.Plugin
+	for _, p := range res.Msg.GetPlugins() {
+		if !inProject[p.GetKey()] && !p.GetArchived() {
+			out = append(out, p)
+		}
+	}
+	slices.SortFunc(out, func(a, b *pluxv1.Plugin) int { return strings.Compare(a.GetKey(), b.GetKey()) })
+	return out, nil
+}
+
+// keysOf lists plugins' keys.
+func keysOf(plugins []*pluxv1.Plugin) []string {
+	out := make([]string, len(plugins))
+	for i, p := range plugins {
+		out[i] = p.GetKey()
+	}
+	return out
 }
 
 // published is one publish's outcome.

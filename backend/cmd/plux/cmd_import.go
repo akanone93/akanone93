@@ -20,12 +20,14 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
-const importUsage = `Usage: plux import [-C dir] [--json]
+const importUsage = `Usage: plux import [-C dir] [--prune] [--json]
        plux import openapi <file> [-o out]
        plux import graphql <schema.graphql> <operations.graphql>... [-o out]
 
 Without a subcommand, replaces the server's drafts with the local project, one snapshot per draft,
-on the server and app plux.json names (plux init points the project at others).
+on the server and app plux.json names (plux init points the project at others). A plugin the app has
+and the project does not, such as the starter plugin of an app made in Studio, is left as it is and
+named; --prune moves each such plugin to the trash, where it stays restorable for 30 days.
 
 'openapi' and 'graphql' read a source document offline and write a data-source fragment
 (dataSources, types, variables and baseUrls, as canonical JSON) for app.json or a plugin.
