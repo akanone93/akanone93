@@ -5,6 +5,7 @@ package compiler
 
 import (
 	"bytes"
+	"math"
 	"slices"
 	"strconv"
 	"strings"
@@ -29,8 +30,9 @@ const (
 )
 
 // animRuntimes lists the runtime each revision of the animation features
-// first shipped in.
-var animRuntimes = []string{"0.3.0"}
+// first shipped in: revision 2 adds cubic Bézier curves (build log row
+// 48).
+var animRuntimes = []string{"0.3.0", "0.6.0"}
 
 // curveIDs are the permanent IDs of the curves (ANI-001); the runtime's
 // table lists them in the same order.
@@ -91,13 +93,20 @@ type track struct {
 type keyframe struct {
 	atUs  int64
 	value *value
-	curve uint32
+	curve curveSpec
+}
+
+// curveSpec is a checked curve: a named curve's permanent ID (0 for none),
+// or a cubic Bézier's control points.
+type curveSpec struct {
+	id    uint32
+	cubic []float32
 }
 
 // nodeAnim is a node's checked animation (ANI-001, ANI-003, ANI-004).
 type nodeAnim struct {
 	durationUs, delayUs int64
-	curve               uint32
+	curve               curveSpec
 	props               []uint32
 	reduce              fbs.ReduceMotion
 	enter, exit         *transitionSpec
@@ -108,7 +117,7 @@ type nodeAnim struct {
 type transitionSpec struct {
 	kind       fbs.TransitionKind
 	durationUs int64
-	curve      uint32
+	curve      curveSpec
 }
 
 // animatable reports whether a prop type can be interpolated.
@@ -120,7 +129,41 @@ func animatable(typ string) bool {
 	return false
 }
 
-func curveOf(c schema.Curve) uint32 { return curveIDs[c] }
+// checkCurve checks a curve given by name or by a cubic Bézier's control
+// points x1, y1, x2, y2, whose x lie in [0, 1] as in CSS, so time only moves
+// forward. A cubic needs revision 2 of feature (runtime 0.6.0).
+func (u *unit) checkCurve(name schema.Curve, cubic []float64, feature string, c vctx) curveSpec {
+	if len(cubic) == 0 {
+		return curveSpec{id: curveIDs[name]}
+	}
+	switch {
+	case name != "":
+		u.report(c.code, c.file, c.ptr+"/cubic", "a curve is given by name or by its control points, not both")
+		return curveSpec{}
+	case len(cubic) != 4 || !inUnit(cubic[0]) || !inUnit(cubic[2]) || !finite(cubic[1]) || !finite(cubic[3]):
+		u.report(c.code, c.file, c.ptr+"/cubic", "a cubic Bézier is four numbers x1, y1, x2, y2, with x1 and x2 from 0 to 1")
+		return curveSpec{}
+	}
+	u.useRevision(feature, animRuntimes, 2, c)
+	return curveSpec{cubic: []float32{float32(cubic[0]), float32(cubic[1]), float32(cubic[2]), float32(cubic[3])}}
+}
+
+func inUnit(x float64) bool { return x >= 0 && x <= 1 }
+
+func finite(x float64) bool { return !math.IsNaN(x) && !math.IsInf(x, 0) }
+
+// cubicVector writes a curve's control points, or returns 0 for a named
+// curve; it is written before the table that holds it.
+func cubicVector(b *flatbuffers.Builder, c curveSpec) flatbuffers.UOffsetT {
+	if len(c.cubic) == 0 {
+		return 0
+	}
+	b.StartVector(4, len(c.cubic), 4)
+	for i := len(c.cubic) - 1; i >= 0; i-- {
+		b.PrependFloat32(c.cubic[i])
+	}
+	return b.EndVector(len(c.cubic))
+}
 
 func reduceOf(r schema.ReduceMotion) fbs.ReduceMotion {
 	switch r {
@@ -159,14 +202,15 @@ func (u *unit) checkNodeAnimation(n *node, sh *shape, c vctx) {
 		return
 	}
 	u.useRevision(animFeature, animRuntimes, 1, vctx{file: c.file, ptr: ptr, pl: c.pl})
-	out := &nodeAnim{curve: curveOf(a.Curve), reduce: reduceOf(a.ReduceMotion)}
+	actx := vctx{file: c.file, ptr: ptr, pl: c.pl, code: plxerr.NodeAnimationInvalid}
+	out := &nodeAnim{curve: u.checkCurve(a.Curve, a.Cubic, animFeature, actx), reduce: reduceOf(a.ReduceMotion)}
 	if a.DurationMs != nil {
 		out.durationUs = *a.DurationMs * 1000
 	}
 	if a.DelayMs != nil {
 		out.delayUs = *a.DelayMs * 1000
 	}
-	if a.DurationMs == nil && (len(a.Props) > 0 || a.Curve != "" || a.DelayMs != nil) {
+	if a.DurationMs == nil && (len(a.Props) > 0 || a.Curve != "" || len(a.Cubic) > 0 || a.DelayMs != nil) {
 		u.report(plxerr.NodeAnimationInvalid, c.file, ptr, "props, curve and delayMs of an implicit animation need a durationMs")
 	}
 	for i, name := range a.Props {
@@ -208,7 +252,8 @@ func (u *unit) checkTransition(n *node, t *schema.AnimTransition, what string, c
 	if t.Kind == schema.AnimTransitionKindFade && subtreeSize(n) > int(u.opts.Limits.Get(limits.AnimCompositedSubtree)) {
 		u.report(plxerr.AnimationOpacitySubtree, c.file, ptr, "a fade over %d nodes draws them into an offscreen layer every frame; fade the leaves or use a slide", subtreeSize(n))
 	}
-	spec := &transitionSpec{kind: transitionKinds[t.Kind], durationUs: defaultDurationMs * 1000, curve: curveOf(t.Curve)}
+	tctx := vctx{file: c.file, ptr: ptr, pl: c.pl, code: plxerr.NodeAnimationInvalid}
+	spec := &transitionSpec{kind: transitionKinds[t.Kind], durationUs: defaultDurationMs * 1000, curve: u.checkCurve(t.Curve, t.Cubic, animFeature, tctx)}
 	if t.DurationMs != nil {
 		spec.durationUs = *t.DurationMs * 1000
 	}
@@ -342,7 +387,8 @@ func (u *unit) checkTrack(pg *page, t *schema.Timeline, tk *schema.Track, ptr st
 			u.report(plxerr.AnimationValueInvalid, file, c.ptr, "a keyframe is a literal; bindings do not animate")
 			return nil
 		}
-		tr.keyframes = append(tr.keyframes, &keyframe{atUs: kf.AtMs * 1000, value: v, curve: curveOf(kf.Curve)})
+		kctx := vctx{file: file, ptr: kptr, pl: cons.pl, code: plxerr.AnimationInvalid}
+		tr.keyframes = append(tr.keyframes, &keyframe{atUs: kf.AtMs * 1000, value: v, curve: u.checkCurve(kf.Curve, kf.Cubic, animTimelinesFeature, kctx)})
 	}
 	return tr
 }
@@ -522,11 +568,15 @@ func trackTable(e *valueEnc, tr *track) flatbuffers.UOffsetT {
 	kfs := make([]flatbuffers.UOffsetT, len(tr.keyframes))
 	for i, kf := range tr.keyframes {
 		v := e.value(kf.value)
+		cubic := cubicVector(b, kf.curve)
 		fbs.KeyframeStart(b)
 		fbs.KeyframeAddAtUs(b, kf.atUs)
 		fbs.KeyframeAddValue(b, v)
-		if kf.curve != 0 {
-			fbs.KeyframeAddCurve(b, kf.curve)
+		if kf.curve.id != 0 {
+			fbs.KeyframeAddCurve(b, kf.curve.id)
+		}
+		if cubic != 0 {
+			fbs.KeyframeAddCubic(b, cubic)
 		}
 		kfs[i] = fbs.KeyframeEnd(b)
 	}
@@ -551,10 +601,14 @@ func nodeAnimationTable(e *valueEnc, n *node) flatbuffers.UOffsetT {
 	props := u32Vector(b, a.props)
 	hero := e.value(a.hero)
 	enter, exit := transitionTable(b, a.enter), transitionTable(b, a.exit)
+	cubic := cubicVector(b, a.curve)
 	fbs.NodeAnimationStart(b)
 	fbs.NodeAnimationAddDurationUs(b, a.durationUs)
-	if a.curve != 0 {
-		fbs.NodeAnimationAddCurve(b, a.curve)
+	if a.curve.id != 0 {
+		fbs.NodeAnimationAddCurve(b, a.curve.id)
+	}
+	if cubic != 0 {
+		fbs.NodeAnimationAddCubic(b, cubic)
 	}
 	fbs.NodeAnimationAddDelayUs(b, a.delayUs)
 	fbs.NodeAnimationAddProps(b, props)
@@ -576,11 +630,15 @@ func transitionTable(b *flatbuffers.Builder, t *transitionSpec) flatbuffers.UOff
 	if t == nil {
 		return 0
 	}
+	cubic := cubicVector(b, t.curve)
 	fbs.TransitionStart(b)
 	fbs.TransitionAddKind(b, t.kind)
 	fbs.TransitionAddDurationUs(b, t.durationUs)
-	if t.curve != 0 {
-		fbs.TransitionAddCurve(b, t.curve)
+	if t.curve.id != 0 {
+		fbs.TransitionAddCurve(b, t.curve.id)
+	}
+	if cubic != 0 {
+		fbs.TransitionAddCubic(b, cubic)
 	}
 	return fbs.TransitionEnd(b)
 }

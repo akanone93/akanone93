@@ -115,6 +115,9 @@ type AnimTransition struct {
 	DurationMs *int64             `json:"durationMs,omitempty"`
 	// Curve: An animation curve (ANI-001, ANI-002).
 	Curve Curve `json:"curve,omitempty"`
+	// Cubic: A cubic Bézier curve by its control points x1, y1, x2, y2 (x
+	// between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`.
+	Cubic []float64 `json:"cubic,omitempty"`
 }
 
 // AnimTransitionKind — How a node moves in or out (ANI-003).
@@ -1282,6 +1285,9 @@ type Keyframe struct {
 	Value json.RawMessage `json:"value"`
 	// Curve: The curve into this keyframe.
 	Curve Curve `json:"curve,omitempty"`
+	// Cubic: A cubic Bézier curve by its control points x1, y1, x2, y2 (x
+	// between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`.
+	Cubic []float64 `json:"cubic,omitempty"`
 }
 
 // Lifecycle — Lifecycle handlers (SCH-022).
@@ -1521,8 +1527,11 @@ type Node struct {
 type NodeAnimation struct {
 	DurationMs *int64 `json:"durationMs,omitempty"`
 	// Curve: An animation curve (ANI-001, ANI-002).
-	Curve   Curve  `json:"curve,omitempty"`
-	DelayMs *int64 `json:"delayMs,omitempty"`
+	Curve Curve `json:"curve,omitempty"`
+	// Cubic: A cubic Bézier curve by its control points x1, y1, x2, y2 (x
+	// between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`.
+	Cubic   []float64 `json:"cubic,omitempty"`
+	DelayMs *int64    `json:"delayMs,omitempty"`
 	// Props: The props to animate; all that can be, when absent.
 	Props []string `json:"props,omitempty"`
 	// Enter: An enter or exit transition of a node (ANI-003).

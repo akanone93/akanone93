@@ -28,3 +28,23 @@ const List<Curve> animationCurves = [
 Curve curveById(int id) => id >= 1 && id <= animationCurves.length
     ? animationCurves[id - 1]
     : Curves.linear;
+
+/// The curve a bundle gives by permanent [id], or, when [cubic] holds four
+/// control points x1, y1, x2, y2, the cubic Bézier through them (build log
+/// row 48), as CSS's `cubic-bezier()`.
+Curve curveOf(int id, List<double>? cubic) => cubic != null && cubic.length == 4
+    ? Cubic(cubic[0], cubic[1], cubic[2], cubic[3])
+    : curveById(id);
+
+/// A cubic Bézier from a value of its four control points x1, y1, x2, y2,
+/// such as a `Curve` prop's literal or a `cubicBezier` token; null for any
+/// other value.
+Cubic? cubicOf(Object? v) => switch (v) {
+  [final num a, final num b, final num c, final num d] => Cubic(
+    a.toDouble(),
+    b.toDouble(),
+    c.toDouble(),
+    d.toDouble(),
+  ),
+  _ => null,
+};

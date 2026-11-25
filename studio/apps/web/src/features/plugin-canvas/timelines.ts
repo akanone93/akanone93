@@ -8,7 +8,7 @@
  * it can be scrubbed and played on the canvas. A timeline driven by a scroll view follows that view's scroll offset.
  */
 
-import { curveAt } from "./motion.ts";
+import { type CurveValue, curveAt, curveValueOf } from "./motion.ts";
 import { findNode } from "./select/edits.ts";
 
 type Obj = Record<string, unknown>;
@@ -18,7 +18,8 @@ const num = (v: unknown): number | undefined => (typeof v === "number" && Number
 export interface Keyframe {
   readonly atMs: number;
   readonly value: unknown;
-  readonly curve?: string;
+  /** The curve into this keyframe: a name, or a cubic Bézier's control points (`cubic`). */
+  readonly curve?: CurveValue;
 }
 
 export interface Track {
@@ -45,11 +46,10 @@ function trackOf(t: unknown): Track[] {
   }
   const keyframes = t["keyframes"]
     .filter(isObj)
-    .map((k) => ({
-      atMs: num(k["atMs"]) ?? 0,
-      value: k["value"],
-      ...(typeof k["curve"] === "string" ? { curve: k["curve"] } : {}),
-    }))
+    .map((k): Keyframe => {
+      const curve = curveValueOf(k);
+      return { atMs: num(k["atMs"]) ?? 0, value: k["value"], ...(curve === undefined ? {} : { curve }) };
+    })
     .sort((a, b) => a.atMs - b.atMs);
   return [{ ...(typeof t["node"] === "string" ? { node: t["node"] } : {}), prop: t["prop"], keyframes }];
 }

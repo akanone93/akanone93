@@ -319,7 +319,8 @@ screen along the links, at their full heights, folded and wrapped to about the s
 reaches in a grid beside them. Screens without a saved place are arranged that way when the plugin opens. Every widget has **Motion** in its properties: an **Enter** and an **Exit** transition (fade,
 scale, or a slide in any direction) with its duration and curve — **Play enter** and **Play exit** play it on the
 canvas, as the device would — **Animate changes** (its numbers and colours animate when their bound value changes,
-with a duration, a delay and a curve), a **Hero tag** (widgets of other screens with the same tag are outlined while
+with a duration, a delay and a curve; a curve is one of Flutter's or a **Cubic Bézier** you set by its four
+control points), a **Hero tag** (widgets of other screens with the same tag are outlined while
 it is selected: it flies to them when one opens the other), and what it does when the device asks to **Reduce
 motion**. A page's timelines are under **Page › Timelines**: **Add a timeline**, or open one on the canvas. Its strip
 over the canvas plays and pauses it and scrubs it with the **Playhead** — the canvas draws the page at that moment — and

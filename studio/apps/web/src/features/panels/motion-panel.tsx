@@ -6,7 +6,16 @@ import { Icon, Select } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { Switch } from "@plux/ui/components/switch";
 import { createContext, type ReactElement, useContext } from "react";
-import { animationOf, CURVES, DEFAULT_MS, TRANSITION_KINDS } from "../plugin-canvas/motion.ts";
+import {
+  animationOf,
+  CURVES,
+  type CubicPoints,
+  type CurveValue,
+  curveValueOf,
+  DEFAULT_MS,
+  TRANSITION_KINDS,
+  withCurve,
+} from "../plugin-canvas/motion.ts";
 import { FoldCard } from "./fold.tsx";
 import { type MotionMessages, motionMessages } from "./motion-panel.messages.ts";
 
@@ -47,20 +56,59 @@ function Ms(p: {
   );
 }
 
-function CurveSelect(p: {
+/** Material 3's standard easing: the control points a new cubic curve starts from. */
+const STANDARD_CUBIC: CubicPoints = [0.2, 0, 0, 1];
+const POINT_NAMES = ["x1", "y1", "x2", "y2"] as const;
+
+/**
+ * An animation's curve: one of Flutter's named curves, or a cubic Bézier by its four control points (build log row
+ * 48), which a device draws as `Cubic`; x1 and x2 stay from 0 to 1.
+ */
+export function CurveSelect(p: {
   readonly m: MotionMessages;
-  readonly value: unknown;
+  readonly value: CurveValue | undefined;
   readonly ro: boolean;
-  readonly set: (v: string) => void;
+  readonly set: (v: CurveValue) => void;
+  /** The select's accessible name; "Curve" by default. */
+  readonly label?: string;
 }) {
+  const points = typeof p.value === "object" ? p.value : undefined;
+  const setPoint = (i: number, raw: string) => {
+    const x = Number(raw);
+    if (points === undefined || raw === "" || !Number.isFinite(x)) {
+      return;
+    }
+    const next = [...points] as [number, number, number, number];
+    next[i] = i % 2 === 0 ? Math.min(1, Math.max(0, x)) : x;
+    p.set(next);
+  };
   return (
-    <Select
-      label={p.m.curveLabel}
-      value={typeof p.value === "string" ? p.value : "fastOutSlowIn"}
-      disabled={p.ro}
-      options={CURVES.map((c) => ({ value: c, label: p.m.curve(c) }))}
-      onValueChange={p.set}
-    />
+    <>
+      <Select
+        label={p.label ?? p.m.curveLabel}
+        value={points === undefined ? (typeof p.value === "string" ? p.value : "fastOutSlowIn") : "cubic"}
+        disabled={p.ro}
+        options={[...CURVES, "cubic"].map((c) => ({ value: c, label: p.m.curve(c) }))}
+        onValueChange={(v) => p.set(v === "cubic" ? (points ?? STANDARD_CUBIC) : v)}
+      />
+      {points !== undefined && (
+        <div className="motion-cubic">
+          {POINT_NAMES.map((name, i) => (
+            <Input
+              key={`${name}:${points[i]}`}
+              type="number"
+              step={0.05}
+              aria-label={p.m.cubicPoint(name)}
+              placeholder={name}
+              className="motion-ms"
+              defaultValue={points[i]}
+              readOnly={p.ro}
+              onBlur={(e) => setPoint(i, e.target.value)}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -102,7 +150,7 @@ function TransitionRow(p: {
             ro={p.ro}
             set={(v) => put("durationMs", v)}
           />
-          <CurveSelect m={p.m} value={t["curve"]} ro={p.ro} set={(c) => put("curve", c)} />
+          <CurveSelect m={p.m} value={curveValueOf(t)} ro={p.ro} set={(c) => p.set(withCurve(t, c))} />
         </div>
       )}
     </div>
@@ -145,7 +193,7 @@ export function MotionPanel(p: {
               set={(v) => p.set("durationMs", v ?? DEFAULT_MS)}
             />
             <Ms label={m.delay} value={num(a["delayMs"])} ro={ro} set={(v) => p.set("delayMs", v)} />
-            <CurveSelect m={m} value={a["curve"]} ro={ro} set={(c) => p.set("curve", c)} />
+            <CurveSelect m={m} value={curveValueOf(a)} ro={ro} set={(c) => p.set("curve", c)} />
           </div>
         )}
       </div>

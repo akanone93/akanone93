@@ -137,6 +137,14 @@
   grid-column: 1 / -1;
 }
 
+/* A cubic Bézier curve's four control points, x1, y1, x2 and y2, on one line under its curve. */
+.motion-cubic {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: calc(var(--spacing) * 1);
+}
+
 .motion-ms,
 .motion-hero {
   block-size: calc(var(--spacing) * 8);

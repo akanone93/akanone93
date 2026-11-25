@@ -245,6 +245,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('at_us', 0, FieldKind.scalar, 8, 8, -1, required: false),
     FieldLayout('value', 1, FieldKind.table, 0, 0, 75, required: false),
     FieldLayout('curve', 2, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('cubic', 3, FieldKind.vectorScalar, 4, 4, -1, required: false),
   ]),
   // 34
   TableLayout('Limit', [
@@ -361,6 +362,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('enter', 5, FieldKind.table, 0, 0, 72, required: false),
     FieldLayout('exit', 6, FieldKind.table, 0, 0, 72, required: false),
     FieldLayout('hero', 7, FieldKind.table, 0, 0, 75, required: false),
+    FieldLayout('cubic', 8, FieldKind.vectorScalar, 4, 4, -1, required: false),
   ]),
   // 45
   TableLayout('NumberingSystemEntry', [
@@ -584,6 +586,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('kind', 0, FieldKind.scalar, 1, 1, -1, required: false),
     FieldLayout('duration_us', 1, FieldKind.scalar, 8, 8, -1, required: false),
     FieldLayout('curve', 2, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('cubic', 3, FieldKind.vectorScalar, 4, 4, -1, required: false),
   ]),
   // 73
   TableLayout('Trigger', [

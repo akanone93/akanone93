@@ -1528,6 +1528,15 @@
       ],
       "description": "An animation curve (ANI-001, ANI-002)."
     },
+    "cubicCurve": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`."
+    },
     "reduceMotion": {
       "enum": [
         "skip",
@@ -1553,6 +1562,9 @@
         },
         "curve": {
           "$ref": "#/$defs/curve"
+        },
+        "cubic": {
+          "$ref": "#/$defs/cubicCurve"
         }
       },
       "patternProperties": {
@@ -1572,6 +1584,9 @@
         },
         "curve": {
           "$ref": "#/$defs/curve"
+        },
+        "cubic": {
+          "$ref": "#/$defs/cubicCurve"
         },
         "delayMs": {
           "type": "integer",
@@ -1623,6 +1638,9 @@
         "curve": {
           "$ref": "#/$defs/curve",
           "description": "The curve into this keyframe."
+        },
+        "cubic": {
+          "$ref": "#/$defs/cubicCurve"
         }
       },
       "patternProperties": {

@@ -177,7 +177,11 @@ final class TimelineSpec {
     final node = tr.node;
     return TrackSpec(node == null ? null : uuidOf(node), tr.prop, [
       for (final k in tr.keyframes ?? const <fbs.Keyframe>[])
-        KeyframeSpec(k.atUs, _literal(k.value, timeline), curveById(k.curve)),
+        KeyframeSpec(
+          k.atUs,
+          _literal(k.value, timeline),
+          curveOf(k.curve, k.cubic),
+        ),
     ]);
   }
 

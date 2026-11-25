@@ -62,6 +62,7 @@ An enter or exit transition of a node (ANI-003).
 | `kind` | [AnimTransitionKind](#animtransitionkind) | yes | How a node moves in or out (ANI-003). |
 | `durationMs` | integer |  |  |
 | `curve` | [Curve](#curve) |  | An animation curve (ANI-001, ANI-002). |
+| `cubic` | list of number |  | A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`. |
 
 ### AnimTransitionKind
 
@@ -756,6 +757,7 @@ A value of a track at a time (ANI-002).
 | `atMs` | integer | yes |  |
 | `value` | JSON value | yes | A prop value: a literal of the prop's type, or a binding (SCH-011). Literal objects and lists may contain bindings in their fields and items. |
 | `curve` | [Curve](#curve) |  | The curve into this keyframe. |
+| `cubic` | list of number |  | A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`. |
 
 ### Lifecycle
 
@@ -908,6 +910,7 @@ The animations of a node (ANI-001, ANI-003, ANI-004): `durationMs` animates the 
 |---|---|---|---|
 | `durationMs` | integer |  |  |
 | `curve` | [Curve](#curve) |  | An animation curve (ANI-001, ANI-002). |
+| `cubic` | list of number |  | A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`. |
 | `delayMs` | integer |  |  |
 | `props` | list of string |  | The props to animate; all that can be, when absent. |
 | `enter` | [AnimTransition](#animtransition) |  | An enter or exit transition of a node (ANI-003). |

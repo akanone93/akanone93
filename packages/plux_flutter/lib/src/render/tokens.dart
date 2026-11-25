@@ -66,7 +66,8 @@ final class TokenReader {
 /// type it binds: `color` → color, `dimension` and `number` → double,
 /// `fontFamily` → string, `fontWeight` → a FontWeight member, `duration`
 /// → duration, `typography` → a TextStyle object, `shadow` → a BoxShadow
-/// object. Unknown shapes convert to null.
+/// object, `cubicBezier` → its four control points, the cubic Bézier a
+/// `Curve` prop takes (build log row 48). Unknown shapes convert to null.
 Object? convertToken(String type, Object? v) => switch (type) {
   'color' => v is String ? parseColor(v) : null,
   'dimension' => _dimension(v),
@@ -80,6 +81,15 @@ Object? convertToken(String type, Object? v) => switch (type) {
   'duration' => _duration(v),
   'typography' => _typography(v),
   'shadow' => _shadow(v),
+  'cubicBezier' => switch (v) {
+    [final num a, final num b, final num c, final num d] => [
+      a.toDouble(),
+      b.toDouble(),
+      c.toDouble(),
+      d.toDouble(),
+    ],
+    _ => null,
+  },
   _ => null,
 };
 

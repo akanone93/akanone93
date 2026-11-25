@@ -25,12 +25,24 @@
       "runtime": "0.3.0"
     },
     {
+      "name": "anim.timelines.v2",
+      "runtime": "0.6.0"
+    },
+    {
       "name": "anim.transitions.v1",
       "runtime": "0.3.0"
     },
     {
+      "name": "anim.transitions.v2",
+      "runtime": "0.6.0"
+    },
+    {
       "name": "anim.v1",
       "runtime": "0.3.0"
+    },
+    {
+      "name": "anim.v2",
+      "runtime": "0.6.0"
     },
     {
       "name": "data.outbox.v1",

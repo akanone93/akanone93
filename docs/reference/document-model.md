@@ -50,7 +50,7 @@ base  = "string" | "int" | "double" | "bool" | "decimal" | "money" | "date" | "d
       | "list" "<" type ">" | "map" "<" "string" "," type ">" | TypeName ;
 ```
 
-`TypeName` is an object type or enum declared in `types` of the app (visible everywhere) or of a plugin, or — in widget props, action inputs, data sources and the fields of declared types — a value type or enum of the [widget registry](widgets.md), such as `LatLng`. `?` makes a type nullable. In a widget prop a registry value is encoded by its permanent IDs; in data — a value of a declared type — a registry value type is an object keyed by field name, its optional fields nullable, and a registry enum the name of a member, as a declared one.
+`TypeName` is an object type or enum declared in `types` of the app (visible everywhere) or of a plugin, or — in widget props, action inputs, data sources and the fields of declared types — a value type or enum of the [widget registry](widgets.md), such as `LatLng`. `?` makes a type nullable. A `Curve` prop takes a named curve (`"easeInOut"`), a cubic Bézier as its four control points (`[0.2, 0, 0, 1]`, x1 and x2 from 0 to 1, as CSS's `cubic-bezier()`) or a `cubicBezier` token; a node's animation, transitions and keyframes give a cubic in `cubic` instead of `curve` (build log row 48). In a widget prop a registry value is encoded by its permanent IDs; in data — a value of a declared type — a registry value type is an object keyed by field name, its optional fields nullable, and a registry enum the name of a member, as a declared one.
 
 Literals are written as follows; the compiler checks them against the declared type, and `schemagen` checks the defaults of the registry the same way.
 

@@ -107,17 +107,8 @@ func (u *unit) check(c vctx, v any, t *texpr) *value {
 	case primitives[t.name]:
 		return u.checkPrimitive(c, v, t)
 	}
-	if vt, ok := registry.LookupValueType(t.name); ok {
-		if c.data {
-			return u.checkObject(c, v, vt.Name, dataFields(&vt))
-		}
-		return u.checkValueType(c, v, &vt)
-	}
-	if e, ok := registry.LookupEnum(t.name); ok {
-		if c.data {
-			return u.checkDeclaredEnum(c, v, e.Name, memberNames(&e))
-		}
-		return u.checkRegistryEnum(c, v, &e)
+	if out, handled := u.checkRegistry(c, v, t.name); handled {
+		return out
 	}
 	if spec, ok := u.declared(c.pl, t.name); ok {
 		if spec.Fields == nil {
@@ -127,6 +118,30 @@ func (u *unit) check(c vctx, v any, t *texpr) *value {
 	}
 	u.report(plxerr.UnknownType, c.file, c.ptr, "type %q is not declared", t.name)
 	return nil
+}
+
+// checkRegistry checks a value of a registry value type or enum; handled
+// is false for any other type. In data they are written as declared ones
+// (vctx.data); a Curve may also be a cubic Bézier.
+func (u *unit) checkRegistry(c vctx, v any, name string) (*value, bool) {
+	if vt, ok := registry.LookupValueType(name); ok {
+		if c.data {
+			return u.checkObject(c, v, vt.Name, dataFields(&vt)), true
+		}
+		return u.checkValueType(c, v, &vt), true
+	}
+	e, ok := registry.LookupEnum(name)
+	if !ok {
+		return nil, false
+	}
+	xs, isList := v.([]any)
+	switch {
+	case c.data:
+		return u.checkDeclaredEnum(c, v, e.Name, memberNames(&e)), true
+	case isList && e.Name == curveEnum:
+		return u.checkCubicProp(c, xs), true
+	}
+	return u.checkRegistryEnum(c, v, &e), true
 }
 
 // declared looks a type up among the app's and the plugin's.
@@ -261,11 +276,34 @@ func widening(from, to *pxl.Type) string {
 	return ""
 }
 
-// tokenTypes maps a design token's $type to the prop type it can bind.
-var tokenTypes = map[string]string{
-	"color": "color", "dimension": "double", "number": "double", "fontFamily": "string", "fontWeight": "FontWeight",
-	"duration": "duration", "typography": "TextStyle", "shadow": "BoxShadow",
+// tokenPropType is the prop type a design token's $type can bind; a
+// cubicBezier token binds a Curve (build log row 48).
+func tokenPropType(typ string) string {
+	switch typ {
+	case "color":
+		return "color"
+	case "dimension", "number":
+		return "double"
+	case "fontFamily":
+		return "string"
+	case "fontWeight":
+		return "FontWeight"
+	case "duration":
+		return "duration"
+	case "typography":
+		return "TextStyle"
+	case "shadow":
+		return "BoxShadow"
+	case "cubicBezier":
+		return curveEnum
+	}
+	return ""
 }
+
+// curveEnum is the registry's enum of named curves; a Curve prop may also
+// be a cubic Bézier, as a list of its four control points or a cubicBezier
+// token (build log row 48).
+const curveEnum = "Curve"
 
 // tokenValue checks a design-token reference.
 func (u *unit) tokenValue(c vctx, path string, t *texpr) *value {
@@ -273,9 +311,12 @@ func (u *unit) tokenValue(c vctx, path string, t *texpr) *value {
 	if !ok {
 		return nil // reported by resolve
 	}
-	if want := tokenTypes[tok.typ]; want != t.name {
+	if want := tokenPropType(tok.typ); want != t.name {
 		u.report(c.code, c.file, c.ptr+"/$token", "token %q is a %s token, which cannot be a %s", path, tok.typ, t)
 		return nil
+	}
+	if tok.typ == "cubicBezier" {
+		u.useRevision(animFeature, animRuntimes, 2, c)
 	}
 	return &value{kind: fbs.ValueKindToken, s: path}
 }
@@ -723,6 +764,41 @@ func (u *unit) checkObject(c vctx, v any, name string, fields map[string]string)
 		}
 	}
 	return out
+}
+
+// checkCubicProp checks a Curve prop given as a cubic Bézier's control
+// points [x1, y1, x2, y2], encoded as a list of four doubles.
+func (u *unit) checkCubicProp(c vctx, xs []any) *value {
+	pts := make([]float64, 0, len(xs))
+	for _, x := range xs {
+		f, ok := jsonFloat(x)
+		if !ok {
+			break
+		}
+		pts = append(pts, f)
+	}
+	if len(pts) != 4 || len(xs) != 4 || !inUnit(pts[0]) || !inUnit(pts[2]) || !finite(pts[1]) || !finite(pts[3]) {
+		u.report(c.code, c.file, c.ptr, "a cubic Bézier curve is four numbers x1, y1, x2, y2, with x1 and x2 from 0 to 1")
+		return nil
+	}
+	u.useRevision(animFeature, animRuntimes, 2, c)
+	out := &value{kind: fbs.ValueKindList}
+	for _, f := range pts {
+		out.items = append(out.items, &value{kind: fbs.ValueKindDouble, d: f})
+	}
+	return out
+}
+
+// jsonFloat is a JSON number as a float64.
+func jsonFloat(v any) (float64, bool) {
+	switch x := v.(type) {
+	case json.Number:
+		f, err := x.Float64()
+		return f, err == nil
+	case float64:
+		return x, true
+	}
+	return 0, false
 }
 
 // dataFields are a registry value type's fields as a declared object's:

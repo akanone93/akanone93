@@ -77,8 +77,34 @@ func (rcv *Transition) MutateCurve(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(8, n)
 }
 
+func (rcv *Transition) Cubic(j int) float32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetFloat32(a + flatbuffers.UOffsetT(j*4))
+	}
+	return 0
+}
+
+func (rcv *Transition) CubicLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *Transition) MutateCubic(j int, n float32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateFloat32(a+flatbuffers.UOffsetT(j*4), n)
+	}
+	return false
+}
+
 func TransitionStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func TransitionAddKind(builder *flatbuffers.Builder, kind TransitionKind) {
 	builder.PrependByteSlot(0, byte(kind), 0)
@@ -88,6 +114,12 @@ func TransitionAddDurationUs(builder *flatbuffers.Builder, durationUs int64) {
 }
 func TransitionAddCurve(builder *flatbuffers.Builder, curve uint32) {
 	builder.PrependUint32Slot(2, curve, 0)
+}
+func TransitionAddCubic(builder *flatbuffers.Builder, cubic flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(cubic), 0)
+}
+func TransitionStartCubicVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func TransitionEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

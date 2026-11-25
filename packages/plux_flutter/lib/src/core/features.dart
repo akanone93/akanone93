@@ -10,7 +10,8 @@
 /// forms' `forms.v1` (ADR-0047) and `forms.sensitive.v1`, `security.secureui.v1`, the device actions' `device.v1`,
 /// confidential bundles' `security.confidential.v1` (SEC-053, ADR-0055),
 /// animation's `anim.v1`, `anim.timelines.v1` and `anim.transitions.v1`
-/// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049) and
+/// (ANI-001–ANI-006, NAV-010) and their `v2` (cubic Bézier curves, 0.6.0),
+/// the local database's `db.v1` (ADR-0049) and
 /// `db.v2` (a filter's comparison bound to a source param, 0.6.0), the
 /// experiment variants' `experiments.variant.v1` (ABT-002), the
 /// device-function section `section.wasm.v1` when the host registers a
@@ -112,8 +113,11 @@ final class RuntimeFeatures {
   /// timelines, and custom route transitions.
   static const Set<String> animation = {
     'anim.v1',
+    'anim.v2',
     'anim.timelines.v1',
+    'anim.timelines.v2',
     'anim.transitions.v1',
+    'anim.transitions.v2',
   };
 
   /// The local database (DB-001, ADR-0049): a bundle declaring a collection

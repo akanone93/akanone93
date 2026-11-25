@@ -21,7 +21,7 @@ import { linkMessages } from "../plugin-canvas/links.messages.ts";
 import { routeOptions } from "../plugin-canvas/links.ts";
 import { LIST_TYPES } from "../plugin-canvas/list-preview.ts";
 import { setOverrideRecipe } from "../plugin-canvas/locale-overrides.ts";
-import { setAnimationRecipe } from "../plugin-canvas/motion.ts";
+import { cubicPointsOf, setAnimationRecipe } from "../plugin-canvas/motion.ts";
 import { type Node, readPlugin } from "../plugin-canvas/plugin-model.ts";
 import type { ScreenCost } from "../plugin-canvas/screen-costs.ts";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
@@ -46,7 +46,8 @@ import { clearOverridesRecipe, flipRecipe, pinRecipe, setPropsRecipe, sizingReci
 import { ConstraintsEditor, LayoutPanel, layoutContextShows } from "./layout-panel.tsx";
 import { addStateRecipe, ListPanel } from "./list-panel.tsx";
 import { LocaleTools } from "./locale-tools.tsx";
-import { MotionPanel } from "./motion-panel.tsx";
+import { motionMessages } from "./motion-panel.messages.ts";
+import { CurveSelect, MotionPanel } from "./motion-panel.tsx";
 import { pageSettingsMessages } from "./page-settings.messages.ts";
 import { PageSettingsTab } from "./page-settings.tsx";
 import { panelMessages, panelsMessages } from "./panels.messages.ts";
@@ -569,6 +570,26 @@ function ObjectEditor(p: EditorProps) {
   );
 }
 
+/** A Curve prop: one of Flutter's named curves, or a cubic Bézier's four control points. */
+function CurvePropEditor(p: EditorProps) {
+  const m = motionMessages(useLingui().i18n);
+  const value = cubicPointsOf(p.value) ?? (typeof p.value === "string" ? p.value : undefined);
+  return (
+    <div className="motion-pair">
+      <CurveSelect
+        m={m}
+        label={p.name}
+        value={value}
+        ro={p.readOnly}
+        set={(v) => {
+          p.onChange(typeof v === "string" ? v : [...v]);
+          p.onEnd();
+        }}
+      />
+    </div>
+  );
+}
+
 /** Recursive value editor: one control per type; nested objects and lists edit their fields and items. */
 export function ValueEditor(p: EditorProps) {
   const kind = editorKind(p.type, enumNames);
@@ -601,6 +622,10 @@ export function ValueEditor(p: EditorProps) {
       );
     }
     case "enum":
+      // A Curve prop may also be a cubic Bézier by its control points (build log row 48).
+      if (bare === "Curve" && bindingOf(p.value) === null) {
+        return <CurvePropEditor {...p} />;
+      }
       return (
         <ChoiceEditor
           {...p}

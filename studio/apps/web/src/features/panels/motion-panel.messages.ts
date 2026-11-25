@@ -21,9 +21,17 @@ export function motionMessages(i18n: I18n) {
       i18n._({
         id: "motion.curve",
         message:
-          "{curve, select, linear {Linear} easeIn {Ease in} easeOut {Ease out} easeInOut {Ease in and out} fastOutSlowIn {Standard} decelerate {Decelerate} bounceIn {Bounce in} bounceOut {Bounce out} elasticOut {Elastic} overshoot {Overshoot} other {Curve}}",
+          "{curve, select, linear {Linear} easeIn {Ease in} easeOut {Ease out} easeInOut {Ease in and out} fastOutSlowIn {Standard} decelerate {Decelerate} bounceIn {Bounce in} bounceOut {Bounce out} elasticOut {Elastic} overshoot {Overshoot} cubic {Cubic Bézier} other {Curve}}",
         values: { curve },
-        comment: "An animation curve, as Flutter's Curves name them; Standard is Material's fastOutSlowIn.",
+        comment:
+          "An animation curve, as Flutter's Curves name them; Standard is Material's fastOutSlowIn; Cubic Bézier is a curve given by its control points.",
+      }),
+    cubicPoint: (point: string) =>
+      i18n._({
+        id: "motion.cubicPoint",
+        message: "Control point {point}",
+        values: { point },
+        comment: "One of a cubic Bézier curve's four control point coordinates: x1, y1, x2 or y2 (kept as is).",
       }),
     curveLabel: i18n._({ id: "motion.curveLabel", message: "Curve", comment: "Label of an animation's curve." }),
     duration: i18n._({

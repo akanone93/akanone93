@@ -208,6 +208,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "at_us", id: 0, kind: fieldScalar, size: 8, align: 8, table: -1, required: false},
 		{name: "value", id: 1, kind: fieldTable, size: 0, align: 0, table: 75, required: false},
 		{name: "curve", id: 2, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
+		{name: "cubic", id: 3, kind: fieldVectorScalar, size: 4, align: 4, table: -1, required: false},
 	}},
 	34: {name: "Limit", fields: []fieldLayout{
 		{name: "key", id: 0, kind: fieldString, size: 0, align: 0, table: -1, required: true},
@@ -313,6 +314,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "enter", id: 5, kind: fieldTable, size: 0, align: 0, table: 72, required: false},
 		{name: "exit", id: 6, kind: fieldTable, size: 0, align: 0, table: 72, required: false},
 		{name: "hero", id: 7, kind: fieldTable, size: 0, align: 0, table: 75, required: false},
+		{name: "cubic", id: 8, kind: fieldVectorScalar, size: 4, align: 4, table: -1, required: false},
 	}},
 	45: {name: "NumberingSystemEntry", fields: []fieldLayout{
 		{name: "locale", id: 0, kind: fieldString, size: 0, align: 0, table: -1, required: false},
@@ -508,6 +510,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "kind", id: 0, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
 		{name: "duration_us", id: 1, kind: fieldScalar, size: 8, align: 8, table: -1, required: false},
 		{name: "curve", id: 2, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
+		{name: "cubic", id: 3, kind: fieldVectorScalar, size: 4, align: 4, table: -1, required: false},
 	}},
 	73: {name: "Trigger", fields: []fieldLayout{
 		{name: "kind", id: 0, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},

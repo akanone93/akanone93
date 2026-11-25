@@ -30,6 +30,36 @@ export const CURVES = [
 ] as const;
 export type CurveName = (typeof CURVES)[number];
 
+/** A cubic Bézier's control points x1, y1, x2, y2, a curve given instead of a name (build log row 48). */
+export type CubicPoints = readonly [number, number, number, number];
+
+/** A curve as a document gives it: a name, or a cubic Bézier's control points. */
+export type CurveValue = string | CubicPoints;
+
+/** Four finite numbers, x1 and x2 from 0 to 1: a cubic Bézier's control points; undefined for any other value. */
+export function cubicPointsOf(v: unknown): CubicPoints | undefined {
+  if (!Array.isArray(v) || v.length !== 4 || !v.every((x) => typeof x === "number" && Number.isFinite(x))) {
+    return undefined;
+  }
+  const [x1, y1, x2, y2] = v as number[];
+  const inUnit = (x: number | undefined) => x !== undefined && x >= 0 && x <= 1;
+  return inUnit(x1) && inUnit(x2) ? [x1 as number, y1 as number, x2 as number, y2 as number] : undefined;
+}
+
+/** The curve of an animation, a transition or a keyframe: its `cubic` control points, else its `curve` name. */
+export function curveValueOf(o: Readonly<Record<string, unknown>>): CurveValue | undefined {
+  return cubicPointsOf(o["cubic"]) ?? (typeof o["curve"] === "string" ? o["curve"] : undefined);
+}
+
+/** `o` with its curve set: a name in `curve`, control points in `cubic`, the other removed; undefined removes both. */
+export function withCurve(o: Readonly<Record<string, unknown>>, curve: CurveValue | undefined): Obj {
+  const { curve: _name, cubic: _points, ...rest } = o;
+  if (curve === undefined) {
+    return rest;
+  }
+  return typeof curve === "string" ? { ...rest, curve } : { ...rest, cubic: [...curve] };
+}
+
 export const TRANSITION_KINDS = ["fade", "scale", "slideUp", "slideDown", "slideLeft", "slideRight"] as const;
 export type TransitionKind = (typeof TRANSITION_KINDS)[number];
 
@@ -70,9 +100,12 @@ function bounce(t: number): number {
   return 7.5625 * u * u + 0.984375;
 }
 
-/** A curve's value at `t` (0–1), as `Curves.<name>.transform(t)`. */
-export function curveAt(curve: string | undefined, t: number): number {
+/** A curve's value at `t` (0–1), as `Curves.<name>.transform(t)`, or a cubic Bézier's, as `Cubic(…).transform(t)`. */
+export function curveAt(curve: CurveValue | undefined, t: number): number {
   const x = Math.min(1, Math.max(0, t));
+  if (typeof curve === "object") {
+    return cubic(curve[0], curve[1], curve[2], curve[3], x);
+  }
   switch (curve) {
     case "easeIn":
       return cubic(0.42, 0, 1, 1, x);
@@ -147,7 +180,7 @@ export function frameAt(
   if (elapsed > duration) {
     return undefined;
   }
-  const eased = curveAt(typeof transition["curve"] === "string" ? transition["curve"] : undefined, elapsed / duration);
+  const eased = curveAt(curveValueOf(transition), elapsed / duration);
   return transitionFrame(String(transition["kind"]), phase === "enter" ? eased : 1 - eased, size);
 }
 
@@ -156,9 +189,22 @@ export function animationOf(node: unknown): Obj {
   return isObj(node) && isObj(node["animation"]) ? node["animation"] : {};
 }
 
+/** `animation` with `key` set to `value`, or removed for undefined; a `curve` as `withCurve` writes it. */
+function withKey(animation: Obj, key: string, value: unknown): Obj {
+  if (key === "curve") {
+    return withCurve(animation, typeof value === "string" && value !== "" ? value : cubicPointsOf(value));
+  }
+  if (value === undefined || value === "") {
+    const { [key]: _removed, ...rest } = animation;
+    return rest;
+  }
+  return { ...animation, [key]: value };
+}
+
 /**
  * The recipe that sets one key of node `id`'s animation (`durationMs`, `curve`, `delayMs`, `enter`, `exit`, `hero`,
- * `reduceMotion`); undefined removes it, and an animation left empty is removed.
+ * `reduceMotion`); undefined removes it, and an animation left empty is removed. A `curve` that is a cubic Bézier's
+ * control points is written to `cubic`, a named one to `curve`, the other removed, in the one edit.
  */
 export function setAnimationRecipe(id: string, key: string, value: unknown): (root: unknown) => void {
   return (root) => {
@@ -166,12 +212,7 @@ export function setAnimationRecipe(id: string, key: string, value: unknown): (ro
     if (node === undefined) {
       return;
     }
-    const animation: Obj = isObj(node["animation"]) ? node["animation"] : {};
-    if (value === undefined || value === "") {
-      delete animation[key];
-    } else {
-      animation[key] = value;
-    }
+    const animation = withKey(isObj(node["animation"]) ? node["animation"] : {}, key, value);
     if (Object.keys(animation).length === 0) {
       delete node["animation"];
     } else {

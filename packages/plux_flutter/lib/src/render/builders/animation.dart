@@ -114,11 +114,19 @@ const List<String> _curveNames = [
   'overshoot',
 ];
 
-/// The curve in prop [id]; [fallback] when absent.
-Curve _curve(NodeContext c, int id, [Curve fallback = Curves.linear]) {
-  final name = c.decode(id, nameCurve);
+/// The curve in prop [id]: a named one, or a cubic Bézier given as its four
+/// control points or by a `cubicBezier` token (build log row 48);
+/// [fallback] when absent.
+Curve _curve(NodeContext c, int id, [Curve fallback = Curves.linear]) =>
+    c.decode(id, _decodeCurve) ?? fallback;
+
+/// A `Curve` prop's value: four control points, or a named curve's name.
+Curve? _decodeCurve(Decoding d, Object? v) {
+  final cubic = cubicOf(v);
+  if (cubic != null) return cubic;
+  final name = nameCurve(d, v);
   final at = name == null ? -1 : _curveNames.indexOf(name);
-  return at < 0 ? fallback : animationCurves[at];
+  return at < 0 ? null : animationCurves[at];
 }
 
 /// The duration in prop [id]; zero under reduce motion (ANI-007), or one
@@ -231,7 +239,7 @@ Widget _hero(NodeContext c) {
     tag: c.decode(1, asString) ?? c.missing('tag'),
     transitionOnUserGestures: c.decode(2, asBool) ?? false,
     curve: _curve(c, 3, Curves.fastOutSlowIn),
-    reverseCurve: c.decode(4, nameCurve) == null ? null : _curve(c, 4),
+    reverseCurve: c.decode(4, _decodeCurve),
     child: child,
   );
 }

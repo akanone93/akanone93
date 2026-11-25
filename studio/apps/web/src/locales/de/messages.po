@@ -448,11 +448,11 @@ msgstr "{count} Warnungen bestätigt"
 msgid "panels.multi"
 msgstr "{count} Widgets ausgewählt; gemeinsame Eigenschaften werden angezeigt."
 
-#. An animation curve, as Flutter's Curves name them; Standard is Material's fastOutSlowIn.
+#. An animation curve, as Flutter's Curves name them; Standard is Material's fastOutSlowIn; Cubic Bézier is a curve given by its control points.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/motion-panel.messages.ts
 msgid "motion.curve"
-msgstr "{curve, select, linear {Linear} easeIn {Langsam beginnen} easeOut {Langsam enden} easeInOut {Langsam beginnen und enden} fastOutSlowIn {Standard} decelerate {Abbremsen} bounceIn {Federnd hinein} bounceOut {Federnd hinaus} elasticOut {Elastisch} overshoot {Überschwingen} other {Kurve}}"
+msgstr "{curve, select, linear {Linear} easeIn {Langsam beginnen} easeOut {Langsam enden} easeInOut {Langsam beginnen und enden} fastOutSlowIn {Standard} decelerate {Abbremsen} bounceIn {Federnd hinein} bounceOut {Federnd hinaus} elasticOut {Elastisch} overshoot {Überschwingen} cubic {Kubische Bézierkurve} other {Kurve}}"
 
 #. A linear gradient's direction.
 #. js-lingui-explicit-id
@@ -4985,6 +4985,12 @@ msgstr "Kontrast {ratio}:1, braucht {needed}:1"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.variantControl"
 msgstr "Kontrolle"
+
+#. One of a cubic Bézier curve's four control point coordinates: x1, y1, x2 or y2 (kept as is).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/motion-panel.messages.ts
+msgid "motion.cubicPoint"
+msgstr "Kontrollpunkt {point}"
 
 #. Toolbar menu: turn the widget into a related one (a column into a row, a filled button into an outlined one).
 #. js-lingui-explicit-id

@@ -858,6 +858,9 @@ table Keyframe {
   value: Value;
   // The permanent Curves enum value ID: the curve into this keyframe.
   curve: uint;
+  // A cubic Bézier's control points x1, y1, x2, y2, the curve instead of
+  // `curve` when present (build log row 48).
+  cubic: [float];
 }
 
 table Track {
@@ -935,6 +938,8 @@ table Transition {
   kind: TransitionKind;
   duration_us: long;
   curve: uint;
+  // A cubic Bézier's control points, the curve instead of `curve`.
+  cubic: [float];
 }
 
 // The animations of a node, declared in its document (ANI-001).
@@ -950,6 +955,9 @@ table NodeAnimation {
   exit: Transition;
   // The hero tag (ANI-004).
   hero: Value;
+  // A cubic Bézier's control points, the implicit animation's curve
+  // instead of `curve`.
+  cubic: [float];
 }
 
 table Timelines {

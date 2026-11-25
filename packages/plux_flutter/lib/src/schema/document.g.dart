@@ -104,7 +104,7 @@ enum ActivationPolicy {
 
 /// An enter or exit transition of a node (ANI-003).
 final class AnimTransition {
-  const AnimTransition({required this.kind, this.durationMs, this.curve});
+  const AnimTransition({required this.kind, this.durationMs, this.curve, this.cubic});
 
   /// Decodes a JSON object.
   factory AnimTransition.fromJson(Object json) {
@@ -113,6 +113,7 @@ final class AnimTransition {
       kind: AnimTransitionKind.fromJson(m['kind']!),
       durationMs: m['durationMs'] == null ? null : (m['durationMs']! as num).toInt(),
       curve: m['curve'] == null ? null : Curve.fromJson(m['curve']!),
+      cubic: m['cubic'] == null ? null : [for (final e in m['cubic']! as List<Object?>) (e! as num).toDouble()],
     );
   }
 
@@ -121,12 +122,16 @@ final class AnimTransition {
   final int? durationMs;
   /// An animation curve (ANI-001, ANI-002).
   final Curve? curve;
+  /// A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0
+  /// and 1), as CSS's cubic-bezier(); the curve instead of `curve`.
+  final List<double>? cubic;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
         'kind': kind.toJson(),
         if (durationMs != null) 'durationMs': durationMs!,
         if (curve != null) 'curve': curve!.toJson(),
+        if (cubic != null) 'cubic': [for (final e in cubic!) e],
       };
 }
 
@@ -2447,7 +2452,7 @@ final class Icon {
 
 /// A value of a track at a time (ANI-002).
 final class Keyframe {
-  const Keyframe({required this.atMs, required this.value, this.curve});
+  const Keyframe({required this.atMs, required this.value, this.curve, this.cubic});
 
   /// Decodes a JSON object.
   factory Keyframe.fromJson(Object json) {
@@ -2456,6 +2461,7 @@ final class Keyframe {
       atMs: (m['atMs']! as num).toInt(),
       value: m['value'],
       curve: m['curve'] == null ? null : Curve.fromJson(m['curve']!),
+      cubic: m['cubic'] == null ? null : [for (final e in m['cubic']! as List<Object?>) (e! as num).toDouble()],
     );
   }
 
@@ -2465,12 +2471,16 @@ final class Keyframe {
   final Object? value;
   /// The curve into this keyframe.
   final Curve? curve;
+  /// A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0
+  /// and 1), as CSS's cubic-bezier(); the curve instead of `curve`.
+  final List<double>? cubic;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
         'atMs': atMs,
         'value': value,
         if (curve != null) 'curve': curve!.toJson(),
+        if (cubic != null) 'cubic': [for (final e in cubic!) e],
       };
 }
 
@@ -2943,7 +2953,7 @@ final class Node {
 /// changes; `enter` and `exit` play when the node is inserted or its visibility
 /// changes; `hero` is the tag of a shared-element transition.
 final class NodeAnimation {
-  const NodeAnimation({this.durationMs, this.curve, this.delayMs, this.props, this.enter, this.exit, this.hero, this.reduceMotion});
+  const NodeAnimation({this.durationMs, this.curve, this.cubic, this.delayMs, this.props, this.enter, this.exit, this.hero, this.reduceMotion});
 
   /// Decodes a JSON object.
   factory NodeAnimation.fromJson(Object json) {
@@ -2951,6 +2961,7 @@ final class NodeAnimation {
     return NodeAnimation(
       durationMs: m['durationMs'] == null ? null : (m['durationMs']! as num).toInt(),
       curve: m['curve'] == null ? null : Curve.fromJson(m['curve']!),
+      cubic: m['cubic'] == null ? null : [for (final e in m['cubic']! as List<Object?>) (e! as num).toDouble()],
       delayMs: m['delayMs'] == null ? null : (m['delayMs']! as num).toInt(),
       props: m['props'] == null ? null : [for (final e in m['props']! as List<Object?>) e! as String],
       enter: m['enter'] == null ? null : AnimTransition.fromJson(m['enter']!),
@@ -2963,6 +2974,9 @@ final class NodeAnimation {
   final int? durationMs;
   /// An animation curve (ANI-001, ANI-002).
   final Curve? curve;
+  /// A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0
+  /// and 1), as CSS's cubic-bezier(); the curve instead of `curve`.
+  final List<double>? cubic;
   final int? delayMs;
   /// The props to animate; all that can be, when absent.
   final List<String>? props;
@@ -2981,6 +2995,7 @@ final class NodeAnimation {
   Map<String, Object?> toJson() => {
         if (durationMs != null) 'durationMs': durationMs!,
         if (curve != null) 'curve': curve!.toJson(),
+        if (cubic != null) 'cubic': [for (final e in cubic!) e],
         if (delayMs != null) 'delayMs': delayMs!,
         if (props != null) 'props': [for (final e in props!) e],
         if (enter != null) 'enter': enter!.toJson(),

@@ -154,8 +154,34 @@ func (rcv *NodeAnimation) Hero(obj *Value) *Value {
 	return nil
 }
 
+func (rcv *NodeAnimation) Cubic(j int) float32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetFloat32(a + flatbuffers.UOffsetT(j*4))
+	}
+	return 0
+}
+
+func (rcv *NodeAnimation) CubicLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *NodeAnimation) MutateCubic(j int, n float32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateFloat32(a+flatbuffers.UOffsetT(j*4), n)
+	}
+	return false
+}
+
 func NodeAnimationStart(builder *flatbuffers.Builder) {
-	builder.StartObject(8)
+	builder.StartObject(9)
 }
 func NodeAnimationAddDurationUs(builder *flatbuffers.Builder, durationUs int64) {
 	builder.PrependInt64Slot(0, durationUs, 0)
@@ -183,6 +209,12 @@ func NodeAnimationAddExit(builder *flatbuffers.Builder, exit flatbuffers.UOffset
 }
 func NodeAnimationAddHero(builder *flatbuffers.Builder, hero flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(hero), 0)
+}
+func NodeAnimationAddCubic(builder *flatbuffers.Builder, cubic flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(cubic), 0)
+}
+func NodeAnimationStartCubicVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func NodeAnimationEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

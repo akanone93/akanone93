@@ -70,7 +70,7 @@ void main() {
       },
     );
     expect(convertToken('shadow', 1), isNull);
-    expect(convertToken('cubicBezier', [0, 0, 1, 1]), isNull);
+    expect(convertToken('cubicBezier', [0, 0, 1, 1]), [0.0, 0.0, 1.0, 1.0]);
   });
 
   test('aliases are followed, inside composites too, and a cycle or a '
@@ -116,5 +116,12 @@ void main() {
       return tokens[p];
     });
     expect(calls, lessThanOrEqualTo(maxAliasLookups));
+  });
+
+  test('a cubicBezier token converts to its four control points, the '
+      'cubic Bézier a Curve prop takes (build log row 48) [THM-001]', () {
+    expect(convertToken('cubicBezier', [0.2, 0, 0, 1]), [0.2, 0.0, 0.0, 1.0]);
+    expect(convertToken('cubicBezier', [0.2, 0, 1]), isNull);
+    expect(convertToken('cubicBezier', 'ease'), isNull);
   });
 }

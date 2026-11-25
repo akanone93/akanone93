@@ -44,6 +44,8 @@ export interface AnimTransition {
   readonly durationMs?: number;
   /** An animation curve (ANI-001, ANI-002). */
   readonly curve?: Curve;
+  /** A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`. */
+  readonly cubic?: readonly number[];
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -860,6 +862,8 @@ export interface Keyframe {
   readonly value: JsonValue;
   /** The curve into this keyframe. */
   readonly curve?: Curve;
+  /** A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`. */
+  readonly cubic?: readonly number[];
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -1033,6 +1037,8 @@ export interface NodeAnimation {
   readonly durationMs?: number;
   /** An animation curve (ANI-001, ANI-002). */
   readonly curve?: Curve;
+  /** A cubic Bézier curve by its control points x1, y1, x2, y2 (x between 0 and 1), as CSS's cubic-bezier(); the curve instead of `curve`. */
+  readonly cubic?: readonly number[];
   readonly delayMs?: number;
   /** The props to animate; all that can be, when absent. */
   readonly props?: readonly string[];

@@ -209,7 +209,7 @@ final class _MotionNodeState extends ConsumerState<MotionNode>
     }
     c.duration = run;
     final lead = a.delayUs / (a.durationUs + a.delayUs);
-    _implicitCurve = Interval(lead, 1, curve: curveById(a.curve));
+    _implicitCurve = Interval(lead, 1, curve: curveOf(a.curve, a.cubic));
     c.forward(from: 0);
   }
 
@@ -255,15 +255,18 @@ final class _MotionNodeState extends ConsumerState<MotionNode>
     final c = _presence;
     final a = _anim;
     if (c == null || a == null) return child;
+    // Read once per build, not on every frame.
+    final enter = a.enter, exit = a.exit;
+    final enterCurve = enter == null ? null : curveOf(enter.curve, enter.cubic);
+    final exitCurve = exit == null ? null : curveOf(exit.curve, exit.cubic);
     return AnimatedBuilder(
       animation: c,
       child: child,
       builder: (context, child) {
-        final spec = c.status == AnimationStatus.reverse || _exiting
-            ? a.exit
-            : a.enter;
+        final leaving = c.status == AnimationStatus.reverse || _exiting;
+        final spec = leaving ? exit : enter;
         if (spec == null || c.value == 1) return child!;
-        final curve = curveById(spec.curve);
+        final curve = (leaving ? exitCurve : enterCurve)!;
         final p = curve.transform(c.value);
         return _transition(
           spec.kind,

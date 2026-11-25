@@ -6864,6 +6864,7 @@ class Keyframe {
   int get atUs => const fb.Int64Reader().vTableGet(_bc, _bcOffset, 4, 0);
   Value? get value => Value.reader.vTableGetNullable(_bc, _bcOffset, 6);
   int get curve => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
+  List<double>? get cubic => const fb.ListReader<double>(fb.Float32Reader()).vTableGetNullable(_bc, _bcOffset, 10);
 
 }
 
@@ -6881,7 +6882,7 @@ class KeyframeBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(3);
+    fbBuilder.startTable(4);
   }
 
   int addAtUs(int? atUs) {
@@ -6896,6 +6897,10 @@ class KeyframeBuilder {
     fbBuilder.addUint32(2, curve);
     return fbBuilder.offset;
   }
+  int addCubicOffset(int? offset) {
+    fbBuilder.addOffset(3, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -6906,24 +6911,30 @@ class KeyframeObjectBuilder extends fb.ObjectBuilder {
   final int? _atUs;
   final ValueObjectBuilder? _value;
   final int? _curve;
+  final List<double>? _cubic;
 
   KeyframeObjectBuilder({
     int? atUs,
     ValueObjectBuilder? value,
     int? curve,
+    List<double>? cubic,
   })
       : _atUs = atUs,
         _value = value,
-        _curve = curve;
+        _curve = curve,
+        _cubic = cubic;
 
   /// Finish building, and store into the [fbBuilder].
   @override
   int finish(fb.Builder fbBuilder) {
     final int? valueOffset = _value?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(3);
+    final int? cubicOffset = _cubic == null ? null
+        : fbBuilder.writeListFloat32(_cubic!);
+    fbBuilder.startTable(4);
     fbBuilder.addInt64(0, _atUs);
     fbBuilder.addOffset(1, valueOffset);
     fbBuilder.addUint32(2, _curve);
+    fbBuilder.addOffset(3, cubicOffset);
     return fbBuilder.endTable();
   }
 
@@ -7344,6 +7355,7 @@ class Transition {
   TransitionKind get kind => TransitionKind.fromValue(const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 4, 0));
   int get durationUs => const fb.Int64Reader().vTableGet(_bc, _bcOffset, 6, 0);
   int get curve => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
+  List<double>? get cubic => const fb.ListReader<double>(fb.Float32Reader()).vTableGetNullable(_bc, _bcOffset, 10);
 
 }
 
@@ -7361,7 +7373,7 @@ class TransitionBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(3);
+    fbBuilder.startTable(4);
   }
 
   int addKind(TransitionKind? kind) {
@@ -7376,6 +7388,10 @@ class TransitionBuilder {
     fbBuilder.addUint32(2, curve);
     return fbBuilder.offset;
   }
+  int addCubicOffset(int? offset) {
+    fbBuilder.addOffset(3, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -7386,23 +7402,29 @@ class TransitionObjectBuilder extends fb.ObjectBuilder {
   final TransitionKind? _kind;
   final int? _durationUs;
   final int? _curve;
+  final List<double>? _cubic;
 
   TransitionObjectBuilder({
     TransitionKind? kind,
     int? durationUs,
     int? curve,
+    List<double>? cubic,
   })
       : _kind = kind,
         _durationUs = durationUs,
-        _curve = curve;
+        _curve = curve,
+        _cubic = cubic;
 
   /// Finish building, and store into the [fbBuilder].
   @override
   int finish(fb.Builder fbBuilder) {
-    fbBuilder.startTable(3);
+    final int? cubicOffset = _cubic == null ? null
+        : fbBuilder.writeListFloat32(_cubic!);
+    fbBuilder.startTable(4);
     fbBuilder.addUint8(0, _kind?.value);
     fbBuilder.addInt64(1, _durationUs);
     fbBuilder.addUint32(2, _curve);
+    fbBuilder.addOffset(3, cubicOffset);
     return fbBuilder.endTable();
   }
 
@@ -7434,6 +7456,7 @@ class NodeAnimation {
   Transition? get enter => Transition.reader.vTableGetNullable(_bc, _bcOffset, 14);
   Transition? get exit => Transition.reader.vTableGetNullable(_bc, _bcOffset, 16);
   Value? get hero => Value.reader.vTableGetNullable(_bc, _bcOffset, 18);
+  List<double>? get cubic => const fb.ListReader<double>(fb.Float32Reader()).vTableGetNullable(_bc, _bcOffset, 20);
 
 }
 
@@ -7451,7 +7474,7 @@ class NodeAnimationBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(8);
+    fbBuilder.startTable(9);
   }
 
   int addDurationUs(int? durationUs) {
@@ -7486,6 +7509,10 @@ class NodeAnimationBuilder {
     fbBuilder.addOffset(7, offset);
     return fbBuilder.offset;
   }
+  int addCubicOffset(int? offset) {
+    fbBuilder.addOffset(8, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -7501,6 +7528,7 @@ class NodeAnimationObjectBuilder extends fb.ObjectBuilder {
   final TransitionObjectBuilder? _enter;
   final TransitionObjectBuilder? _exit;
   final ValueObjectBuilder? _hero;
+  final List<double>? _cubic;
 
   NodeAnimationObjectBuilder({
     int? durationUs,
@@ -7511,6 +7539,7 @@ class NodeAnimationObjectBuilder extends fb.ObjectBuilder {
     TransitionObjectBuilder? enter,
     TransitionObjectBuilder? exit,
     ValueObjectBuilder? hero,
+    List<double>? cubic,
   })
       : _durationUs = durationUs,
         _curve = curve,
@@ -7519,7 +7548,8 @@ class NodeAnimationObjectBuilder extends fb.ObjectBuilder {
         _reduceMotion = reduceMotion,
         _enter = enter,
         _exit = exit,
-        _hero = hero;
+        _hero = hero,
+        _cubic = cubic;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -7529,7 +7559,9 @@ class NodeAnimationObjectBuilder extends fb.ObjectBuilder {
     final int? enterOffset = _enter?.getOrCreateOffset(fbBuilder);
     final int? exitOffset = _exit?.getOrCreateOffset(fbBuilder);
     final int? heroOffset = _hero?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(8);
+    final int? cubicOffset = _cubic == null ? null
+        : fbBuilder.writeListFloat32(_cubic!);
+    fbBuilder.startTable(9);
     fbBuilder.addInt64(0, _durationUs);
     fbBuilder.addUint32(1, _curve);
     fbBuilder.addInt64(2, _delayUs);
@@ -7538,6 +7570,7 @@ class NodeAnimationObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(5, enterOffset);
     fbBuilder.addOffset(6, exitOffset);
     fbBuilder.addOffset(7, heroOffset);
+    fbBuilder.addOffset(8, cubicOffset);
     return fbBuilder.endTable();
   }
 

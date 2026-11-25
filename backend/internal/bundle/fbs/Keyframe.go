@@ -78,8 +78,34 @@ func (rcv *Keyframe) MutateCurve(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(8, n)
 }
 
+func (rcv *Keyframe) Cubic(j int) float32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetFloat32(a + flatbuffers.UOffsetT(j*4))
+	}
+	return 0
+}
+
+func (rcv *Keyframe) CubicLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *Keyframe) MutateCubic(j int, n float32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateFloat32(a+flatbuffers.UOffsetT(j*4), n)
+	}
+	return false
+}
+
 func KeyframeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func KeyframeAddAtUs(builder *flatbuffers.Builder, atUs int64) {
 	builder.PrependInt64Slot(0, atUs, 0)
@@ -89,6 +115,12 @@ func KeyframeAddValue(builder *flatbuffers.Builder, value flatbuffers.UOffsetT) 
 }
 func KeyframeAddCurve(builder *flatbuffers.Builder, curve uint32) {
 	builder.PrependUint32Slot(2, curve, 0)
+}
+func KeyframeAddCubic(builder *flatbuffers.Builder, cubic flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(cubic), 0)
+}
+func KeyframeStartCubicVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func KeyframeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
