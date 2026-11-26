@@ -4,8 +4,8 @@
 import { useLingui } from "@lingui/react";
 import { AlertDialog, Button, Dialog, Field, Icon, Input, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
-import { ColourChip, ColourField } from "../../components/colour-field.tsx";
-import { DataTable, PageEmpty } from "../../components/page.tsx";
+import { ColourField } from "../../components/colour-field.tsx";
+import { PageEmpty } from "../../components/page.tsx";
 import { designMessages } from "./design.messages.ts";
 import {
   BRANDS_GROUP,
@@ -103,7 +103,15 @@ function BrandDialog(props: { readonly brand?: string; readonly onClose: () => v
   );
 }
 
-/** One brand overlay: what it replaces, light and dark, each removable; more can be added, or the overlay removed. */
+/** A colour value as CSS draws it: a hex colour, else nothing (an alias or an expression is named, not drawn). */
+const swatchColour = (v: unknown): string | undefined =>
+  typeof v === "string" && /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(v.trim()) ? v.trim() : undefined;
+
+/**
+ * One brand overlay as a compact card (build log row 58): its colours side by side, each a swatch of its light value
+ * over its dark one with its name and value, then its other tokens one per line; each removable, more can be added, or
+ * the overlay removed.
+ */
 function BrandCard({ brand }: { readonly brand: string }): ReactElement {
   const m = designMessages(useLingui().i18n);
   const ctx = useDesign();
@@ -112,18 +120,11 @@ function BrandCard({ brand }: { readonly brand: string }): ReactElement {
   const rows = groupRows(ctx.rows, BRANDS_GROUP)
     .filter((r) => r.path[0] === brand)
     .map((r) => ({ ...r, path: r.path.slice(1) }));
-  const cell = (type: string, v: unknown) =>
-    v === undefined ? (
-      <span aria-hidden="true" className="text-muted-foreground">
-        —
-      </span>
-    ) : type === "color" ? (
-      <ColourChip value={show(v)} />
-    ) : (
-      <span className="font-mono text-caption">{show(v)}</span>
-    );
+  const colours = rows.filter((r) => r.type === "color");
+  const others = rows.filter((r) => r.type !== "color");
+  const remove = (path: readonly string[]) => <RemoveToken path={[...BRANDS_GROUP, brand, ...path]} />;
   return (
-    <section aria-label={brand} className="design-card">
+    <section aria-label={brand} className="design-card brand-card">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="me-auto text-label font-medium">{m.brandOverrides(brand, rows.length)}</h3>
         <Button variant="secondary" size="sm" disabled={!ctx.canEdit} onClick={() => setAdding(true)}>
@@ -140,28 +141,53 @@ function BrandCard({ brand }: { readonly brand: string }): ReactElement {
           <Icon name="trash" />
         </Button>
       </div>
-      {rows.length > 0 && (
-        <DataTable
-          actions
-          caption={m.brandOverrides(brand, rows.length)}
-          heads={[m.colToken, m.colLight, m.colDark, m.colActions]}
-          rows={rows.map((r) => {
+      {colours.length > 0 && (
+        <ul className="brand-swatches">
+          {colours.map((r) => {
             const name = r.path.join(".");
-            return {
-              key: name,
-              cells: [
-                <span key="name" className="font-mono text-body">
+            const light = show(r.light);
+            const dark = r.dark === undefined ? light : show(r.dark);
+            return (
+              <li key={name} className="brand-swatch">
+                <span role="img" aria-label={m.brandColour(name, light, dark)} className="brand-swatch-colours">
+                  <span style={{ backgroundColor: swatchColour(r.light) }} />
+                  <span style={{ backgroundColor: swatchColour(r.dark ?? r.light) }} />
+                </span>
+                <span className="brand-swatch-name" title={name}>
                   {name}
-                </span>,
-                cell(r.type, r.light),
-                cell(r.type, r.dark),
-                <span key="actions" className="flex justify-end">
-                  <RemoveToken path={[...BRANDS_GROUP, brand, ...r.path]} />
-                </span>,
-              ],
-            };
+                </span>
+                <span className="brand-swatch-value" title={dark === light ? light : `${light} · ${dark}`}>
+                  <span>{light}</span>
+                  {dark !== light && <span> · {dark}</span>}
+                </span>
+                <span className="brand-swatch-remove">{remove(r.path)}</span>
+              </li>
+            );
           })}
-        />
+        </ul>
+      )}
+      {others.length > 0 && (
+        <ul className="brand-others">
+          {others.map((r) => {
+            const name = r.path.join(".");
+            return (
+              <li key={name}>
+                <span className="truncate font-mono text-caption" title={name}>
+                  {name}
+                </span>
+                <span className="token-value" title={show(r.light)}>
+                  {show(r.light)}
+                </span>
+                {r.dark !== undefined && show(r.dark) !== show(r.light) && (
+                  <span className="token-value" title={show(r.dark)}>
+                    {show(r.dark)}
+                  </span>
+                )}
+                {remove(r.path)}
+              </li>
+            );
+          })}
+        </ul>
       )}
       {adding && <BrandDialog brand={brand} onClose={() => setAdding(false)} />}
       <AlertDialog
@@ -193,7 +219,11 @@ function Brands(): ReactElement {
       {names.length === 0 ? (
         <PageEmpty icon="palette" text={m.noBrands} />
       ) : (
-        names.map((b) => <BrandCard key={b} brand={b} />)
+        <div className="brand-grid">
+          {names.map((b) => (
+            <BrandCard key={b} brand={b} />
+          ))}
+        </div>
       )}
       {creating && <BrandDialog onClose={() => setCreating(false)} />}
     </section>

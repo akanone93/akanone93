@@ -1426,6 +1426,12 @@ msgstr "{t, select, platform {Plattformstandard} fade {Überblenden} slideLeft {
 msgid "links.targetOption"
 msgstr "{title} ({scope})"
 
+#. Accessible name of a brand overlay's colour swatch; {light} and {dark} are colour values such as #FF0000.
+#. js-lingui-explicit-id
+#: apps/web/src/features/design/design.messages.ts
+msgid "design.brandColour"
+msgstr "{token}: {light} im hellen Modus, {dark} im dunklen Modus"
+
 #. The plugin's asset bytes against plugin.assetBytes, e.g. 1.2 MB of 20 MB.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts

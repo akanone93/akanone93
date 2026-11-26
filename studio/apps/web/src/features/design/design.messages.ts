@@ -323,6 +323,14 @@ export function designMessages(i18n: I18n) {
         values: { brand, n },
         comment: "A brand overlay and the number of tokens it replaces.",
       }),
+    brandColour: (token: string, light: string, dark: string) =>
+      i18n._({
+        id: "design.brandColour",
+        message: "{token}: {light} in light mode, {dark} in dark mode",
+        values: { token, light, dark },
+        comment:
+          "Accessible name of a brand overlay's colour swatch; {light} and {dark} are colour values such as #FF0000.",
+      }),
     createBrand: i18n._({
       id: "design.createBrand",
       message: "Create a brand overlay",

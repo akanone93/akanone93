@@ -247,6 +247,8 @@ describe("[STU-112] A16 to A18", () => {
     const card = await screen.findByRole("region", { name: "acme" });
     expect(within(card).getByRole("heading", { name: "acme: 1 override" })).toBeTruthy();
     expect(within(card).getByText("#ff0000")).toBeTruthy();
+    // A colour is a swatch, light over dark, named for both (row 58).
+    expect(within(card).getByRole("img", { name: /: #ff0000 in light mode, #ff0000 in dark mode$/ })).toBeTruthy();
     fireEvent.click(within(card).getByRole("button", { name: "Remove the acme overlay" }));
     fireEvent.click(await screen.findByRole("button", { name: "Remove overlay" }));
     expect(await screen.findByText("No brand overlays yet.")).toBeTruthy();
