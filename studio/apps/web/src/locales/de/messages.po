@@ -6192,6 +6192,12 @@ msgstr "Geräte (live)"
 msgid "design.iconFailed"
 msgstr "Geräte können es nicht zeichnen"
 
+#. Explains the list of flags the app declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.declaredHelp"
+msgstr "Geräte verwenden den Standardwert der App, bis ein Flag hier Werte hat. Legen Sie Werte fest, um eines ohne Release zu ändern."
+
 #. Help under the app's read-only key in the app settings.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -7804,6 +7810,12 @@ msgstr "Flag-Schlüssel"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.flagsCaption"
 msgstr "Flags dieser Umgebung: ein typisierter Wert mit Standard und Werten je Segment."
+
+#. Heading of the list of flags the app document declares that have no values in this environment yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.declaredHeading"
+msgstr "Flags, die die App deklariert"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -16947,6 +16959,18 @@ msgstr "Geheimnis {name} setzen"
 msgid "setupToDo.variable"
 msgstr "Variable {name} setzen"
 
+#. Button that fills the flag form from a flag the app declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.setValues"
+msgstr "Werte festlegen"
+
+#. Accessible name of the button that fills the flag form from a declared flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.setValuesNamed"
+msgstr "Werte von {key} festlegen"
+
 #. Column head: the setting's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -18494,6 +18518,18 @@ msgstr "Die App unterstützt diese Sprache bereits."
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.load-failed"
 msgstr "Die App konnte nicht geladen werden."
+
+#. Warning under the flag type when it does not fit the type the app document declares. {type} is a PXL type such as int.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagTypeDiffers"
+msgstr "Die App deklariert {key} als {type}: Geräte ignorieren Werte eines anderen Typs."
+
+#. Warning under the flag key when the app document does not declare that flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.undeclaredFlag"
+msgstr "Die App deklariert kein Flag {key}: Geräte ignorieren seine Werte."
 
 #. Shown when imported variables cannot be written.
 #. js-lingui-explicit-id

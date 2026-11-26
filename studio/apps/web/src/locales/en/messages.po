@@ -6192,6 +6192,12 @@ msgstr "Devices (live)"
 msgid "design.iconFailed"
 msgstr "Devices cannot draw it"
 
+#. Explains the list of flags the app declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.declaredHelp"
+msgstr "Devices use the app's default until a flag has values here. Set values to change one without a release."
+
 #. Help under the app's read-only key in the app settings.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -7804,6 +7810,12 @@ msgstr "Flag key"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.flagsCaption"
 msgstr "Flags of this environment: a typed value with a default and values per segment."
+
+#. Heading of the list of flags the app document declares that have no values in this environment yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.declaredHeading"
+msgstr "Flags the app declares"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -16947,6 +16959,18 @@ msgstr "Set the secret {name}"
 msgid "setupToDo.variable"
 msgstr "Set the variable {name}"
 
+#. Button that fills the flag form from a flag the app declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.setValues"
+msgstr "Set values"
+
+#. Accessible name of the button that fills the flag form from a declared flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.setValuesNamed"
+msgstr "Set values of {key}"
+
 #. Column head: the setting's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -18494,6 +18518,18 @@ msgstr "The app already supports this locale."
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.load-failed"
 msgstr "The app could not be loaded."
+
+#. Warning under the flag type when it does not fit the type the app document declares. {type} is a PXL type such as int.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagTypeDiffers"
+msgstr "The app declares {key} as {type}: devices ignore values of another type."
+
+#. Warning under the flag key when the app document does not declare that flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.undeclaredFlag"
+msgstr "The app declares no flag {key}: devices ignore its values."
 
 #. Shown when imported variables cannot be written.
 #. js-lingui-explicit-id

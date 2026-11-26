@@ -6192,6 +6192,12 @@ msgstr "الأجهزة (مباشر)"
 msgid "design.iconFailed"
 msgstr "لا تستطيع الأجهزة رسمها"
 
+#. Explains the list of flags the app declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.declaredHelp"
+msgstr "تستخدم الأجهزة القيمة الافتراضية للتطبيق إلى أن تكون للعلامة قيم هنا. عيّن قيمًا لتغيير إحداها دون إصدار."
+
 #. Help under the app's read-only key in the app settings.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -7804,6 +7810,12 @@ msgstr "مفتاح العلم"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.flagsCaption"
 msgstr "أعلام هذه البيئة: قيمة مصنفة مع قيمة افتراضية وقيم لكل شريحة."
+
+#. Heading of the list of flags the app document declares that have no values in this environment yet.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.declaredHeading"
+msgstr "العلامات التي يعلنها التطبيق"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -16947,6 +16959,18 @@ msgstr "عيّن السر {name}"
 msgid "setupToDo.variable"
 msgstr "عيّن المتغير {name}"
 
+#. Button that fills the flag form from a flag the app declares.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.setValues"
+msgstr "تعيين القيم"
+
+#. Accessible name of the button that fills the flag form from a declared flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.setValuesNamed"
+msgstr "تعيين قيم {key}"
+
 #. Column head: the setting's name.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -18494,6 +18518,18 @@ msgstr "التطبيق يدعم هذه اللغة بالفعل."
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.settings.load-failed"
 msgstr "تعذّر تحميل التطبيق."
+
+#. Warning under the flag type when it does not fit the type the app document declares. {type} is a PXL type such as int.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.flagTypeDiffers"
+msgstr "يعلن التطبيق عن {key} بالنوع {type}: تتجاهل الأجهزة القيم من نوع آخر."
+
+#. Warning under the flag key when the app document does not declare that flag.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.undeclaredFlag"
+msgstr "لا يعلن التطبيق عن علامة {key}: تتجاهل الأجهزة قيمها."
 
 #. Shown when imported variables cannot be written.
 #. js-lingui-explicit-id

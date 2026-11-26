@@ -5,6 +5,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import { buildDocument, initialDraft, parseAttributes, problems } from "./experiments.schema.ts";
+import { declaredFlags, flagTypeOf } from "./flags-page.tsx";
 
 afterEach(cleanup);
 
@@ -298,6 +299,44 @@ describe("[STU-103] feature flags (A9, D49)", () => {
     await screen.findByText("newCheckout");
     click("Delete newCheckout");
     await waitFor(() => expect(calls).toEqual(["deleteFlag:newCheckout"]));
+  });
+
+  test("offers the flags the app declares and warns about a key or type the app does not declare", async () => {
+    const calls: string[] = [];
+    const app = {
+      flags: [
+        { name: "maxWorkshops", type: "int", default: 2, description: "Workshops a DevHarbor attendee may pick." },
+        { name: "newCheckout", type: "bool", default: false },
+      ],
+    };
+    open("/flags", {
+      experiments: { experiments: [], flags, calls },
+      appDocuments: [{ kind: "app", path: "app.json", json: app }],
+    });
+    await screen.findByText("Flags the app declares");
+    expect(screen.queryByRole("button", { name: "Set values of newCheckout" })).toBeNull();
+    click("Set values of maxWorkshops");
+    expect((screen.getByLabelText("Flag key") as HTMLInputElement).value).toBe("maxWorkshops");
+    expect((screen.getByLabelText("Default value (JSON)") as HTMLInputElement).value).toBe("2");
+    expect(screen.queryByText(/devices ignore/)).toBeNull();
+    click("Add segment value");
+    type("Segment key", "beta");
+    type("Value for the segment (JSON)", "3");
+    click("Save flag");
+    await waitFor(() => expect(calls).toEqual(["createFlag:maxWorkshops:2", "segments:maxWorkshops:beta=3"]));
+    type("Flag key", "dark");
+    await screen.findByText("The app declares no flag dark: devices ignore its values.");
+    type("Flag key", "maxWorkshops");
+    await screen.findByText("The app declares maxWorkshops as int: devices ignore values of another type.");
+  });
+
+  test("maps declared PXL types to flag types", () => {
+    expect([flagTypeOf("bool"), flagTypeOf("int?"), flagTypeOf("double"), flagTypeOf("string")]).toEqual([1, 2, 2, 3]);
+    expect(flagTypeOf("list<string>")).toBe(4);
+    expect(declaredFlags({ flags: [{ name: "a", type: "bool", default: true }, { type: "int" }, 3] })).toEqual([
+      { name: "a", type: "bool", defaultJson: "true", description: "" },
+    ]);
+    expect(declaredFlags(undefined)).toEqual([]);
   });
 
   test("a person without flags.manage cannot edit", async () => {

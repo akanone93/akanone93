@@ -380,6 +380,44 @@ export function experimentsMessages(i18n: I18n) {
       comment: "Button that loads a flag into the form.",
     }),
     deleteFlag: i18n._({ id: "experiments.deleteFlag", message: "Delete", comment: "Button that deletes a flag." }),
+    declaredHeading: i18n._({
+      id: "experiments.declaredHeading",
+      message: "Flags the app declares",
+      comment: "Heading of the list of flags the app document declares that have no values in this environment yet.",
+    }),
+    declaredHelp: i18n._({
+      id: "experiments.declaredHelp",
+      message:
+        "Devices use the app's default until a flag has values here. Set values to change one without a release.",
+      comment: "Explains the list of flags the app declares.",
+    }),
+    setValues: i18n._({
+      id: "experiments.setValues",
+      message: "Set values",
+      comment: "Button that fills the flag form from a flag the app declares.",
+    }),
+    setValuesNamed: (key: string) =>
+      i18n._({
+        id: "experiments.setValuesNamed",
+        message: "Set values of {key}",
+        comment: "Accessible name of the button that fills the flag form from a declared flag.",
+        values: { key },
+      }),
+    undeclaredFlag: (key: string) =>
+      i18n._({
+        id: "experiments.undeclaredFlag",
+        message: "The app declares no flag {key}: devices ignore its values.",
+        comment: "Warning under the flag key when the app document does not declare that flag.",
+        values: { key },
+      }),
+    flagTypeDiffers: (key: string, type: string) =>
+      i18n._({
+        id: "experiments.flagTypeDiffers",
+        message: "The app declares {key} as {type}: devices ignore values of another type.",
+        comment:
+          "Warning under the flag type when it does not fit the type the app document declares. {type} is a PXL type such as int.",
+        values: { key, type },
+      }),
     noFlags: i18n._({
       id: "experiments.noFlags",
       message: "No flags yet.",

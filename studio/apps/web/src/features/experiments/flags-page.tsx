@@ -9,7 +9,7 @@ import { PageEmpty } from "../../components/page.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { ExperimentsTabs } from "../releases/tabs.tsx";
 import { Table } from "../security/parts.tsx";
-import { useEnvironment, usePermissions, useScope } from "../security/use-security.ts";
+import { useAppDocument, useEnvironment, usePermissions, useScope } from "../security/use-security.ts";
 import { type ExperimentsMessages, experimentsMessages } from "./experiments.messages.ts";
 import { useExperimentActions, useFlags } from "./use-experiments.ts";
 
@@ -55,6 +55,110 @@ const blank: Form = {
   segments: [],
   existing: false,
 };
+
+/** A flag the app document declares (ABT-006): its default lives there, its values per environment here. */
+export interface DeclaredFlag {
+  readonly name: string;
+  /** A PXL type, such as `bool`, `int` or `list<string>`. */
+  readonly type: string;
+  readonly defaultJson: string;
+  readonly description: string;
+}
+
+/** The flags of an app document, in document order; anything malformed is skipped. */
+export function declaredFlags(app: Record<string, unknown> | undefined): readonly DeclaredFlag[] {
+  const list = app?.["flags"];
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  return list.flatMap((f: unknown) => {
+    if (typeof f !== "object" || f === null) {
+      return [];
+    }
+    const { name, type, description } = f as Record<string, unknown>;
+    if (typeof name !== "string" || typeof type !== "string") {
+      return [];
+    }
+    const defaultJson = JSON.stringify((f as Record<string, unknown>)["default"] ?? null);
+    return [{ name, type, defaultJson, description: typeof description === "string" ? description : "" }];
+  });
+}
+
+/** The server type of a flag the app declares with PXL type `t`: the runtime takes a value only of this type. */
+export function flagTypeOf(t: string): FlagType {
+  switch (t.replace(/\?$/, "")) {
+    case "bool":
+      return FlagType.BOOL;
+    case "int":
+    case "double":
+    case "number":
+      return FlagType.NUMBER;
+    case "string":
+      return FlagType.STRING;
+    default:
+      return FlagType.JSON;
+  }
+}
+
+/** What the form's key and type say against the app's declarations, or nothing when they fit or are unknown. */
+function declarationWarning(
+  m: ExperimentsMessages,
+  form: Form,
+  declared: readonly DeclaredFlag[] | undefined,
+): string | undefined {
+  if (declared === undefined || form.key === "") {
+    return undefined;
+  }
+  const decl = declared.find((d) => d.name === form.key);
+  if (decl === undefined) {
+    return m.undeclaredFlag(form.key);
+  }
+  return flagTypeOf(decl.type) === form.type ? undefined : m.flagTypeDiffers(form.key, decl.type);
+}
+
+/** The flags the app declares that have no values in this environment, each offered to the form. */
+function DeclaredFlags({
+  m,
+  flags,
+  disabled,
+  onPick,
+}: {
+  readonly m: ExperimentsMessages;
+  readonly flags: readonly DeclaredFlag[];
+  readonly disabled: boolean;
+  readonly onPick: (flag: DeclaredFlag) => void;
+}): ReactElement | null {
+  if (flags.length === 0) {
+    return null;
+  }
+  return (
+    <section aria-labelledby="declared-flags" className="flex flex-col gap-2">
+      <h2 id="declared-flags" className="text-heading">
+        {m.declaredHeading}
+      </h2>
+      <p className="text-caption text-muted-foreground">{m.declaredHelp}</p>
+      <ul className="flex flex-col gap-2">
+        {flags.map((f) => (
+          <li key={f.name} className="flex items-center gap-3">
+            <span className="font-mono">{f.name}</span>
+            <span className="text-caption text-muted-foreground">
+              {f.type} = {f.defaultJson}
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={disabled}
+              aria-label={m.setValuesNamed(f.name)}
+              onClick={() => onPick(f)}
+            >
+              {m.setValues}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 const validSegments = (rows: readonly SegmentRow[]) =>
   rows.every((r) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(r.segment) && validJson(r.valueJson));
@@ -116,12 +220,16 @@ export function FlagsPage(): ReactElement {
   const { app, env } = useScope();
   const environment = useEnvironment(app, env);
   const flags = useFlags(app, environment.environment?.id);
+  const appDocument = useAppDocument(app);
+  const declared = appDocument.data === undefined ? undefined : declaredFlags(appDocument.data.json);
   const actions = useExperimentActions(app, environment.environment?.id ?? "");
   const allowed = usePermissions().has("flags.manage");
   const [form, setForm] = useState<Form>(blank);
   const [failed, setFailed] = useState(false);
   const names = typeNames(m);
   const valid = form.key !== "" && validJson(form.defaultJson) && validSegments(form.segments);
+  const warning = declarationWarning(m, form, declared);
+  const unset = (declared ?? []).filter((d) => !(flags.data?.flags ?? []).some((f) => f.key === d.name));
   const save = () => {
     setFailed(false);
     const spec = {
@@ -194,6 +302,21 @@ export function FlagsPage(): ReactElement {
           }))}
         />
       )}
+      <DeclaredFlags
+        m={m}
+        flags={unset}
+        disabled={!allowed}
+        onPick={(f) =>
+          setForm({
+            key: f.name,
+            type: flagTypeOf(f.type),
+            description: f.description,
+            defaultJson: f.defaultJson,
+            segments: [],
+            existing: false,
+          })
+        }
+      />
       <Field label={m.flagKey}>
         <Input disabled={form.existing} value={form.key} onChange={(e) => setForm({ ...form, key: e.target.value })} />
       </Field>
@@ -213,6 +336,11 @@ export function FlagsPage(): ReactElement {
       <Field label={m.flagDefault}>
         <Input value={form.defaultJson} onChange={(e) => setForm({ ...form, defaultJson: e.target.value })} />
       </Field>
+      {warning !== undefined && (
+        <p role="status" className="text-body text-warning">
+          {warning}
+        </p>
+      )}
       {!validJson(form.defaultJson) && (
         <p role="alert" className="text-body text-danger">
           {m.badJson}
