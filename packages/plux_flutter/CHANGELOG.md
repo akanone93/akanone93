@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Unreleased
 
+- **An unreadable font file is reported (THM-004, build log #299):** a font asset file the store no longer holds is reported as a `PluxException`, as a file that fails its check is, and the app's other fonts still load; it escaped as an uncaught `PathNotFoundException`.
+- **A toast closes before its first frame (build log #299):** a `showToast` whose time runs out before a frame built it is removed, then disposed; it was disposed while still in the overlay, which asserts in debug builds.
 - **`PositionedDirectional` (WGT-002, build log #148):** a child of a `Stack` placed by its `start` and `end` edges, which follow the reading direction, so an overlay such as a favourite button on a photo stays on the same side as the text in Arabic. Its props are `Positioned`'s with `start` and `end` for `left` and `right`.
 - **The AVIF probe is what the variants are (CMP-030, build log #278):** the image the runtime decodes at start to decide whether a device is offered AVIF variants now has an alpha plane, as a transparent PNG's variants do, so a decoder that handles opaque AVIF only is offered WebP instead of failing on the variants; it is still 1×1, the smallest a variant can be. The probe runs beside the store's opening instead of before the sync isolate starts.
 - **A host knows when a dev bundle arrived (DEV-001, build log #247):** `DevChannel.applied` counts the dev bundles that arrived and were not refused, so a host waiting for its first screen can say Studio has sent nothing yet instead of that the app has no entry screen.

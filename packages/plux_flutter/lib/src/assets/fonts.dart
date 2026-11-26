@@ -30,7 +30,8 @@ Future<void> fontLoader(String family, List<Uint8List> files) {
 /// Loads the font [files] (hash → stored path) not in [loaded], each
 /// checked against its hash, grouped by the family its `name` table
 /// gives; adds what it loaded to [loaded]. Throws [PluxException] for a
-/// file that fails its check or names no family; the rest still load.
+/// file that cannot be read, fails its check or names no family; the rest
+/// still load.
 Future<void> loadFonts(
   Map<String, String> files,
   Set<String> loaded,
@@ -55,6 +56,13 @@ Future<void> loadFonts(
       loaded.add(hash);
     } on PluxException catch (e) {
       failure ??= e;
+    } on FileSystemException catch (e) {
+      // A file the store no longer holds, such as after the runtime was
+      // disposed and its directory removed, is reported like a bad one.
+      failure ??= PluxException(
+        PluxErrorCode.propValueInvalid,
+        'the font asset file $hash cannot be read: ${e.message}',
+      );
     }
   }
   for (final MapEntry(key: family, value: list) in byFamily.entries) {

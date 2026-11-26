@@ -203,8 +203,11 @@ StepResult _showToast(StepContext c, Map<String, Object?> i) {
   );
   overlay.insert(entry);
   Timer(duration, () {
-    if (entry.mounted) entry.remove();
-    entry.dispose();
+    // Removed whether or not a frame built it: an entry the overlay holds
+    // cannot be disposed, and removing one whose overlay is gone is safe.
+    entry
+      ..remove()
+      ..dispose();
   });
   return const StepDone();
 }

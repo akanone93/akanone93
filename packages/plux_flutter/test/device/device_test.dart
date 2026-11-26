@@ -743,6 +743,15 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
       await tester.pump();
       expect(find.text('Copied'), findsNothing);
+
+      // A toast whose time runs out before a frame built it goes away too
+      // (build log row 299).
+      deviceHandlerOf('showToast')
+          .run(ctx, {'message': 'Quick', 'duration': 500});
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump();
+      expect(find.text('Quick'), findsNothing);
+      expect(tester.takeException(), isNull);
     });
 
     test('feedback without anywhere to show fails with a typed error', () {

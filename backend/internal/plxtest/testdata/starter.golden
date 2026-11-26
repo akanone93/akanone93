@@ -367,6 +367,9 @@ final class ScenarioSession {
 
   /// Stops the runtime and removes what the scenario stored.
   Future<void> finish() async {
+    // What the page started with a delay, such as a toast that closes
+    // after two seconds, runs out first, as it does in an app.
+    await tester.pump(const Duration(seconds: 30));
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(Plux.dispose);
     _semantics.dispose();

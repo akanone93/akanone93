@@ -137,5 +137,24 @@ void main() {
         ),
       ),
     );
+    // A file the store no longer holds is reported, not thrown as an I/O
+    // error past the runtime (build log row 299).
+    final gone = sha256.convert([3]).toString();
+    await expectLater(
+      loadFonts(
+        {gone: '${dir.path}/$gone', other: '${dir.path}/$other'},
+        {},
+        verified,
+        load: load,
+      ),
+      throwsA(
+        isA<PluxException>().having(
+          (e) => e.message,
+          'message',
+          contains('cannot be read'),
+        ),
+      ),
+    );
+    expect(loads['Other'], 1, reason: 'the readable font still loads');
   });
 }
