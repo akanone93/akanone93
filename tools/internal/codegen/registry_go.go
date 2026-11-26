@@ -65,8 +65,12 @@ func writeGoWidget(b *bytes.Buffer, w *registry.Widget) {
 	if len(w.Props) > 0 {
 		b.WriteString("Props: []Prop{\n")
 		for _, p := range sortedByID(w.Props, func(p registry.Prop) uint32 { return p.ID }) {
-			fmt.Fprintf(b, "{Name: %q, ID: %d, Type: %q, Required: %t, Default: %q, Constraints: %s, Revision: %d, Deprecated: %s, Bindable: %t, Translatable: %t, Description: %q},\n",
-				p.Name, p.ID, p.Type, p.Required, compactJSON(p.Default), goConstraints(p.Constraints), revisionOr1(p.Revision), goDeprecation(p.Deprecated), p.IsBindable(), p.Translatable, p.Description)
+			typeArg := ""
+			if p.TypeArgument != "" {
+				typeArg = fmt.Sprintf("TypeArgument: %q, ", p.TypeArgument)
+			}
+			fmt.Fprintf(b, "{Name: %q, ID: %d, Type: %q, Required: %t, Default: %q, Constraints: %s, Revision: %d, Deprecated: %s, Bindable: %t, Translatable: %t, %sDescription: %q},\n",
+				p.Name, p.ID, p.Type, p.Required, compactJSON(p.Default), goConstraints(p.Constraints), revisionOr1(p.Revision), goDeprecation(p.Deprecated), p.IsBindable(), p.Translatable, typeArg, p.Description)
 		}
 		b.WriteString("},\n")
 	}

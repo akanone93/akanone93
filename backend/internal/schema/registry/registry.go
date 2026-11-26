@@ -110,6 +110,10 @@ type Prop struct {
 	Bindable bool
 	// Translatable is true for text shown to users (I18N-007).
 	Translatable bool
+	// TypeArgument is the type parameter a literal string prop names as a
+	// type; the prop binds it and is not written to bundles. Empty for any
+	// other prop.
+	TypeArgument string
 	Description  string
 }
 

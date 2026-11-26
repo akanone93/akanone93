@@ -98,7 +98,10 @@ type Prop struct {
 	// Constructor is the named Flutter constructor a bool prop selects
 	// when true (WGT-011).
 	Constructor string `json:"constructor,omitempty"`
-	Description string `json:"description,omitempty"`
+	// TypeArgument is the type parameter a literal string prop names as a
+	// type; the prop binds it and is not written to bundles.
+	TypeArgument string `json:"typeArgument,omitempty"`
+	Description  string `json:"description,omitempty"`
 }
 
 // IsBindable reports whether the prop accepts bindings; the default is true.

@@ -129,6 +129,23 @@ func checkConstructorProp(p *problems, loc string, w *Widget, prop Prop) {
 	}
 }
 
+// checkTypeArgumentProp checks a prop that names a type argument: a string
+// that is not bindable, has no default and maps no Flutter parameter, for one
+// of the widget's type parameters, which it then uses.
+func checkTypeArgumentProp(p *problems, loc string, prop Prop, params map[string]bool) {
+	_, known := params[prop.TypeArgument]
+	switch {
+	case !known:
+		p.add(loc, "type argument %s is not a type parameter of the widget", prop.TypeArgument)
+	case prop.Type != "string" || prop.IsBindable() || len(prop.Default) > 0:
+		p.add(loc, "a prop naming type argument %s is a string that is not bindable and has no default", prop.TypeArgument)
+	case len(prop.Flutter) > 0:
+		p.add(loc, "a prop naming type argument %s maps no Flutter parameter", prop.TypeArgument)
+	default:
+		params[prop.TypeArgument] = true
+	}
+}
+
 // checkWidgetMembers checks props, events and slots, recording the type
 // parameters they use in params.
 func (ix *index) checkWidgetMembers(w *Widget, p *problems, params map[string]bool) {
@@ -142,6 +159,9 @@ func (ix *index) checkWidgetMembers(w *Widget, p *problems, params map[string]bo
 		}
 		if prop.Constructor != "" {
 			checkConstructorProp(p, loc, w, prop)
+		}
+		if prop.TypeArgument != "" {
+			checkTypeArgumentProp(p, loc, prop, params)
 		}
 	}
 	for _, e := range w.Events {

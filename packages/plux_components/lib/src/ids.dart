@@ -339,7 +339,12 @@ const Map<String, ComponentIds> componentIds = {
   ),
   'DragTarget': ComponentIds(
     PluxComponentIds.dragTarget,
-    props: {'accepts': 1, 'highlightColor': 2, 'hitTestBehavior': 3},
+    props: {
+      'accepts': 1,
+      'highlightColor': 2,
+      'hitTestBehavior': 3,
+      'dataType': 4,
+    },
     events: {'onAccept': 1, 'onLeave': 2},
     slots: {'child': 1},
   ),

@@ -4,8 +4,10 @@
 package compiler
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/pxl"
 	"github.com/nightCode42/plux3/backend/internal/schema/registry"
 )
@@ -65,5 +67,47 @@ func TestDragTargetOnAcceptPayload(t *testing.T) {
 	n.typeArgs = nil
 	if got := tc.payload(n, "onAccept"); got != "T" {
 		t.Errorf("unbound payload of DragTarget.onAccept = %q, want T", got)
+	}
+}
+
+// Verifies: ACT-001, WGT-001.
+// A DragTarget's dataType names the type of what it takes without
+// filtering anything: it types the onAccept payload, an accepts of another
+// type and an unknown type are errors, and the prop is not written to the
+// bundle, whose node carries the type argument instead (build log row 149).
+func TestDragTargetDataTypeBindsThePayloadType(t *testing.T) {
+	t.Parallel()
+	compile := func(props, when string) *Result {
+		target := `[{"id": "%ID%", "type": "DragTarget", "props": ` + props + `,
+			"slots": {"child": {"id": "%ID%", "type": "Text", "props": {"data": "Drop here"}}},
+			"events": {"onAccept": {"steps": [{"id": "c", "action": "condition", "input": {"when": {"$expr": "` + when + `"}}}]}}}]`
+		m := a11yProject(t, "standard", "#000000", "#FFFFFF", target)
+		edit(t, m, "app.json", func(doc map[string]any) { pinned(t, doc, "0.6.0") })
+		return compileFS(m)
+	}
+	res := compile(`{"dataType": "int"}`, "event > 1")
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	nodes, strs := pageNodes(t, readAll(t, res)[1], calculatorID)
+	n := nodes["01a0c450-6c00-7fff-8000-000000000001"]
+	if n == nil || n.PropsLength() != 0 || n.TypeArgumentsLength() != 1 || strs[n.TypeArguments(0)] != "int" {
+		t.Fatalf("the DragTarget node should carry the type argument int and no prop")
+	}
+	for name, c := range map[string]struct {
+		props, when, ptr string
+		code             plxerr.Code
+	}{
+		"a payload of another type":  {`{"dataType": "string"}`, "event > 1", "", plxerr.PXLTypeMismatch},
+		"an accepts of another type": {`{"dataType": "int", "accepts": {"$expr": "'x'"}}`, "event > 1", "/props/accepts", plxerr.PropTypeMismatch},
+		"an unknown type":            {`{"dataType": "Nope"}`, "true", "/props/dataType", plxerr.UnknownType},
+	} {
+		found := false
+		for _, d := range compile(c.props, c.when).Diagnostics {
+			found = found || d.Code == c.code && strings.HasSuffix(d.Path, c.ptr)
+		}
+		if !found {
+			t.Errorf("%s: no %v ending at %q", name, c.code, c.ptr)
+		}
 	}
 }

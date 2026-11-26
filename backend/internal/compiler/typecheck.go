@@ -479,8 +479,9 @@ func (t *typer) useGraph(g *graph, payload, file, ptr string) {
 	}
 }
 
-// bindTypeArgs binds a widget's type parameters from the types of the
-// expressions or literals of the props that mention them.
+// bindTypeArgs binds a widget's type parameters: first from the props that
+// name one as a type (DragTarget's dataType), then from the types of the
+// expressions or literals of the props that mention them, which must agree.
 func (t *typer) bindTypeArgs(n *node) {
 	if n.widget == nil || len(n.widget.TypeParameters) == 0 {
 		return
@@ -491,9 +492,14 @@ func (t *typer) bindTypeArgs(n *node) {
 	}
 	bind := map[string]*texpr{}
 	for _, p := range n.widget.Props {
+		if raw, set := n.doc.Props[p.Name]; set && p.TypeArgument != "" {
+			t.bindNamedType(n, p, raw, bind)
+		}
+	}
+	for _, p := range n.widget.Props {
 		raw, set := n.doc.Props[p.Name]
 		pattern, err := parseTypeExpr(p.Type)
-		if !set || err != nil || !mentions(pattern, params) {
+		if !set || p.TypeArgument != "" || err != nil || !mentions(pattern, params) {
 			continue
 		}
 		actual := t.literalType(raw, n.owner.file(), n.ptr+plxerr.Pointer("props", p.Name))
@@ -501,7 +507,7 @@ func (t *typer) bindTypeArgs(n *node) {
 			continue
 		}
 		if !pattern.match(actual, params, bind) {
-			t.u.report(plxerr.PropTypeMismatch, n.owner.file(), n.ptr+plxerr.Pointer("props", p.Name), "prop %q of %s must be %s, not %s", p.Name, n.widget.Type, p.Type, actual)
+			t.u.report(plxerr.PropTypeMismatch, n.owner.file(), n.ptr+plxerr.Pointer("props", p.Name), "prop %q of %s must be %s, not %s", p.Name, n.widget.Type, pattern.subst(bind), actual)
 		}
 	}
 	n.typeArgs = map[string]*pxl.Type{}
@@ -515,6 +521,30 @@ func (t *typer) bindTypeArgs(n *node) {
 			n.typeArgs[name] = typ
 		}
 	}
+}
+
+// bindNamedType binds the type parameter a type-argument prop names: its
+// literal is a type of the node's scope (PLX-1115 when it is not). A value
+// that is not a string is reported by the prop's own check.
+func (t *typer) bindNamedType(n *node, p registry.Prop, raw json.RawMessage, bind map[string]*texpr) {
+	var name string
+	if json.Unmarshal(raw, &name) != nil {
+		return
+	}
+	te, err := parseTypeExpr(name)
+	if err == nil {
+		env, eerr := t.u.env(n.scope)
+		if eerr != nil {
+			t.u.internalError("%v", eerr)
+			return
+		}
+		_, err = env.ParseType(te.String())
+	}
+	if err != nil {
+		t.u.report(plxerr.UnknownType, n.owner.file(), n.ptr+plxerr.Pointer("props", p.Name), "prop %q of %s names type %q: %v", p.Name, n.widget.Type, name, err)
+		return
+	}
+	bind[p.TypeArgument] = te
 }
 
 // mentions reports whether a pattern uses a type parameter.

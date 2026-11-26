@@ -289,7 +289,9 @@ func fieldName(vt registry.ValueType, id uint32) string {
 }
 
 // withoutDefaults drops literal props equal to their descriptor default
-// (CMP-020). Overrides keep them: they reset a value the base changed.
+// (CMP-020), and the props that only name a type argument, which the node's
+// type arguments carry. Overrides keep them: they reset a value the base
+// changed.
 func (u *unit) withoutDefaults(n *node) []*prop {
 	if n.widget == nil {
 		return n.props
@@ -297,7 +299,7 @@ func (u *unit) withoutDefaults(n *node) []*prop {
 	out := n.props[:0]
 	for _, p := range n.props {
 		d, ok := n.widget.Prop(p.name)
-		if ok && d.Default != "" && u.equalsDefault(n, d, p.value) {
+		if ok && (d.TypeArgument != "" || d.Default != "" && u.equalsDefault(n, d, p.value)) {
 			continue
 		}
 		out = append(out, p)

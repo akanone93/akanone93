@@ -1844,6 +1844,7 @@
     "widget/DragTarget/event/onAccept": 1,
     "widget/DragTarget/event/onLeave": 2,
     "widget/DragTarget/prop/accepts": 1,
+    "widget/DragTarget/prop/dataType": 4,
     "widget/DragTarget/prop/highlightColor": 2,
     "widget/DragTarget/prop/hitTestBehavior": 3,
     "widget/DragTarget/slot/child": 1,

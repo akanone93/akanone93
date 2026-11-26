@@ -230,6 +230,19 @@ func TestLoadRejects(t *testing.T) {
 		{"constructor not mirrored", func(f map[string]obj) {
 			f[box]["props"] = append(f[box]["props"].([]any), obj{"name": "adaptive", "id": 4, "type": "bool", "bindable": false, "constructor": "adaptive"})
 		}, `constructor "adaptive" is not among the widget's Flutter constructors`},
+		{"type argument of no parameter", func(f map[string]obj) {
+			f[box]["props"] = append(f[box]["props"].([]any), obj{"name": "dataType", "id": 4, "type": "string", "bindable": false, "typeArgument": "T"})
+		}, "type argument T is not a type parameter of the widget"},
+		{"bindable type argument", func(f map[string]obj) {
+			f[each]["props"] = append(f[each]["props"].([]any), obj{"name": "dataType", "id": 2, "type": "string", "typeArgument": "T"})
+		}, "a prop naming type argument T is a string that is not bindable and has no default"},
+		{"type argument of another type", func(f map[string]obj) {
+			f[each]["props"] = append(f[each]["props"].([]any), obj{"name": "dataType", "id": 2, "type": "double", "bindable": false, "typeArgument": "T"})
+		}, "a prop naming type argument T is a string"},
+		{"unused parameter despite a type argument prop", func(f map[string]obj) {
+			f[each]["typeParameters"] = []any{"T", "U"}
+			f[each]["props"] = append(f[each]["props"].([]any), obj{"name": "dataType", "id": 2, "type": "string", "bindable": false, "typeArgument": "T"})
+		}, "type parameter U is never used"},
 		{"missing class", func(f map[string]obj) { delete(f[api]["classes"].(obj), "package:flutter/widgets.dart#Box") }, "run 'make widgets-api'"},
 		{"missing constructor", func(f map[string]obj) { f[box]["flutter"].(obj)["constructors"] = []any{"", "tight"} }, `constructor "tight"`},
 		{"uncovered enum value", func(f map[string]obj) { f[axis]["values"] = []any{obj{"name": "vertical", "id": 2}} }, "Axis.horizontal is neither supported nor excluded"},
@@ -484,5 +497,25 @@ func TestVocabularies(t *testing.T) {
 	r[0] = "changed"
 	if Reasons()[0] == "changed" {
 		t.Error("Reasons shares its backing array")
+	}
+}
+
+// A literal string prop may name a type parameter as a type; it uses the
+// parameter, so a widget whose only use of T is such a prop is valid
+// (DragTarget's dataType, build log row 149).
+//
+// Verifies: WGT-001.
+func TestLoadAcceptsATypeArgumentProp(t *testing.T) {
+	t.Parallel()
+	f := fixture()
+	const each = "schema/widgets/layer1/Each.json"
+	f[each]["typeParameters"] = []any{"T", "U"}
+	f[each]["props"] = append(f[each]["props"].([]any), obj{"name": "dataType", "id": 2, "type": "string", "bindable": false, "typeArgument": "U"})
+	r, err := Load(writeFixture(t, f))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p := r.Widgets[1].Props[1]; p.TypeArgument != "U" || p.IsBindable() {
+		t.Errorf("prop = %+v", p)
 	}
 }

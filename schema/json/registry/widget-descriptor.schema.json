@@ -176,6 +176,11 @@
           "translatable": {
             "type": "boolean",
             "description": "True for a string prop whose text is shown to the user and belongs in translations (I18N-007, PLX-1609)."
+          },
+          "typeArgument": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9]*$",
+            "description": "For a `string` prop that is not bindable: the type parameter of the widget its value names. The value is a type in the node's scope, such as `Preference` or `list<string>`; it binds the parameter, filters nothing, and is not written to the bundle, whose node carries the type argument."
           }
         },
         "additionalProperties": false

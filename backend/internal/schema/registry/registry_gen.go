@@ -1352,14 +1352,15 @@ var widgets = [...]Widget{
 		},
 	},
 	{
-		Type: "DragTarget", ID: 135, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Type: "DragTarget", ID: 135, Layer: 1, Phase: "P5", Revision: 2, Runtimes: []string{"0.5.0", "0.6.0"},
 		Category: "interaction", Icon: "move_to_inbox", Description: "Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 30, Role: RoleNone, Interactive: true,
 		TypeParameters: []string{"T"},
 		Props: []Prop{
-			{Name: "accepts", ID: 1, Type: "T", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "When set, only a `Draggable` whose `data` equals it is accepted."},
+			{Name: "accepts", ID: 1, Type: "T", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "When set, only a `Draggable` whose `data` equals it is accepted; its type is the target's type."},
 			{Name: "highlightColor", ID: 2, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Tints the child while an acceptable candidate hovers over it."},
 			{Name: "hitTestBehavior", ID: 3, Type: "HitTestBehavior", Required: false, Default: "\"translucent\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
+			{Name: "dataType", ID: 4, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 2, Deprecated: nil, Bindable: false, Translatable: false, TypeArgument: "T", Description: "The type of the `data` the target takes, such as `Preference`, when `accepts` is not set: it types the `onAccept` payload and filters nothing."},
 		},
 		Events: []Event{
 			{Name: "onAccept", ID: 1, Payload: "T", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},

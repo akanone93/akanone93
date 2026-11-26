@@ -2275,8 +2275,8 @@ export const widgets: readonly WidgetDescriptor[] = [
     "id": 135,
     "layer": 1,
     "phase": "P5",
-    "revision": 1,
-    "runtimes": ["0.5.0"],
+    "revision": 2,
+    "runtimes": ["0.5.0", "0.6.0"],
     "category": "interaction",
     "icon": "move_to_inbox",
     "description": "Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.",
@@ -2285,9 +2285,10 @@ export const widgets: readonly WidgetDescriptor[] = [
     "accessibility": {"role": "none", "interactive": true},
     "typeParameters": ["T"],
     "props": [
-      {"name": "accepts", "id": 1, "type": "T", "required": false, "revision": 1, "bindable": true, "description": "When set, only a `Draggable` whose `data` equals it is accepted."},
+      {"name": "accepts", "id": 1, "type": "T", "required": false, "revision": 1, "bindable": true, "description": "When set, only a `Draggable` whose `data` equals it is accepted; its type is the target's type."},
       {"name": "highlightColor", "id": 2, "type": "color", "required": false, "revision": 1, "bindable": true, "description": "Tints the child while an acceptable candidate hovers over it."},
-      {"name": "hitTestBehavior", "id": 3, "type": "HitTestBehavior", "required": false, "default": "translucent", "revision": 1, "bindable": true}
+      {"name": "hitTestBehavior", "id": 3, "type": "HitTestBehavior", "required": false, "default": "translucent", "revision": 1, "bindable": true},
+      {"name": "dataType", "id": 4, "type": "string", "required": false, "revision": 2, "bindable": false, "description": "The type of the `data` the target takes, such as `Preference`, when `accepts` is not set: it types the `onAccept` payload and filters nothing."}
     ],
     "events": [
       {"name": "onAccept", "id": 1, "payload": "T", "revision": 1, "description": "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},

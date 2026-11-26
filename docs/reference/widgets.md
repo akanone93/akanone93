@@ -1792,13 +1792,14 @@ ID 52 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Divider` · and
 
 Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.
 
-ID 135 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DragTarget` · android, ios · cost 30 µs · role none · interactive · type parameters T
+ID 135 · Layer 1 · P5 · revision 2 (runtime 0.6.0) · Flutter `DragTarget` · android, ios · cost 30 µs · role none · interactive · type parameters T
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
-| `accepts` | 1 | `T` | — | When set, only a `Draggable` whose `data` equals it is accepted. |
+| `accepts` | 1 | `T` | — | When set, only a `Draggable` whose `data` equals it is accepted; its type is the target's type. |
 | `highlightColor` | 2 | `color` | — | Tints the child while an acceptable candidate hovers over it. |
 | `hitTestBehavior` | 3 | `HitTestBehavior` | `"translucent"` |  |
+| `dataType` | 4 | `string` | — | The type of the `data` the target takes, such as `Preference`, when `accepts` is not set: it types the `onAccept` payload and filters nothing. Literal only. |
 
 | Event | ID | Payload | Description |
 |---|---|---|---|
