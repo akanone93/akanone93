@@ -21688,6 +21688,12 @@ msgstr "Sichtbarkeit"
 msgid "condition.visibleWhen"
 msgstr "Sichtbar wenn"
 
+#. Shown on the visual diff step while the server-side render is parked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffComingSoon"
+msgstr "Visueller Vergleich: demnächst verfügbar. Vorher-nachher-Bilder der geänderten Bildschirme werden noch nicht gerendert; prüfen Sie die geänderten Dokumente unten und fahren Sie fort."
+
 #. Name of the visual diff publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts

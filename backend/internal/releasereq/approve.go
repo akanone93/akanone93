@@ -36,7 +36,7 @@ func approvalHash(r Request) string {
 // request, which this request links, and this one is held as awaiting
 // approval; calling again after the decision moves it on, ends it as
 // rejected, or as expired. Approvers need a finished visual diff first
-// (GOV-023). It needs release.publish.
+// (GOV-023), unless it is parked (diffsParked). It needs release.publish.
 func (s *Service) RequestApproval(ctx context.Context, p auth.Principal, appID, id string) (Request, error) {
 	if err := authorize(p, auth.ReleasePublish, appID); err != nil {
 		return Request{}, err
@@ -51,8 +51,10 @@ func (s *Service) RequestApproval(ctx context.Context, p auth.Principal, appID, 
 			return plxerr.New(plxerr.ReleaseRequestState, "approval is requested at the approval step; the request is at the %s step", r.State)
 		}
 		q := dbgen.New(tx)
-		if err := finishedDiff(ctx, q, r); err != nil {
-			return err
+		if !diffsParked {
+			if err := finishedDiff(ctx, q, r); err != nil {
+				return err
+			}
 		}
 		if done, err := decidedElsewhere(ctx, q, r); done || err != nil {
 			return err

@@ -261,11 +261,21 @@ func (s *Service) Diff(ctx context.Context, p auth.Principal, appID, id string) 
 	return out, found, err
 }
 
-// diffDone completes the diffs step: the latest job for the content must have
-// succeeded (GOV-023).
+// diffsParked parks the visual diff (maintainer decision 2026-11-26,
+// ADR-0113, build log row 300): the diffs step is passed without a render and
+// approval does not wait for one, because the render fails a release with a
+// page the test runtime cannot render. The step still shows the JSON diff, and
+// a render can still be asked for. Set it to false to require the render
+// again (GOV-023).
+const diffsParked = true
+
+// diffDone completes the diffs step: unless the visual diff is parked, the
+// latest job for the content must have succeeded (GOV-023).
 func diffDone(ctx context.Context, q *dbgen.Queries, r *Request) error {
-	if err := finishedDiff(ctx, q, r); err != nil {
-		return err
+	if !diffsParked {
+		if err := finishedDiff(ctx, q, r); err != nil {
+			return err
+		}
 	}
 	r.moveOn()
 	return nil

@@ -3324,7 +3324,7 @@
       "reason": "VISUAL_DIFF_REQUIRED",
       "severity": "error",
       "title": "Visual diff not finished",
-      "cause": "Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content.",
+      "cause": "Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content. While the visual diff is parked (ADR-0113) the server does not return this error.",
       "fix": "Request the visual diff and wait for it to finish; request it again if it failed or the content changed."
     },
     {

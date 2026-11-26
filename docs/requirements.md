@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.26.0
+**Version:** 1.26.1
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-11-24
+**Date:** 2026-11-26
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -1504,7 +1504,7 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 | `GOV-020` | P9 | MUST | Approval **policies** **MUST** be declarative (stored as documents, editable in Studio, exportable) and match on resource type, environment, action and risk attributes (e.g. "touches a page marked `secure`", "changes a function used by a payment flow"). | DONE |
 | `GOV-021` | P9 | MUST | A policy **MUST** be able to require: a number of approvers; approver roles; approvers distinct from the author (**four-eyes**); approvers from distinct teams; named approvers (e.g. compliance); sequential stages or parallel approval; and an expiry. | DONE |
 | `GOV-022` | P9 | MUST | An approval **MUST** be bound to the content hash of the artifact it approves (release, function version, policy change). Any change to the artifact **MUST** invalidate existing approvals. | DONE |
-| `GOV-023` | P9 | MUST | Approvers **MUST** see the visual diff, JSON diff, validation and accessibility reports, affected install base, changelog and risk summary before deciding, and **MUST** confirm with WebAuthn step-up (`SEC-103`). Each approval is a signed, audited record. | DONE |
+| `GOV-023` | P9 | MUST | Approvers **MUST** see the visual diff, JSON diff, validation and accessibility reports, affected install base, changelog and risk summary before deciding, and **MUST** confirm with WebAuthn step-up (`SEC-103`). Each approval is a signed, audited record. | WIP |
 | `GOV-024` | P9 | MUST | **Break-glass** **MUST** allow designated roles to perform emergency actions (kill switch, rollback, disabling a function) without prior approval, requiring a written justification, alerting approvers immediately, and opening a mandatory post-hoc review due within a configurable time (default 24 h). | DONE |
 | `GOV-025` | P9 | MUST | **Change freezes** **MUST** block production changes during configured windows (e.g. month-end close), overridable only by break-glass. | DONE |
 | `GOV-026` | P9 | MUST | Compliance reports **MUST** list, for a period, every production change with author, approvers, timestamps, content hashes and evidence, exportable as signed JSON and PDF. | DONE |
@@ -3137,10 +3137,11 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.26.0 |
+| Version | 1.26.1 |
 | Status | Draft (living document) |
-| Date | 2026-11-25 |
-| Supersedes | 1.25.0 |
+| Date | 2026-11-26 |
+| Supersedes | 1.26.0 |
+| 1.26.1 | 2026-11-26 | `GOV-023` is `WIP` again: the visual diff of the publish flow is parked (maintainer, 2026-11-26, build log row 300; ADR-0113) — the diffs step and approval no longer wait for a render, Studio says the visual diff is coming soon, and approvers see the JSON diff of the changed documents. `STU-100` stays `WIP`. |
 | 1.26.0 | 2026-11-25 | Appendix C.2 adds `PositionedDirectional` (P11): a child of a `Stack` placed by its start and end edges, which follow the reading direction, as Flutter's widget of that name (build log row 148). |
 | 1.25.0 | 2026-11-25 | `STU-024`: an app export names the app's server-side setup in its manifest without any value, and an import or a duplicate lists what the new app lacks as still to do (maintainer decision of 2026-11-24, build log row 178; ADR-0102, Revision 2026-11-25). |
 | 1.24.0 | 2026-11-25 | `STU-034`: a plugin is exported as a `.plux` archive with the translation keys, messages and assets it uses, and imported from one into another app; a plugin archive is manifest version 2 (maintainer decision of 2026-11-24, build log row 264; ADR-0102, Revision 2026-11-25). |

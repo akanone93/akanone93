@@ -21688,6 +21688,12 @@ msgstr "الرؤية"
 msgid "condition.visibleWhen"
 msgstr "مرئي عندما"
 
+#. Shown on the visual diff step while the server-side render is parked.
+#. js-lingui-explicit-id
+#: apps/web/src/features/publish/publish.messages.ts
+msgid "publish.diffComingSoon"
+msgstr "المقارنة المرئية: قريبًا. لا تُعرض بعد لقطات الشاشات المتغيّرة قبل التغيير وبعده؛ راجع المستندات المتغيّرة أدناه ثم تابع."
+
 #. Name of the visual diff publish step.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts

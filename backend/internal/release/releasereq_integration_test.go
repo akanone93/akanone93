@@ -263,10 +263,9 @@ func TestReleaseRequestFlow_STU_100(t *testing.T) {
 		t.Fatalf("reports = %+v, %v", r, err)
 	}
 
-	// diffs: the step needs a finished render; asking twice queues one job.
-	if _, err := k.svc.Advance(ctx, f.owner, app, r.ID, releasereq.Step{Kind: releasereq.StateDiffs}); !codeIs(err, plxerr.VisualDiffRequired) {
-		t.Errorf("diffs without a render: %v", err)
-	}
+	// diffs: a render can be asked for; asking twice queues one job. While the
+	// visual diff is parked the step does not wait for it
+	// (TestParkedVisualDiffIsSkipped_STU_100).
 	job, err := k.svc.RequestDiff(ctx, f.owner, app, r.ID)
 	if err != nil || job.State != releasereq.DiffQueued || k.queue.count() != 1 {
 		t.Fatalf("RequestDiff = %+v, %v (%d queued)", job, err, k.queue.count())
@@ -793,5 +792,30 @@ func TestAbandonedRenderRendersAgain_STU_100(t *testing.T) {
 	}
 	if d, _, err := k.svc.Diff(ctx, f.owner, f.app, second.ID); err != nil || d.State != releasereq.DiffSucceeded {
 		t.Fatalf("after the next attempt = %+v %v", d, err)
+	}
+}
+
+// While the visual diff is parked (ADR-0113, build log row 300), a request
+// passes the diffs step without a render and approval does not wait for one.
+func TestParkedVisualDiffIsSkipped_STU_100(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	k := f.requests(t, 1)
+	ctx := context.Background()
+	r := toDiffsStep(t, f, k, "production", 1)
+	r, err := k.svc.Advance(ctx, f.owner, f.app, r.ID, releasereq.Step{Kind: releasereq.StateDiffs})
+	if err != nil || r.State != releasereq.StateChangelog {
+		t.Fatalf("diffs without a render = %+v, %v; want the changelog step", r, err)
+	}
+	for _, step := range []releasereq.Step{{Kind: releasereq.StateChangelog}, {Kind: releasereq.StateTarget}} {
+		if r, err = k.svc.Advance(ctx, f.owner, f.app, r.ID, step); err != nil {
+			t.Fatalf("%s: %v", step.Kind, err)
+		}
+	}
+	if r, err = k.svc.RequestApproval(ctx, f.owner, f.app, r.ID); err != nil || r.State != releasereq.StateApproval || r.Hold != releasereq.HoldAwaiting {
+		t.Fatalf("approval without a render = %+v, %v; want it asked for", r, err)
+	}
+	if k.queue.count() != 0 {
+		t.Errorf("%d renders queued; none was asked for", k.queue.count())
 	}
 }

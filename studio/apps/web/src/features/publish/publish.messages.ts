@@ -252,6 +252,12 @@ export function publishMessages(i18n: I18n) {
       message: "Render visual diff",
       comment: "Button that queues the visual diff.",
     }),
+    diffComingSoon: i18n._({
+      id: "publish.diffComingSoon",
+      message:
+        "Visual diff: coming soon. Before-and-after screenshots of the changed screens are not rendered yet; review the changed documents below and continue.",
+      comment: "Shown on the visual diff step while the server-side render is parked.",
+    }),
     diffNone: i18n._({
       id: "publish.diffNone",
       message: "The visual diff has not been requested.",

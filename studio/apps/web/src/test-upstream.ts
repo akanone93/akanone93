@@ -215,6 +215,8 @@ export interface ReleaseFixture {
   acknowledgeWarnings?: boolean[];
   /** AdvanceReleaseRequest is refused with this message (a server refusal, its code first). */
   refuseAdvance?: string;
+  /** An error code RequestReleaseApproval refuses with, such as PLX-8062 from a server that requires the visual diff. */
+  refuseApproval?: string;
   /** The state every publish job reports; "succeeded" when unset. */
   jobState?: string;
   /** Opening a request is refused with PLX-6200 until the session completes a step-up (SEC-103). */
@@ -1668,9 +1670,7 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
       if (req.step.case === "rollout") {
         fx.plan = JSON.parse(new TextDecoder().decode(req.step.value.plan));
       }
-      if (r.state === "diffs" && fx.diff?.state !== "succeeded") {
-        refused("PLX-8062");
-      }
+      // The visual diff is parked (ADR-0113): the server's diffs step and approval do not wait for a render.
       return move(releaseOrder[releaseOrder.indexOf(r.state) + 1] ?? "released");
     },
     refreezeReleaseRequest: () => {
@@ -1685,8 +1685,8 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
     },
     requestReleaseApproval: () => {
       fx.calls.push("approval");
-      if (fx.diff?.state !== "succeeded") {
-        refused("PLX-8062");
+      if (fx.refuseApproval !== undefined) {
+        refused(fx.refuseApproval);
       }
       return move(fx.rejectApproval ? "rejected" : "rollout");
     },

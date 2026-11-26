@@ -121,5 +121,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0110](0110-no-alignment-guides-or-snapping-on-the-canvases.md) | The canvases have no alignment guides, distance labels or snapping | P11 | Accepted |
 | [0111](0111-screen-frames-grow-to-hold-their-content.md) | A screen's frame grows to hold its page's scroll content | P11 | Accepted |
 | [0112](0112-design-time-pxl-evaluation-on-the-canvas.md) | The canvas evaluates design-time expressions with the PXL engine, in the background | P11 | Accepted |
+| [0113](0113-visual-diff-parked.md) | The visual diff of the publish flow is parked | P11 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

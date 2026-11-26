@@ -81,8 +81,9 @@ describe("[STU-100] publish flow", () => {
     await screen.findByText("No findings", {}, { timeout: 3000 }).catch(() => undefined);
     press("Continue");
     await step("Visual diffs");
-    press("Render visual diff");
-    await screen.findByText("Rendered");
+    // The visual diff is parked (ADR-0113): the step says so, offers no render and moves on without one.
+    await screen.findByText(/Visual diff: coming soon\./);
+    expect(screen.queryByRole("button", { name: "Render visual diff" })).toBeNull();
     press("Continue");
     await step("Changelog");
     press("Continue");
@@ -102,7 +103,6 @@ describe("[STU-100] publish flow", () => {
       "advance:select",
       "advance:build",
       "advance:reports",
-      "diff",
       "advance:diffs",
       "advance:changelog",
       "advance:target",
@@ -125,13 +125,14 @@ describe("[STU-100] publish flow", () => {
   });
 
   test("A2 shows an approval that was rejected and the code of a step that cannot run (PLX-8062)", async () => {
-    const release = fixture("approval", {}, { rejectApproval: true });
+    // A server that requires the visual diff (once it is no longer parked, ADR-0113) refuses with PLX-8062.
+    const release = fixture("approval", {}, { rejectApproval: true, refuseApproval: "PLX-8062" });
     open("/publish/r1", release);
     await step("Approval");
     press("Request approval");
     await screen.findByText("The visual diff has not finished for this content. Request it and wait.");
     cleanup();
-    open("/publish/r1", fixture("approval", {}, { rejectApproval: true, diff: { state: "succeeded" } }));
+    open("/publish/r1", fixture("approval", {}, { rejectApproval: true }));
     await step("Approval");
     press("Request approval");
     await screen.findByText("Rejected");
@@ -475,11 +476,11 @@ describe("[STU-100] build evidence and diffs", () => {
     expect(screen.queryByRole("img", { name: /Rendered screen: / })).toBeNull();
   });
 
-  test("a render that is still queued says that the thumbnails follow", async () => {
+  test("a render that is still queued says that the thumbnails follow; while parked the step does not wait for it", async () => {
     open("/publish/r1", fixture("diffs", {}, { evidence, diff: { state: "queued" } }), { summaries });
     await step("Visual diffs");
     await screen.findByText("Thumbnails follow when the render finishes.");
-    expect(screen.queryByRole("button", { name: "Continue" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy();
   });
 
   test("a render waiting after a failed attempt says so, and a failed one says why (STU-100)", async () => {

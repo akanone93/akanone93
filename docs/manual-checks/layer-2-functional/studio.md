@@ -462,7 +462,7 @@ Labels in **bold** are the interface's own; if a label differs in your build, no
 - **Do:**
   1. Choose **Publish** (`/publish`). **Select plugins**: the app and `catalog`.
   2. **Freeze and build**; wait for *Built*. Read **Reports**: validation, **Size**, **Accessibility**.
-  3. Read **Visual diffs** and **Changed documents**; write a **Changelog**.
+  3. Read **Changed documents** (the visual diff says "coming soon" while it is parked, ADR-0113); write a **Changelog**.
   4. **Target**: environment `development`, its channel. Continue to **Release**.
 - **Expect:** each step completes; the first publish has nothing to compare against; a release is created.
 - **Why:** publishing is a pipeline of validate, compile, sign, store (SRV-050, REL-001).
@@ -473,7 +473,7 @@ Labels in **bold** are the interface's own; if a label differs in your build, no
 
 - **Needs:** R-RELEASE1
 - **Do:** change the text colour of `list`, publish again to `development`.
-- **Expect:** **Visual diffs** show before and after images of `list` only; **Changed documents** lists the changed JSON path.
+- **Expect:** **Visual diffs** show before and after images of `list` only; **Changed documents** lists the changed JSON path. While the visual diff is parked (ADR-0113) this check is not run; **Changed documents** is still checked.
 - **Why:** reviewers see what changes, not just JSON.
 - **Look at:** the diff image of the unchanged `detail` screen is absent.
 - **Result:** ☐ pass ☐ fail — notes:

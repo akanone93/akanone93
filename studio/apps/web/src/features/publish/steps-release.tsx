@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useLingui } from "@lingui/react";
+import type { VisualDiffJob } from "@plux/api";
 import { Button, Field, Input, StatusPill, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { StepUpDialog } from "../../components/dialogs/index.ts";
 import { useStepUp } from "../security/use-security.ts";
 import { evidenceMessages } from "./evidence.messages.ts";
 import { JsonDiff, ScreenTiles } from "./evidence.tsx";
-import type { PanelProps } from "./panel.ts";
+import { type PanelProps, visualDiffParked } from "./panel.ts";
 import { publishMessages } from "./publish.messages.ts";
 import { RolloutForm } from "./rollout-form.tsx";
 import { planFromJson, planToJson, validatePlan } from "./rollout-plan.ts";
@@ -30,19 +31,14 @@ function diffLabel(m: Messages, state: string): string {
   return labels[state] ?? state;
 }
 
-/** Step 4: the server-side visual diff of the changed screens and the JSON diff of the changed documents; approvers need it finished (GOV-023). */
-export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
+/** Where a render of the visual diff is: its state, and why it is waiting or failed. */
+function RenderStatus({ diff, current }: { diff: VisualDiffJob; current: boolean }): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const e = evidenceMessages(useLingui().i18n);
-  const evidence = useEvidence(request, pluginIds);
-  const current = diff !== undefined && diff.contentHash === request.contentHash;
-  const finished = current && diff.state === "succeeded";
-  const again = !current || diff.state === "failed";
   const waiting = current && (diff.state === "queued" || diff.state === "running");
   return (
-    <div className="flex flex-col gap-3">
-      {diff === undefined && <p className="text-body text-muted-foreground">{m.diffNone}</p>}
-      {diff !== undefined && <StatusPill status={diffTone(diff.state)} label={diffLabel(m, diff.state)} />}
+    <>
+      <StatusPill status={diffTone(diff.state)} label={diffLabel(m, diff.state)} />
       {waiting && <p className="text-body text-muted-foreground">{e.thumbQueued}</p>}
       {current && diff.state === "queued" && diff.error !== "" && (
         <p className="text-body text-muted-foreground">{m.diffRetrying(diff.error)}</p>
@@ -52,6 +48,27 @@ export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds 
           {m.diffReason(diff.error)}
         </p>
       )}
+    </>
+  );
+}
+
+/**
+ * Step 4: the server-side visual diff of the changed screens and the JSON diff of the changed documents; approvers need
+ * the visual diff finished (GOV-023). While it is parked (`visualDiffParked`) the step says it is coming soon, offers no
+ * render, and moves on without one; a render a request already has is still shown.
+ */
+export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
+  const m = publishMessages(useLingui().i18n);
+  const e = evidenceMessages(useLingui().i18n);
+  const evidence = useEvidence(request, pluginIds);
+  const current = diff !== undefined && diff.contentHash === request.contentHash;
+  const finished = visualDiffParked || (current && diff.state === "succeeded");
+  const again = !visualDiffParked && (!current || diff.state === "failed");
+  return (
+    <div className="flex flex-col gap-3">
+      {visualDiffParked && <p className="text-body text-muted-foreground">{m.diffComingSoon}</p>}
+      {!visualDiffParked && diff === undefined && <p className="text-body text-muted-foreground">{m.diffNone}</p>}
+      {diff !== undefined && <RenderStatus diff={diff} current={current} />}
       <ul className="flex flex-col gap-3">
         {diff?.screens.map((s) => (
           <li key={`${s.pluginKey}/${s.screen}/${s.device}`} className="flex flex-col gap-1">

@@ -3298,7 +3298,7 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 `VISUAL_DIFF_REQUIRED` · error · Visual diff not finished
 
-**Cause.** Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content.
+**Cause.** Approvers need a finished visual diff of the exact content before the request can ask for approval (GOV-023, STU-100). The diff is missing, still queued or running, failed, or was rendered for other content. While the visual diff is parked (ADR-0113) the server does not return this error.
 
 **Fix.** Request the visual diff and wait for it to finish; request it again if it failed or the content changed.
 
