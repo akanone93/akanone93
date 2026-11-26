@@ -63,7 +63,12 @@ SELECT * FROM visual_diff_jobs
  ORDER BY created_at DESC, id DESC LIMIT 1;
 
 -- name: CountRunningVisualDiffJobs :one
-SELECT count(*)::bigint AS running FROM visual_diff_jobs WHERE organization_id = $1 AND state = 'running';
+-- The organisation's render jobs running now, but one (the job about to
+-- start): a job started longer ago than an attempt may run died with its
+-- process and runs no more.
+SELECT count(*)::bigint AS running FROM visual_diff_jobs
+ WHERE organization_id = $1 AND state = 'running' AND id <> sqlc.arg(starting)::uuid
+   AND started_at > now() - make_interval(secs => sqlc.arg(within_seconds)::float8);
 
 -- name: StartVisualDiffJob :exec
 UPDATE visual_diff_jobs SET state = 'running', started_at = now(), attempts = attempts + 1 WHERE id = $1;

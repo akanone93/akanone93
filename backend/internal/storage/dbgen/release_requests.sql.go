@@ -12,11 +12,22 @@ import (
 )
 
 const countRunningVisualDiffJobs = `-- name: CountRunningVisualDiffJobs :one
-SELECT count(*)::bigint AS running FROM visual_diff_jobs WHERE organization_id = $1 AND state = 'running'
+SELECT count(*)::bigint AS running FROM visual_diff_jobs
+ WHERE organization_id = $1 AND state = 'running' AND id <> $2::uuid
+   AND started_at > now() - make_interval(secs => $3::float8)
 `
 
-func (q *Queries) CountRunningVisualDiffJobs(ctx context.Context, organizationID pgtype.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, countRunningVisualDiffJobs, organizationID)
+type CountRunningVisualDiffJobsParams struct {
+	OrganizationID pgtype.UUID
+	Starting       pgtype.UUID
+	WithinSeconds  float64
+}
+
+// The organisation's render jobs running now, but one (the job about to
+// start): a job started longer ago than an attempt may run died with its
+// process and runs no more.
+func (q *Queries) CountRunningVisualDiffJobs(ctx context.Context, arg CountRunningVisualDiffJobsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countRunningVisualDiffJobs, arg.OrganizationID, arg.Starting, arg.WithinSeconds)
 	var running int64
 	err := row.Scan(&running)
 	return running, err

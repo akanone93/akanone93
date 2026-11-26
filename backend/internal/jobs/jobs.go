@@ -29,6 +29,11 @@ import (
 	"github.com/riverqueue/river/rivertype"
 )
 
+// JobTimeout is the longest one attempt of a job runs: the queue cancels
+// it then. A job's own record still marked running long after it was last
+// started belongs to an attempt that died with its process.
+const JobTimeout = 30 * time.Minute
+
 // Queue names the queues this phase uses. Each is a separate lane, so a
 // long asset job never starves a publish.
 const (
@@ -132,7 +137,7 @@ func New(opts Options) (*Client, error) {
 		cfg.Queues = queues
 		cfg.Workers = opts.Workers.river
 		cfg.FetchCooldown = 100 * time.Millisecond
-		cfg.JobTimeout = 30 * time.Minute
+		cfg.JobTimeout = JobTimeout
 		cfg.PeriodicJobs = opts.Periodic
 	}
 	c, err := river.NewClient(riverpgxv5.New(opts.Pool), cfg)

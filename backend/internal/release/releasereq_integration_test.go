@@ -176,11 +176,17 @@ func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
 		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: k.gate, Renderer: k.renderer, Sources: k.sources, Functions: k.functions,
 		Limits: func(context.Context, pgx.Tx, string) (limits.Set, error) { return set, nil },
 	})
-	// The app was released before and only its plugins changed: its bundle is
-	// published, so a request holds the plugins the test selects and nothing
-	// else (TestReleaseRequestAddsTheAppBundle_STU_100 covers the bundle).
-	if job := f.publish(t, "", false); job.State != release.StateSucceeded {
-		t.Fatalf("the app bundle's publish: %+v", job)
+	// The app was released before and only its plugins changed: a release holds
+	// its bundle, so a request holds the plugins the test selects and nothing
+	// else (TestReleaseRequestAddsTheAppBundle_STU_100 covers the bundle). A
+	// bundle built but held by no release is not published (row 296).
+	for _, plugin := range []string{"", f.loans} {
+		if job := f.publish(t, plugin, false); job.State != release.StateSucceeded {
+			t.Fatalf("the publish of %q: %+v", plugin, job)
+		}
+	}
+	if _, diags, err := f.rel.CreateRelease(context.Background(), f.owner, f.app, f.envs["development"].ID, nil, ""); err != nil || diags.HasErrors() {
+		t.Fatalf("the earlier release: %v %v", diags, err)
 	}
 	return k
 }
@@ -704,13 +710,27 @@ func TestReleaseRequestAddsTheAppBundle_STU_100(t *testing.T) {
 	if _, err := svc.Cancel(ctx, f.owner, f.app, r.ID); err != nil {
 		t.Fatal(err)
 	}
-	// Published since: only what was selected.
-	if job := f.publish(t, "", false); job.State != release.StateSucceeded {
-		t.Fatalf("the app bundle's publish: %+v", job)
+	// Built for a request but held by no release, as a cancelled request leaves
+	// it: not published, so it still joins (row 296).
+	for _, plugin := range []string{"", f.loans} {
+		if job := f.publish(t, plugin, false); job.State != release.StateSucceeded {
+			t.Fatalf("the publish of %q: %+v", plugin, job)
+		}
+	}
+	r, _, err = svc.Create(ctx, f.owner, releasereq.CreateInput{AppID: f.app, EnvironmentID: dev, Plugins: loans})
+	if err != nil || len(r.Plugins) != 2 || r.Plugins[0].PluginKey != releasereq.AppBundleKey {
+		t.Fatalf("Create after a build no release holds = %+v, %v", r.Plugins, err)
+	}
+	if _, err := svc.Cancel(ctx, f.owner, f.app, r.ID); err != nil {
+		t.Fatal(err)
+	}
+	// Released since: only what was selected.
+	if _, diags, err := f.rel.CreateRelease(ctx, f.owner, f.app, dev, nil, ""); err != nil || diags.HasErrors() {
+		t.Fatalf("CreateRelease: %v %v", diags, err)
 	}
 	r, _, err = svc.Create(ctx, f.owner, releasereq.CreateInput{AppID: f.app, EnvironmentID: dev, Plugins: loans})
 	if err != nil || len(r.Plugins) != 1 || r.Plugins[0].PluginKey != "loans" {
-		t.Fatalf("Create after the bundle's publish = %+v, %v", r.Plugins, err)
+		t.Fatalf("Create after the bundle's release = %+v, %v", r.Plugins, err)
 	}
 	if _, err := svc.Cancel(ctx, f.owner, f.app, r.ID); err != nil {
 		t.Fatal(err)
@@ -718,5 +738,60 @@ func TestReleaseRequestAddsTheAppBundle_STU_100(t *testing.T) {
 	// Nothing selected and nothing changed: refused.
 	if _, _, err := svc.Create(ctx, f.owner, releasereq.CreateInput{AppID: f.app, EnvironmentID: dev}); !codeIs(err, plxerr.InvalidFormat) {
 		t.Errorf("an empty request: %v", err)
+	}
+}
+
+// markRunning records a visual-diff job as running since `ago`, as an attempt
+// that died with its process leaves it.
+func markRunning(t *testing.T, f *fixture, jobID string, ago time.Duration) {
+	t.Helper()
+	err := f.db.InTx(context.Background(), storage.Tenant{OrganizationID: f.org}, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `UPDATE visual_diff_jobs SET state = 'running', started_at = now() - make_interval(secs => $2) WHERE id = $1`,
+			jobID, ago.Seconds())
+		return err //nolint:wrapcheck // a test
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Verifies: STU-100, LIM-001.
+// A render whose attempt died with its process, leaving its job running, is
+// rendered by the queue's next attempt; one left running for longer than an
+// attempt may run holds none of the organisation's render slots, shows as
+// failed, and asking again queues a new render (build log row 296).
+func TestAbandonedRenderRendersAgain_STU_100(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	k := f.requests(t, 1)
+	ctx := context.Background()
+	first := toDiffsStep(t, f, k, "production", 1)
+	second := toDiffsStep(t, f, k, "beta", 2)
+	for _, r := range []releasereq.Request{first, second} {
+		if _, err := k.svc.RequestDiff(ctx, f.owner, f.app, r.ID); err != nil {
+			t.Fatal(err)
+		}
+	}
+	queued := append([]releasereq.RenderJob(nil), k.queue.jobs...)
+	// The second's last attempt died two hours ago: it holds no slot, so the first renders.
+	markRunning(t, f, queued[1].JobID, 2*time.Hour)
+	if err := k.svc.RunRender(ctx, queued[0]); err != nil {
+		t.Fatalf("a job beside an abandoned one: %v", err)
+	}
+	d, found, err := k.svc.Diff(ctx, f.owner, f.app, second.ID)
+	if err != nil || !found || d.State != releasereq.DiffFailed || d.Error == "" {
+		t.Fatalf("the abandoned diff = %+v %v %v, want failed with a reason", d, found, err)
+	}
+	again, err := k.svc.RequestDiff(ctx, f.owner, f.app, second.ID)
+	if err != nil || again.ID == queued[1].JobID || again.State != releasereq.DiffQueued || k.queue.count() != 3 {
+		t.Fatalf("asking again = %+v %v, %d queued", again, err, k.queue.count())
+	}
+	// Its new job's attempt starts and dies; the next attempt renders it rather than leave it running.
+	markRunning(t, f, again.ID, time.Minute)
+	if err := k.svc.RunRender(ctx, k.queue.jobs[2]); err != nil {
+		t.Fatalf("the next attempt: %v", err)
+	}
+	if d, _, err := k.svc.Diff(ctx, f.owner, f.app, second.ID); err != nil || d.State != releasereq.DiffSucceeded {
+		t.Fatalf("after the next attempt = %+v %v", d, err)
 	}
 }

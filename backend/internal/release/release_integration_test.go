@@ -751,3 +751,42 @@ func nameInQuotes(msg string) string {
 	name, _, _ := strings.Cut(rest, `"`)
 	return name
 }
+
+// Verifies: STU-100.
+// A version that no release holds — built for a release request that was
+// cancelled — is not published: the plugin and the app bundle keep their
+// unpublished changes, so publishing starts again with them, until a
+// release holds their versions (build log row 296).
+func TestBuiltButUnreleasedIsUnpublished_STU_100(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	ctx := context.Background()
+	unpublished := func() (plugin, app bool) {
+		t.Helper()
+		sums, err := f.docs.ListPluginSummaries(ctx, f.owner, f.app)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, s := range sums {
+			if s.Plugin.ID == f.loans {
+				plugin = s.UnpublishedChanges
+			}
+		}
+		app, err = f.docs.AppUnpublishedChanges(ctx, f.owner, f.app)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return plugin, app
+	}
+	f.publish(t, "", false)
+	f.publish(t, f.loans, false)
+	if plugin, app := unpublished(); !plugin || !app {
+		t.Errorf("built but released by nothing: plugin %v, app %v, want both unpublished", plugin, app)
+	}
+	if _, diags, err := f.rel.CreateRelease(ctx, f.owner, f.app, f.envs["development"].ID, nil, ""); err != nil || diags.HasErrors() {
+		t.Fatalf("CreateRelease: %v %v", diags, err)
+	}
+	if plugin, app := unpublished(); plugin || app {
+		t.Errorf("released: plugin %v, app %v, want neither unpublished", plugin, app)
+	}
+}

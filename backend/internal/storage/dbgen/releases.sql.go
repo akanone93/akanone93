@@ -687,6 +687,55 @@ func (q *Queries) LatestReleaseSize(ctx context.Context, appID pgtype.UUID) (int
 	return column_1, err
 }
 
+const latestReleasedVersion = `-- name: LatestReleasedVersion :one
+SELECT v.id, v.organization_id, v.app_id, v.plugin_id, v.plugin_key, v.version, v.label, v.notes, v.bundle_sha256, v.bundle_size, v.source_map_sha256, v.required_features, v.min_runtime, v.signature, v.key_id, v.algorithm, v.environment_id, v.source_snapshot_id, v.sources, v.published_by_kind, v.published_by_id, v.published_by, v.created_at, v.native_uses FROM plugin_versions v
+ WHERE v.app_id = $1 AND v.plugin_id IS NOT DISTINCT FROM $2::uuid
+   AND EXISTS (SELECT 1 FROM release_versions rv WHERE rv.plugin_version_id = v.id)
+ ORDER BY v.version DESC
+ LIMIT 1
+`
+
+type LatestReleasedVersionParams struct {
+	AppID    pgtype.UUID
+	PluginID pgtype.UUID
+}
+
+// The newest version of a plugin, or with a null plugin of the app's own
+// bundle, that a release holds: what the app last published of it, however
+// many versions were built since (a cancelled request builds versions that
+// no release holds).
+func (q *Queries) LatestReleasedVersion(ctx context.Context, arg LatestReleasedVersionParams) (PluginVersion, error) {
+	row := q.db.QueryRow(ctx, latestReleasedVersion, arg.AppID, arg.PluginID)
+	var i PluginVersion
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.AppID,
+		&i.PluginID,
+		&i.PluginKey,
+		&i.Version,
+		&i.Label,
+		&i.Notes,
+		&i.BundleSha256,
+		&i.BundleSize,
+		&i.SourceMapSha256,
+		&i.RequiredFeatures,
+		&i.MinRuntime,
+		&i.Signature,
+		&i.KeyID,
+		&i.Algorithm,
+		&i.EnvironmentID,
+		&i.SourceSnapshotID,
+		&i.Sources,
+		&i.PublishedByKind,
+		&i.PublishedByID,
+		&i.PublishedBy,
+		&i.CreatedAt,
+		&i.NativeUses,
+	)
+	return i, err
+}
+
 const latestVersion = `-- name: LatestVersion :one
 SELECT id, organization_id, app_id, plugin_id, plugin_key, version, label, notes, bundle_sha256, bundle_size, source_map_sha256, required_features, min_runtime, signature, key_id, algorithm, environment_id, source_snapshot_id, sources, published_by_kind, published_by_id, published_by, created_at, native_uses FROM plugin_versions
  WHERE app_id = $1 AND plugin_id IS NOT DISTINCT FROM $2::uuid

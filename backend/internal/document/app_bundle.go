@@ -16,7 +16,7 @@ import (
 
 // AppBundleChanged reports whether the app's own documents (app.json, the
 // theme, the translations: the app bundle, plugin key "") changed after its
-// newest published version, or whether no version was published yet while
+// newest released version, or whether no release held one yet while
 // the draft has content. A release of plugins that read a new translation key
 // or theme token needs that bundle too, so a release request includes it
 // (STU-100, BND-002).
@@ -28,7 +28,8 @@ func AppBundleChanged(ctx context.Context, q *dbgen.Queries, app pgtype.UUID) (b
 	if err != nil {
 		return false, failure(err, "draft")
 	}
-	latest, err := q.LatestVersion(ctx, dbgen.LatestVersionParams{AppID: app, PluginID: pgtype.UUID{}})
+	// What a release holds, not what was built: a request that was cancelled builds a version no release holds.
+	latest, err := q.LatestReleasedVersion(ctx, dbgen.LatestReleasedVersionParams{AppID: app, PluginID: pgtype.UUID{}})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return draft.Revision > 0, nil
 	}

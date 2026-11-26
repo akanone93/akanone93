@@ -33,13 +33,16 @@ RETURNING *;
 
 -- name: SummarisePlugins :many
 -- One row per live plugin of an app for the app canvas (plan §4.3 #14): the
--- draft, its screens, the newest published version, and the lock. Bounded by
--- app.plugins.
+-- draft, its screens, the newest version's size, when a release last held
+-- one of its versions (published_at: a version built for a request that was
+-- cancelled is not published), and the lock. Bounded by app.plugins.
 SELECT p.id, p.key, p.name, p.latest_version, p.archived_at, p.owning_team_id,
        d.revision AS draft_revision, d.updated_at AS draft_updated_at,
        (SELECT count(*) FROM documents x WHERE x.draft_id = d.id AND x.kind = 'page' AND x.deleted_at IS NULL)::bigint AS screens,
        coalesce((SELECT v.bundle_size FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1), 0)::bigint AS bundle_size,
-       (SELECT v.created_at FROM plugin_versions v WHERE v.plugin_id = p.id ORDER BY v.version DESC LIMIT 1) AS published_at,
+       (SELECT v.created_at FROM plugin_versions v
+         WHERE v.plugin_id = p.id AND EXISTS (SELECT 1 FROM release_versions rv WHERE rv.plugin_version_id = v.id)
+         ORDER BY v.version DESC LIMIT 1) AS published_at,
        l.holder_display AS lock_holder, l.expires_at AS lock_expires_at
   FROM plugins p
   JOIN drafts d ON d.plugin_id = p.id

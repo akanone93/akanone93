@@ -62,6 +62,17 @@ SELECT * FROM plugin_versions
  ORDER BY version DESC
  LIMIT 1;
 
+-- name: LatestReleasedVersion :one
+-- The newest version of a plugin, or with a null plugin of the app's own
+-- bundle, that a release holds: what the app last published of it, however
+-- many versions were built since (a cancelled request builds versions that
+-- no release holds).
+SELECT v.* FROM plugin_versions v
+ WHERE v.app_id = $1 AND v.plugin_id IS NOT DISTINCT FROM sqlc.narg(plugin_id)::uuid
+   AND EXISTS (SELECT 1 FROM release_versions rv WHERE rv.plugin_version_id = v.id)
+ ORDER BY v.version DESC
+ LIMIT 1;
+
 -- name: ListVersions :many
 SELECT * FROM plugin_versions
  WHERE app_id = $1 AND plugin_id IS NOT DISTINCT FROM sqlc.narg(plugin_id)::uuid

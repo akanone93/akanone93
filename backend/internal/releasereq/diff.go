@@ -19,6 +19,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
+	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/plxgolden"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -182,9 +183,26 @@ func reusableDiff(ctx context.Context, q *dbgen.Queries, req pgtype.UUID, conten
 		return VisualDiff{}, false, failure(err, "visual diff")
 	case job.State == DiffFailed:
 		return VisualDiff{}, false, nil
+	case abandoned(job):
+		// A job its last attempt left running is ended as failed, and asking again queues a new one.
+		err := q.FinishVisualDiffJob(ctx, dbgen.FinishVisualDiffJobParams{ID: job.ID, State: DiffFailed, Result: []byte("[]"), Error: abandonedReason})
+		if err != nil {
+			return VisualDiff{}, false, failure(err, "visual diff")
+		}
+		return VisualDiff{}, false, nil
 	}
 	out, err := diffOf(job)
 	return out, true, err
+}
+
+// abandonedReason is the error of a job that stopped without finishing.
+const abandonedReason = "the render stopped without finishing; render again"
+
+// abandoned reports whether a job is marked running although its last attempt
+// started longer ago than an attempt may run: its process died during it, and
+// no attempt runs it now.
+func abandoned(j dbgen.VisualDiffJob) bool {
+	return j.State == DiffRunning && j.StartedAt.Valid && time.Since(j.StartedAt.Time) > jobs.JobTimeout
 }
 
 // queueDiff records a job and queues it in the caller's transaction.
@@ -234,6 +252,10 @@ func (s *Service) Diff(ctx context.Context, p auth.Principal, appID, id string) 
 		}
 		found = true
 		out, err = diffOf(job)
+		if abandoned(job) {
+			// Shown as failed, so that the diffs step offers to render again.
+			out.State, out.Error = DiffFailed, abandonedReason
+		}
 		return err
 	})
 	return out, found, err
@@ -382,7 +404,9 @@ func (s *Service) startRender(ctx context.Context, job RenderJob) (in RenderInpu
 		if err != nil {
 			return failure(err, "visual diff")
 		}
-		if row.State != DiffQueued {
+		// The queue runs one attempt of a job at a time: a job still running when an attempt starts was left so by
+		// an attempt that died with its process, and this one renders it again rather than leave it running for ever.
+		if row.State != DiffQueued && row.State != DiffRunning {
 			return nil
 		}
 		if err := s.withinLimit(ctx, tx, row); err != nil {
@@ -411,7 +435,9 @@ func (s *Service) withinLimit(ctx context.Context, tx pgx.Tx, row dbgen.VisualDi
 	if err != nil {
 		return err
 	}
-	running, err := dbgen.New(tx).CountRunningVisualDiffJobs(ctx, row.OrganizationID)
+	running, err := dbgen.New(tx).CountRunningVisualDiffJobs(ctx, dbgen.CountRunningVisualDiffJobsParams{
+		OrganizationID: row.OrganizationID, Starting: row.ID, WithinSeconds: jobs.JobTimeout.Seconds(),
+	})
 	if err != nil {
 		return failure(err, "visual diff")
 	}
