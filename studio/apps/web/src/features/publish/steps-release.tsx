@@ -6,6 +6,7 @@ import type { VisualDiffJob } from "@plux/api";
 import { Button, Field, Input, StatusPill, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { StepUpDialog } from "../../components/dialogs/index.ts";
+import { useEnvironments } from "../functions/use-functions.ts";
 import { useStepUp } from "../security/use-security.ts";
 import { evidenceMessages } from "./evidence.messages.ts";
 import { JsonDiff, ScreenTiles } from "./evidence.tsx";
@@ -55,7 +56,8 @@ function RenderStatus({ diff, current }: { diff: VisualDiffJob; current: boolean
 /**
  * Step 4: the server-side visual diff of the changed screens and the JSON diff of the changed documents; approvers need
  * the visual diff finished (GOV-023). While it is parked (`visualDiffParked`) the step says it is coming soon, offers no
- * render, and moves on without one; a render a request already has is still shown.
+ * render, and moves on without one; a finished render a request already has is still shown, one that is queued or
+ * failed is not.
  */
 export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
@@ -68,7 +70,9 @@ export function DiffsPanel({ request, diff, editable, busy, api, run, pluginIds 
     <div className="flex flex-col gap-3">
       {visualDiffParked && <p className="text-body text-muted-foreground">{m.diffComingSoon}</p>}
       {!visualDiffParked && diff === undefined && <p className="text-body text-muted-foreground">{m.diffNone}</p>}
-      {diff !== undefined && <RenderStatus diff={diff} current={current} />}
+      {diff !== undefined && (!visualDiffParked || diff.state === "succeeded") && (
+        <RenderStatus diff={diff} current={current} />
+      )}
       <ul className="flex flex-col gap-3">
         {diff?.screens.map((s) => (
           <li key={`${s.pluginKey}/${s.screen}/${s.device}`} className="flex flex-col gap-1">
@@ -133,14 +137,17 @@ export function ChangelogPanel({ request, editable, busy, api, run }: PanelProps
   );
 }
 
-/** Step 6: the environment and channel; the build is promoted unchanged (REL-004). */
+/** Step 6: the environment, by its name, and the channel; the build is promoted unchanged (REL-004). */
 export function TargetPanel({ request, editable, busy, api, run }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const [channel, setChannel] = useState(request.channel);
+  const environments = useEnvironments(request.appId);
+  const environment = environments.data?.environments.find((e) => e.id === request.environmentId);
+  const named = environment?.name || environment?.key;
   return (
     <div className="flex flex-col gap-3">
       <p className="text-body">
-        {m.environment}: <span className="font-mono">{request.environmentId}</span>
+        {m.environment}: {named ?? <span className="font-mono">{request.environmentId}</span>}
       </p>
       <Field label={m.channel}>
         <Input value={channel} readOnly={!editable} onChange={(e) => setChannel(e.target.value)} />

@@ -88,6 +88,8 @@ describe("[STU-100] publish flow", () => {
     await step("Changelog");
     press("Continue");
     await step("Target");
+    // The environment is named, not shown as its ID (build log row 301).
+    await screen.findByText("Environment: development");
     press("Continue");
     await step("Approval");
     press("Request approval");
@@ -476,19 +478,15 @@ describe("[STU-100] build evidence and diffs", () => {
     expect(screen.queryByRole("img", { name: /Rendered screen: / })).toBeNull();
   });
 
-  test("a render that is still queued says that the thumbnails follow; while parked the step does not wait for it", async () => {
-    open("/publish/r1", fixture("diffs", {}, { evidence, diff: { state: "queued" } }), { summaries });
-    await step("Visual diffs");
-    await screen.findByText("Thumbnails follow when the render finishes.");
-    expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy();
-  });
-
-  test("a render waiting after a failed attempt says so, and a failed one says why (STU-100)", async () => {
+  test("while the visual diff is parked, a queued or failed render is not shown and the step moves on (ADR-0113)", async () => {
     open("/publish/r1", fixture("diffs", {}, { evidence, diff: { state: "queued", error: "the renderer failed" } }), {
       summaries,
     });
     await step("Visual diffs");
-    await screen.findByText("The last attempt failed (the renderer failed); the render is tried again.");
+    await screen.findByText(/Visual diff: coming soon\./);
+    expect(screen.queryByText("Thumbnails follow when the render finishes.")).toBeNull();
+    expect(screen.queryByText(/the render is tried again/)).toBeNull();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy();
     cleanup();
     open(
       "/publish/r1",
@@ -496,7 +494,9 @@ describe("[STU-100] build evidence and diffs", () => {
       { summaries },
     );
     await step("Visual diffs");
-    expect((await screen.findByRole("alert")).textContent).toBe("Reason: the renderer failed after 5 attempts");
+    await screen.findByText(/Visual diff: coming soon\./);
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Render visual diff" })).toBeNull();
   });
 
   test("a failure to read the document changes is reported and does not hide the screens", async () => {

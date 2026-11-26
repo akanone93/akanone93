@@ -76,6 +76,8 @@ func TestErrorsCarryTheirReasonAndCode(t *testing.T) {
 		{"not found", plxerr.New(plxerr.ResourceNotFound, "no such app"), connect.CodeNotFound, "RESOURCE_NOT_FOUND", "PLX-8031"},
 		{"limit", plxerr.New(plxerr.LimitExceeded, "too many plugins"), connect.CodeResourceExhausted, "LIMIT_EXCEEDED", "PLX-1320"},
 		{"invalid", plxerr.New(plxerr.InvalidPageToken, "stale token"), connect.CodeInvalidArgument, "INVALID_PAGE_TOKEN", "PLX-1032"},
+		// A release that cannot be made says why to its publisher (build log row 301).
+		{"release", plxerr.New(plxerr.ReleaseInconsistent, "the environment has no upstream \"orgs\" registered"), connect.CodeFailedPrecondition, "RELEASE_INCONSISTENT", "PLX-8050"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

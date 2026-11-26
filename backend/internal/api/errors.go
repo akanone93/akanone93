@@ -151,6 +151,10 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.AccessibilityBlocksPublish: connect.CodeFailedPrecondition,
 	plxerr.GoldenRunMissing:           connect.CodeFailedPrecondition,
 	plxerr.GoldenDifferenceUnapproved: connect.CodeFailedPrecondition,
+	// The release cannot be made as asked (a missing gateway upstream, a
+	// function pinned twice): its findings name configuration, never a
+	// value, and the caller holds release.publish.
+	plxerr.ReleaseInconsistent: connect.CodeFailedPrecondition,
 
 	// Translation import: the file or a key in it was refused (I18N-009).
 	plxerr.TranslationImportInvalid:       connect.CodeInvalidArgument,
