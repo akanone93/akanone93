@@ -55,7 +55,8 @@ const press = (name: string) => fireEvent.click(screen.getByRole("button", { nam
 describe("[STU-100] publish flow", () => {
   test("A2 walks the request from selection to release, with a step-up before the release", async () => {
     const credential = stubAssertion();
-    const release = fixture("select");
+    // The jobs run a while: the build step records them on the request and waits for them (build log row 190).
+    const release = fixture("select", {}, { jobState: "running" });
     const stepUps: string[] = [];
     open("/publish/r1", release, {
       summaries: [
@@ -75,7 +76,9 @@ describe("[STU-100] publish flow", () => {
     expect(release.jobReads?.every((r) => r === "list")).toBe(true);
     // Warnings do not stop the builds; the Reports step is where they are acknowledged (SRV-051).
     expect(release.acknowledgeWarnings).toEqual([true, true]);
-    await waitFor(() => expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy());
+    expect(release.request.recorded?.map((b) => b.pluginKey)).toEqual(["home", "shared"]);
+    release.jobState = "succeeded";
+    await waitFor(() => expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy(), { timeout: 5000 });
     press("Continue");
     await step("Reports");
     await screen.findByText("No findings", {}, { timeout: 3000 }).catch(() => undefined);
@@ -104,6 +107,7 @@ describe("[STU-100] publish flow", () => {
     expect(release.calls).toEqual([
       "advance:select",
       "advance:build",
+      "advance:build",
       "advance:reports",
       "advance:diffs",
       "advance:changelog",
@@ -112,7 +116,7 @@ describe("[STU-100] publish flow", () => {
       "advance:rollout",
       "complete",
     ]);
-  });
+  }, 15_000);
 
   test("A2 resumes at the server state after a reload and shows earlier steps read-only", async () => {
     const release = fixture("approval", {}, { diff: { state: "succeeded" } });
@@ -138,6 +142,20 @@ describe("[STU-100] publish flow", () => {
     await step("Approval");
     press("Request approval");
     await screen.findByText("Rejected");
+  });
+
+  test("a reload during the builds shows the running jobs instead of offering to start again (build log row 190)", async () => {
+    const release = fixture("build", {}, { jobState: "running" });
+    open("/publish/r1", release);
+    await step("Freeze and build");
+    press("Freeze and build");
+    await waitFor(() => expect(release.request.recorded?.length).toBe(2));
+    cleanup();
+    open("/publish/r1", release);
+    await step("Freeze and build");
+    await waitFor(() => expect(release.jobReads?.length ?? 0).toBeGreaterThan(0));
+    expect(screen.queryByRole("button", { name: "Freeze and build" })).toBeNull();
+    expect(screen.getByText("home")).toBeTruthy();
   });
 
   test("A2 refuses a stale step with PLX-8060 and reloads the request", async () => {

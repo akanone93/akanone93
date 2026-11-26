@@ -204,6 +204,8 @@ export interface ReleaseFixture {
     errors?: number;
     /** The plan the rollout step already holds. */
     rolloutPlan?: unknown;
+    /** The publish jobs the build step recorded while they ran, as the server keeps them (build log row 190). */
+    recorded?: { pluginKey: string; jobId: string }[];
   };
   /** The plan the rollout step sent, parsed. */
   plan?: unknown;
@@ -1571,6 +1573,33 @@ function securityServices(
 
 const releaseHash = "c0ffee00c0ffee00c0ffee00";
 
+/**
+ * The builds a release fixture's request shows: one succeeded build per plugin once built, else the jobs the build step
+ * recorded while they run (build log row 190).
+ */
+function buildsView(r: ReleaseFixture["request"], built: boolean, jobState: string | undefined) {
+  if (built) {
+    return r.plugins.map((p) => ({
+      pluginKey: p.pluginKey,
+      jobId: `job-${p.pluginKey}`,
+      state: "succeeded",
+      version: 1n,
+      bundleSha256: "ab".repeat(16),
+      errors: r.errors ?? 0,
+      warnings: r.warnings ?? [],
+    }));
+  }
+  return (r.recorded ?? []).map((b) => ({
+    pluginKey: b.pluginKey,
+    jobId: b.jobId,
+    state: jobState ?? "succeeded",
+    version: 0n,
+    bundleSha256: "",
+    errors: 0,
+    warnings: [],
+  }));
+}
+
 function refused(code: string): never {
   throw new ConnectError(`${code} refused`, Code.FailedPrecondition);
 }
@@ -1596,17 +1625,7 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
       hold: r.hold ?? "",
       revision: BigInt(revision),
       plugins: r.plugins,
-      builds: built
-        ? r.plugins.map((p) => ({
-            pluginKey: p.pluginKey,
-            jobId: `job-${p.pluginKey}`,
-            state: "succeeded",
-            version: 1n,
-            bundleSha256: "ab".repeat(16),
-            errors: r.errors ?? 0,
-            warnings: r.warnings ?? [],
-          }))
-        : [],
+      builds: buildsView(r, built, fx.jobState),
       acknowledged: r.acknowledged ?? [],
       rolloutPlan: new TextEncoder().encode(r.rolloutPlan === undefined ? "" : JSON.stringify(r.rolloutPlan)),
       contentHash: built ? releaseHash : "",
@@ -1666,6 +1685,13 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
         throw new ConnectError(fx.refuseAdvance, Code.FailedPrecondition);
       }
       fx.calls.push(`advance:${r.state}`);
+      if (req.step.case === "builds") {
+        // The server keeps the jobs and stays at the build step until every one has succeeded.
+        r.recorded = req.step.value.builds.map((b) => ({ pluginKey: b.pluginKey, jobId: b.jobId }));
+        if ((fx.jobState ?? "succeeded") !== "succeeded") {
+          return { request: view() };
+        }
+      }
       if (req.step.case === "reports") {
         r.acknowledged = req.step.value.acknowledgedWarnings;
       }

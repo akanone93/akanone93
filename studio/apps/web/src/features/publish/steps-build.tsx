@@ -100,10 +100,18 @@ function JobRow({
   );
 }
 
-/** Step 2: starts one publish job per plugin (idempotent, so a reload re-attaches) and shows their progress (SRV-050). */
+/**
+ * Step 2: starts one publish job per plugin (idempotent, so pressing again re-attaches) and shows their progress
+ * (SRV-050). The jobs are recorded on the request as soon as they start, so a reload shows them and how they went
+ * instead of offering to start again (build log row 190); the step moves on once every one has succeeded.
+ */
 export function BuildPanel({ request, editable, busy, api, run, pluginIds }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
-  const [refs, setRefs] = useState<readonly { pluginKey: string; jobId: string }[]>([]);
+  const [started, setStarted] = useState<readonly { pluginKey: string; jobId: string }[]>([]);
+  const recorded = request.builds
+    .filter((b) => b.jobId !== "")
+    .map((b) => ({ pluginKey: b.pluginKey, jobId: b.jobId }));
+  const refs = started.length > 0 ? started : recorded;
   const jobs = useJobs(
     request.appId,
     refs.map((r) => r.jobId),
@@ -111,25 +119,27 @@ export function BuildPanel({ request, editable, busy, api, run, pluginIds }: Pan
   const states = jobs.data ?? [];
   const done = refs.length > 0 && states.length === refs.length && states.every((j) => j?.state === "succeeded");
   const failed = request.hold === "failed" || states.some((j) => j?.state === "failed" || j?.state === "cancelled");
-  const shown =
-    request.builds.length > 0
-      ? request.builds.map((b) => ({ pluginKey: b.pluginKey, job: undefined, ref: b }))
-      : refs.map((r, i) => ({ pluginKey: r.pluginKey, job: states[i], ref: undefined }));
+  const shown = refs.map((r, i) => ({
+    pluginKey: r.pluginKey,
+    job: states[i] ?? buildAsJob(request.builds.find((b) => b.jobId === r.jobId)),
+  }));
+  const start = async (revision?: bigint) => {
+    const builds = await api.startBuilds(request.plugins, pluginIds, revision);
+    setStarted(builds);
+    await api.advance({ case: "builds", value: { builds: [...builds] } });
+  };
   return (
     <div className="flex flex-col gap-3">
       <p className="text-body text-muted-foreground">{m.buildsHint}</p>
       <ul className="flex flex-col gap-2">
         {shown.map((s) => (
-          <JobRow key={s.pluginKey} pluginKey={s.pluginKey} job={s.job ?? buildAsJob(s.ref)} />
+          <JobRow key={s.pluginKey} pluginKey={s.pluginKey} job={s.job} />
         ))}
       </ul>
       {editable && (
         <div className="flex gap-2">
           {refs.length === 0 && (
-            <Button
-              disabled={busy}
-              onClick={() => run(async () => setRefs(await api.startBuilds(request.plugins, pluginIds)))}
-            >
+            <Button disabled={busy} onClick={() => run(() => start())}>
               {m.startBuild}
             </Button>
           )}
@@ -140,9 +150,9 @@ export function BuildPanel({ request, editable, busy, api, run, pluginIds }: Pan
                 run(async () => {
                   // One press tries again: the refreeze starts a new revision, and the builds keyed on it are new
                   // attempts at the current draft (#192).
-                  setRefs([]);
+                  setStarted([]);
                   const { request: fresh } = await api.refreeze();
-                  setRefs(await api.startBuilds(request.plugins, pluginIds, fresh?.revision ?? request.revision));
+                  await start(fresh?.revision ?? request.revision);
                 })
               }
             >
