@@ -77,6 +77,34 @@ export function lerpAlignment(a: AlignmentGeometry, b: AlignmentGeometry, t: num
   throw new Error("cannot interpolate between an absolute and a directional alignment");
 }
 
+/**
+ * `BoxDecoration.padding`: how far a decoration's `border` insets what it holds, side by side, as `[left, top, right,
+ * bottom]` — each side's `strokeInset`, its width for a border inside the box (the default), half for a centred one,
+ * none for one outside it. Undefined when the decoration has no border. A `Container` adds it to its padding.
+ */
+export function decorationInsets(decoration: unknown): [number, number, number, number] | undefined {
+  const border = isObject(decoration) ? decoration["border"] : undefined;
+  if (!isObject(border)) {
+    return undefined;
+  }
+  const inset = (side: unknown): number => {
+    if (!isObject(side)) {
+      return 0;
+    }
+    const width = typeof side["width"] === "number" ? side["width"] : 1;
+    const align = typeof side["strokeAlign"] === "number" ? side["strokeAlign"] : -1;
+    return width * (1 - (1 + align) / 2);
+  };
+  const all = border["all"];
+  const of = (name: string): number => inset(border[name] ?? all);
+  const sides: [number, number, number, number] = [of("left"), of("top"), of("right"), of("bottom")];
+  return sides.some((s) => s > 0) ? sides : undefined;
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 /** The properties of `Container` that affect layout. */
 export interface ContainerLayout {
   alignment?: AlignmentGeometry | null;

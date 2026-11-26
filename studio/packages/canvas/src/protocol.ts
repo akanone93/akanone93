@@ -434,6 +434,8 @@ export interface ScreenStyle {
   readonly textScale?: number;
   /** The ambient text direction of the preview (I18N-010); default left to right. */
   readonly textDirection?: TextDirection;
+  /** The preview's locale, a BCP 47 tag such as `de-DE`: what a widget reads its region from, as on the device. */
+  readonly locale?: string;
   readonly frame: ColorRgba;
   readonly frameStroke: ColorRgba;
   readonly box: ColorRgba;

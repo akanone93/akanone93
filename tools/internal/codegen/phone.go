@@ -19,6 +19,9 @@ const PhoneSource = "schema/pxl/phone.json"
 const (
 	phoneGoPath   = "backend/internal/pxl/phone/table_gen.go"
 	phoneDartPath = "packages/plux_flutter/lib/src/pxl/phone.g.dart"
+	// phoneTSPath is the calling code of each territory, which Studio's
+	// canvas shows on a PhoneInput as the runtime does (build log row 295).
+	phoneTSPath = "studio/packages/layout/src/widgets/calling-codes.gen.ts"
 )
 
 // Phone is schema/pxl/phone.json, as tools/cmd/phonemeta derives it.
@@ -105,7 +108,7 @@ func LoadPhone(root string) (*Phone, error) {
 }
 
 // PhoneFiles renders the Go and Dart tables: one text, read the same way
-// by both runtimes (schema/pxl/phone.md §2).
+// by both runtimes (schema/pxl/phone.md §2); and Studio's calling codes.
 func PhoneFiles(p *Phone) ([]File, error) {
 	table, formats := phoneTable(p), phoneFormatTable(p)
 	var g bytes.Buffer
@@ -124,7 +127,25 @@ func PhoneFiles(p *Phone) ([]File, error) {
 	fmt.Fprintf(&d, "/// The libphonenumber release the table is derived from.\nconst String phoneMetadataVersion = '%s';\n\n", p.Source.Version)
 	d.WriteString("/// One territory per line (schema/pxl/phone.md §2).\nconst String phoneTable = r'''" + table + "''';\n\n")
 	d.WriteString("/// The number formats of the territories that have them (schema/pxl/phone.md §2).\nconst String phoneFormatTable = r'''" + formats + "''';\n")
-	return []File{goSrc, {Path: phoneDartPath, Content: d.Bytes()}}, nil
+	return []File{goSrc, {Path: phoneDartPath, Content: d.Bytes()}, {Path: phoneTSPath, Content: callingCodesTS(p)}}, nil
+}
+
+// callingCodesTS renders the calling code of each territory for Studio, in
+// territory order: what the canvas needs of the table, a few kilobytes
+// rather than the whole metadata.
+func callingCodesTS(p *Phone) []byte {
+	var b bytes.Buffer
+	b.WriteString(header(LangTS, PhoneSource))
+	fmt.Fprintf(&b, "/** The calling code of each phone region (`pxl.phone.v1`, libphonenumber %s), by its ISO 3166 code. */\n", p.Source.Version)
+	b.WriteString("export const callingCodes: Readonly<Record<string, number>> = {\n")
+	for _, t := range p.Territories {
+		// Non-geographic entities ("001") are no region a person picks.
+		if len(t.ID) == 2 && t.ID[0] >= 'A' && t.ID[0] <= 'Z' {
+			fmt.Fprintf(&b, "  %s: %d,\n", t.ID, t.CountryCode)
+		}
+	}
+	b.WriteString("};\n")
+	return b.Bytes()
 }
 
 // phoneTable renders the territories as lines of space-separated fields;

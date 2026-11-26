@@ -200,6 +200,12 @@ export class RenderTable extends RenderBox {
   private _textBaseline: TextBaseline | null;
   private _baselineDistance: number | null = null;
   private _rowTops: number[] = [];
+  private _columnLefts: number[] = [];
+  /**
+   * The node ID the table's inner border lines are named under (`<id>#vline<i>`, `<id>#hline<i>`), or null when no
+   * painter asks for them: Flutter paints a `TableBorder` from these positions after layout.
+   */
+  borderParts: string | null = null;
 
   constructor(options: RenderTableOptions) {
     super();
@@ -282,6 +288,32 @@ export class RenderTable extends RenderBox {
   }
 
   /** The top of every row plus the bottom of the last, after layout. */
+  /** The left edge of each column, left to right, as Flutter's `_columnLefts` (whatever the text direction). */
+  get columnLefts(): readonly number[] {
+    return this._columnLefts;
+  }
+
+  /**
+   * The table's inner border lines as zero-thick rects in its own coordinates, named under [borderParts]: a vertical
+   * line at each column's left edge but the first, a horizontal one at each row's top but the first, as Flutter's
+   * `RenderTable.paint` hands them to `TableBorder.paint`.
+   */
+  namedRects(): ReadonlyMap<string, { x: number; y: number; w: number; h: number }> {
+    const out = new Map<string, { x: number; y: number; w: number; h: number }>();
+    const id = this.borderParts;
+    if (id === null || this._rowTops.length === 0) {
+      return out;
+    }
+    const height = this._rowTops[this._rowTops.length - 1] ?? 0;
+    for (const [i, x] of this._columnLefts.slice(1).entries()) {
+      out.set(`${id}#vline${i + 1}`, { x, y: 0, w: 0, h: height });
+    }
+    for (const [i, y] of this._rowTops.slice(1, -1).entries()) {
+      out.set(`${id}#hline${i + 1}`, { x: 0, y, w: this.size.width, h: 0 });
+    }
+    return out;
+  }
+
   get rowTops(): readonly number[] {
     return this._rowTops;
   }
@@ -600,6 +632,8 @@ export class RenderTable extends RenderBox {
     }
     const widths = this.computeColumnWidths(constraints);
     const positions = this._columnPositions(widths);
+    // Flutter keeps the lefts in visual order: in right-to-left text the positions run the other way (`reversed`).
+    this._columnLefts = this._textDirection === TextDirection.rtl ? [...positions].reverse() : [...positions];
     const tableWidth = widths.reduce((a, b) => a + b, 0);
     this._rowTops = [];
     this._baselineDistance = null;

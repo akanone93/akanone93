@@ -911,6 +911,7 @@ function layOutContent(s: ScreenDocument, style: ScreenStyle, engine: ParagraphE
     deviceHeight: style.deviceHeight,
     ...(style.textScale === undefined ? {} : { textScale: style.textScale }),
     ...(style.textDirection === undefined ? {} : { textDirection: style.textDirection }),
+    ...(style.locale === undefined ? {} : { locale: style.locale }),
     ...(style.paint === undefined ? {} : { paint: { ...style.paint, rtl: style.textDirection === TextDirection.rtl } }),
     ...(style.chrome === undefined ? {} : { viewPadding: viewPaddingOf(style.chrome) }),
     ...(style.live === true ? { live: true } : {}),

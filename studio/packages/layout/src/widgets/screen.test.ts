@@ -14,6 +14,7 @@ import type { CanvasKitParagraphEngine } from "../text/canvaskit-engine.ts";
 import { TextAlign } from "../text/paragraph-engine.ts";
 import { cupertinoWidgetBuilders } from "./cupertino.ts";
 import { ROUTE_TYPE } from "./page-route.ts";
+import { phoneRegionLabel } from "./phone-region.ts";
 import {
   defaultScreenTheme,
   defaultWidgetBuilders,
@@ -1096,6 +1097,48 @@ describe("bound content on painted screens (build log row 138) [STU-005]", () =>
     expect(textsOf(layout, "shown")).toEqual(["•••"]);
   });
 
+  test("a decorated Container and AnimatedContainer inset their child by the border's width, as Flutter does (row 295)", () => {
+    const decoration = { border: { all: { color: "#000000", width: 3 } } };
+    const layout = layoutScreen(
+      column(
+        {
+          id: "box",
+          type: "Container",
+          props: { decoration, padding: { all: 4 } },
+          slots: { child: { id: "inner", type: "SizedBox", props: { width: 20, height: 20 } } },
+        },
+        {
+          id: "anim",
+          type: "AnimatedContainer",
+          props: { decoration: { border: { top: { width: 2 } } }, duration: 200 },
+          slots: { child: { id: "inner2", type: "SizedBox", props: { width: 20, height: 20 } } },
+        },
+      ),
+      { engine, theme, paint },
+    );
+    const at = (id: string) => layout.boxes.find((b) => b.id === id);
+    expect((at("inner")?.x ?? 0) - (at("box")?.x ?? 0)).toBe(7);
+    expect((at("inner")?.y ?? 0) - (at("box")?.y ?? 0)).toBe(7);
+    expect(at("box")?.h).toBe(34);
+    expect((at("inner2")?.y ?? 0) - (at("anim")?.y ?? 0)).toBe(2);
+    expect(at("anim")?.h).toBe(22);
+  });
+
+  test("a PhoneInput shows its region and calling code, from its region or the preview's locale (row 295)", () => {
+    const layout = layoutScreen(
+      column(
+        { id: "local", type: "PhoneInput", props: { label: "Phone" } },
+        { id: "set", type: "PhoneInput", props: { label: "Phone", region: "et" } },
+      ),
+      { engine, theme, paint, locale: "de-DE" },
+    );
+    expect(textsOf(layout, "local")).toEqual(["DE +49", "Phone"]);
+    expect(textsOf(layout, "set")).toEqual(["ET +251", "Phone"]);
+    expect(phoneRegionLabel(undefined, "en")).toBe("+");
+    expect(phoneRegionLabel("XX", undefined)).toBe("+");
+    expect(phoneRegionLabel(undefined, "sr-Latn-RS")).toBe("RS +381");
+  });
+
   test("an InfiniteList lays out the canvas's copies of its item template, one per item", () => {
     const layout = layoutScreen(
       column({
@@ -1180,6 +1223,32 @@ describe("bound content on painted screens (build log row 138) [STU-005]", () =>
     const painted = layout.boxes.find((b) => b.id === "steps")?.paint;
     expect(painted?.texts?.map((t) => t.text)).toEqual(["ID", "2", "Selfie", "3", "Address"]);
     expect(painted?.glyphs?.map((g) => g.name)).toEqual(["check"]);
+  });
+
+  test("a Table's border is drawn around it and between its cells, over them (row 295)", () => {
+    const cell = (id: string) => ({ id, type: "SizedBox", props: { height: 40 } });
+    const layout = layoutScreen(
+      column({
+        id: "grid",
+        type: "Table",
+        props: { columns: 2, border: { color: "#ff0000", width: 2 } },
+        children: [cell("a"), cell("b"), cell("c"), cell("d")],
+      }),
+      { engine, theme, paint },
+    );
+    expect(layout.unbuilt).toBeUndefined();
+    const table = layout.boxes.find((b) => b.id === "grid");
+    const boxes = table?.paint?.boxes ?? [];
+    // One line between the two columns, one between the two rows, then the outline: all over the cells.
+    expect(boxes).toHaveLength(3);
+    expect(boxes.every((b) => b.foreground === true)).toBe(true);
+    const [column1, row1, outline] = boxes;
+    expect(column1?.w).toBe(2);
+    expect(column1?.x).toBeCloseTo((table?.x ?? 0) + (table?.w ?? 0) / 2 - 1);
+    expect(column1?.h).toBe(80);
+    expect(row1?.h).toBe(2);
+    expect(row1?.y).toBeCloseTo((table?.y ?? 0) + 40 - 1);
+    expect(outline?.border).toEqual({ kind: "all", side: { color: 0xff0000ff, width: 2 } });
   });
 
   test("a RangeSlider paints its track, the range between its values and a thumb at each end", () => {

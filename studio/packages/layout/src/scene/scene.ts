@@ -23,6 +23,7 @@ import {
   buildSizeTransition,
   ClipShape,
   CrossAxisAlignment,
+  decorationInsets,
   EdgeInsets,
   EdgeInsetsDirectional,
   type EdgeInsetsGeometry,
@@ -693,14 +694,14 @@ function columnWidth(spec: unknown): TableColumnWidth {
 }
 
 /** Table: a [RenderTable] over the node's children, row-major, `columns` per row. */
-function buildTable(node: SceneNode, children: RenderBox[], textDirection: TextDirection): RenderBox {
+function buildTable(node: SceneNode, children: RenderBox[], textDirection: TextDirection, parts: boolean): RenderBox {
   const props = node.props;
   const columns = num(field(props, "columns"), "columns");
   const specs = record(field(props, "columnWidths"));
   const columnWidths = new Map<number, TableColumnWidth>(
     Object.entries(specs).map(([index, spec]) => [Number(index), columnWidth(spec)]),
   );
-  return new RenderTable({
+  const table = new RenderTable({
     columns,
     rows: columns === 0 ? 0 : children.length / columns,
     children,
@@ -712,6 +713,9 @@ function buildTable(node: SceneNode, children: RenderBox[], textDirection: TextD
       TableCellVerticalAlignment.top) as TableCellVerticalAlignment,
     textBaseline: (field(props, "textBaseline") ?? null) as TextBaseline | null,
   });
+  // A painted screen draws the table's border, between the cells too (build log row 295).
+  table.borderParts = parts && field(props, "border") !== undefined ? node.id : null;
+  return table;
 }
 
 /** TableCell: table cell parent data on the child's render object. */
@@ -777,9 +781,20 @@ function buildAnimated(node: SceneNode, child: RenderBox | null, textDirection: 
         "width" in props || "height" in props
           ? BoxConstraints.tightFor({ width: optionalNum(props, "width"), height: optionalNum(props, "height") })
           : null;
+      // `Container` pads by its decoration's border too (`BoxDecoration.padding`, build log row 295).
+      const border = decorationInsets(to["decoration"]);
+      const own = insets("padding");
       const box = buildContainer({
         alignment: prop("alignment", alignment, lerpAlignment),
-        padding: insets("padding"),
+        padding:
+          border === undefined
+            ? own
+            : EdgeInsets.fromLTRB(
+                (own?.left ?? 0) + border[0],
+                (own?.top ?? 0) + border[1],
+                (own?.right ?? 0) + border[2],
+                (own?.bottom ?? 0) + border[3],
+              ),
         constraints: lerpProperty(constraintsOf(from), constraintsOf(to), t, lerpBoxConstraints),
         margin: insets("margin"),
         textDirection,
@@ -1366,7 +1381,7 @@ export function buildNode(
     case "AnimatedPositioned":
       return applyAnimatedPositioned(node, child, t);
     case "Table":
-      box = buildTable(node, children, textDirection);
+      box = buildTable(node, children, textDirection, text?.parts === true);
       break;
     case "Transform":
       box = buildTransform(node, textDirection, child);

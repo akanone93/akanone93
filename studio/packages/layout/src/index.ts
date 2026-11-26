@@ -11,6 +11,7 @@ export {
   buildContainer,
   buildSizeTransition,
   type ContainerLayout,
+  decorationInsets,
   lerpAlignment,
   lerpBoxConstraints,
   lerpDouble,

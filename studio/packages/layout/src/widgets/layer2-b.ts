@@ -23,6 +23,7 @@ import { RenderPadding, RenderPositionedBox } from "../flutter/shifted-box.ts";
 import type { TextStyle } from "../flutter/text-style.ts";
 import { RenderWrap, WrapCrossAlignment } from "../flutter/wrap.ts";
 import { formatMoney, moneyOf } from "./layer2.ts";
+import { phoneRegionLabel } from "./phone-region.ts";
 import type { WidgetBuilder, WidgetContext, WidgetNode } from "./screen.ts";
 import { withNextPage } from "./structural.ts";
 
@@ -416,7 +417,10 @@ const phoneInput: WidgetBuilder = (node, ctx) =>
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       textDirection: direction(ctx),
-      children: [button(ctx, "text", "+"), expanded(field(ctx, "bodyLarge", text(node, "label")))],
+      children: [
+        button(ctx, "text", phoneRegionLabel(text(node, "region"), ctx.locale)),
+        expanded(field(ctx, "bodyLarge", text(node, "label"))),
+      ],
     }),
   );
 

@@ -238,6 +238,7 @@ export function lookedStyle(base: ScreenStyle, theme: ScreenTheme, look: Preview
     deviceHeight: d.height,
     textScale: look.textScale,
     textDirection: look.direction === "rtl" ? TextDirection.rtl : TextDirection.ltr,
+    locale: look.locale,
     ...(d === genericDevice ? {} : { chrome: chromeSpec(d, look.platform) }),
   };
 }

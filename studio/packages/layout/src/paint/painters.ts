@@ -29,6 +29,7 @@ import {
   type BoxFitName,
   type BoxPaint,
   borderRadius,
+  borderSide,
   decorationPaint,
   deflate,
   edgeInsets,
@@ -266,7 +267,37 @@ function circleAvatar(props: Obj, r: Rect, theme: PaintTheme): Painted {
   };
 }
 
+/**
+ * A `Table`'s border, as `TableBorder.all` from the document's `BorderSide` and Flutter's `TableBorder.paint` draw it
+ * over the cells (build log row 295): a line centred on each inner column and row edge the layout names
+ * (`vline<i>`, `hline<i>`), then the outline inside the table's box.
+ */
+function table(props: Obj, r: Rect, theme: PaintTheme, part: (name: string) => Rect | undefined): Painted {
+  const side = borderSide(props["border"], theme);
+  if (side === undefined) {
+    return { boxes: [] };
+  }
+  const { color: fill, width } = side;
+  const lines: BoxPaint[] = [];
+  for (let i = 1; ; i += 1) {
+    const v = part(`vline${i}`);
+    if (v === undefined) {
+      break;
+    }
+    lines.push({ x: v.x - width / 2, y: v.y, w: width, h: v.h, fill, foreground: true });
+  }
+  for (let i = 1; ; i += 1) {
+    const h = part(`hline${i}`);
+    if (h === undefined) {
+      break;
+    }
+    lines.push({ x: h.x, y: h.y - width / 2, w: h.w, h: width, fill, foreground: true });
+  }
+  return { boxes: [...lines, { ...r, border: { kind: "all", side }, foreground: true }] };
+}
+
 const painters: ReadonlyMap<string, Painter> = new Map<string, Painter>([
+  ["Table", table],
   ["SegmentedButton", (props, r, theme) => segmentedPaint(props, r, theme) ?? {}],
   ["SecurePinPad", securePinPadPaint],
   ["CurrencyPicker", (props, r, theme) => pickerPaint(props, r, theme, "currency")],
@@ -318,7 +349,6 @@ const LAYOUT_ONLY: ReadonlySet<string> = new Set([
   "SizedBox",
   "Spacer",
   "Stack",
-  "Table",
   "Transform",
   "Wrap",
   "CustomScrollView",

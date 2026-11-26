@@ -11,6 +11,7 @@
  * `sceneChildren` are the only places that translate.
  */
 
+import { decorationInsets } from "../animated.ts";
 import { BoxConstraints } from "../flutter/constraints.ts";
 import { TextDirection } from "../flutter/geometry.ts";
 import { RenderConstrainedBox } from "../flutter/proxy-box.ts";
@@ -728,6 +729,11 @@ function containerScene(id: string, props: Record<string, unknown>, children: Sc
   }
   if (props["padding"] !== undefined) {
     inner = [{ id: part(id, "pad"), type: "Padding", props: { padding: props["padding"] }, children: inner }];
+  }
+  // A decoration's border insets what the container holds, as Flutter adds `BoxDecoration.padding` to the padding.
+  const border = decorationInsets(props["decoration"]);
+  if (border !== undefined && inner.length > 0) {
+    inner = [{ id: part(id, "border"), type: "Padding", props: { padding: border }, children: inner }];
   }
   const size = containerConstraints(props);
   if (size !== undefined) {

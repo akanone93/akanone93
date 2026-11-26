@@ -143,6 +143,8 @@ export interface WidgetContext {
   readonly textScale?: number;
   /** The ambient text direction (default left to right). */
   readonly textDirection?: TextDirection;
+  /** The preview's locale, as `Localizations` gives it on the device; absent when none is known. */
+  readonly locale?: string | undefined;
   /** The height of the device frame the screen is drawn in (`MediaQuery` height); absent when none is known. */
   readonly deviceHeight?: number | undefined;
   /** Records how the box with `id` is drawn; a text records the style it is measured and drawn in. */
@@ -850,6 +852,8 @@ export interface LayoutScreenOptions {
   readonly textScale?: number;
   /** The ambient text direction, right to left for `ar` and `he` (default left to right): I18N-010. */
   readonly textDirection?: TextDirection;
+  /** The preview's locale (a BCP 47 tag such as `de-DE`); a widget that takes its region from it reads it here. */
+  readonly locale?: string | undefined;
   /** The height of the device frame the screen is drawn in; widgets sized by a share of it use it. */
   readonly deviceHeight?: number | undefined;
   /** The colours to paint with; without it the boxes carry no paint (STU-005). */
@@ -1072,6 +1076,7 @@ export function layoutScreen(input: WidgetNode | null | undefined, options: Layo
     theme,
     textScale,
     textDirection: options.textDirection ?? TextDirection.ltr,
+    locale: options.locale,
     deviceHeight: options.deviceHeight,
     build(node, width) {
       if (width !== undefined) {

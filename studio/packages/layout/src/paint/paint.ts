@@ -265,7 +265,8 @@ export function borderRadius(value: unknown): Radii | undefined {
   return r.some((x) => x > 0) ? r : undefined;
 }
 
-function side(value: unknown, theme: PaintTheme): SidePaint | undefined {
+/** A `BorderSide`: undefined when it draws nothing (style `none`, or no width). */
+export function borderSide(value: unknown, theme: PaintTheme): SidePaint | undefined {
   if (!isObj(value) || value["style"] === "none") {
     return undefined;
   }
@@ -279,15 +280,15 @@ export function border(value: unknown, theme: PaintTheme): BorderPaint | undefin
   if (!isObj(value)) {
     return undefined;
   }
-  const all = side(value["all"], theme);
+  const all = borderSide(value["all"], theme);
   if (all !== undefined) {
     return { kind: "all", side: all };
   }
   const sides = {
-    top: side(value["top"], theme),
-    right: side(value["right"], theme),
-    bottom: side(value["bottom"], theme),
-    left: side(value["left"], theme),
+    top: borderSide(value["top"], theme),
+    right: borderSide(value["right"], theme),
+    bottom: borderSide(value["bottom"], theme),
+    left: borderSide(value["left"], theme),
   };
   const defined = Object.fromEntries(Object.entries(sides).filter(([, s]) => s !== undefined));
   return Object.keys(defined).length === 0 ? undefined : { kind: "sides", ...defined };
@@ -391,7 +392,7 @@ export function shapePaint(
   if (!isObj(value)) {
     return { radii: fallback };
   }
-  const outline = side(value["side"], theme);
+  const outline = borderSide(value["side"], theme);
   const border: BorderPaint | undefined = outline === undefined ? undefined : { kind: "all", side: outline };
   const withBorder = border === undefined ? {} : { border };
   switch (value["kind"]) {

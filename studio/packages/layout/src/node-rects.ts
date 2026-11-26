@@ -13,6 +13,7 @@ import type { RenderObject } from "./flutter/object.ts";
 import { RenderParagraph } from "./flutter/paragraph.ts";
 import { RenderBox, TextBaseline } from "./flutter/render-box.ts";
 import { providesChildPaintOffset, RenderSliver } from "./flutter/sliver.ts";
+import { RenderTable } from "./flutter/table.ts";
 
 /** A rectangle in logical pixels relative to the root's origin. */
 export interface NodeRect {
@@ -47,6 +48,20 @@ export interface LayoutGolden {
  * transforms from `root` down to it; a sliver's rect is its paint area. Throws if two boxes share
  * an ID, since a golden could not tell them apart.
  */
+/** A table's inner border lines, which it names for the painter when asked to (none otherwise). */
+function addTableLines(rects: Map<string, NodeRect>, table: RenderTable, toGlobal: Affine): void {
+  for (const [id, r] of table.namedRects()) {
+    const a = toGlobal.apply(new Offset(r.x, r.y));
+    const b = toGlobal.apply(new Offset(r.x + r.w, r.y + r.h));
+    rects.set(id, {
+      x: Math.min(a.dx, b.dx),
+      y: Math.min(a.dy, b.dy),
+      w: Math.abs(b.dx - a.dx),
+      h: Math.abs(b.dy - a.dy),
+    });
+  }
+}
+
 export function globalRects(root: RenderObject): Map<string, NodeRect> {
   const rects = new Map<string, NodeRect>();
   const visit = (node: RenderObject, toGlobal: Affine): void => {
@@ -72,6 +87,9 @@ export function globalRects(root: RenderObject): Map<string, NodeRect> {
         w: Math.abs(bottomRight.dx - topLeft.dx),
         h: Math.abs(bottomRight.dy - topLeft.dy),
       });
+    }
+    if (node instanceof RenderTable) {
+      addTableLines(rects, node, toGlobal);
     }
     node.visitChildren((child) => {
       // A paint transform replaces the child's offset (RenderObject.applyPaintTransform); a
