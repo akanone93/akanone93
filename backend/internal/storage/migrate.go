@@ -101,11 +101,29 @@ type Conn interface {
 // replica at start-up: the first takes the lock and applies, the others
 // wait and then find nothing to do.
 func Migrate(ctx context.Context, c Conn, migrations []Migration, log *slog.Logger) error {
-	if _, err := c.Exec(ctx, `SELECT pg_advisory_lock($1)`, advisoryLockID); err != nil {
+	return migrateUnder(ctx, c, migrations, log, `SELECT pg_advisory_lock($1)`, `SELECT pg_advisory_unlock($1)`, advisoryLockID)
+}
+
+// MigrateSchema is Migrate under a lock of the connection's own schema, for
+// tests that each migrate a schema of their own in one database: their
+// migrations do not wait for one another's, as one lock for the whole
+// database made them do (build log row 176). The migrations touch nothing
+// outside their schema. A server never uses it: every replica takes
+// Migrate's one lock, whatever its version (SRV-021).
+func MigrateSchema(ctx context.Context, c Conn, migrations []Migration, log *slog.Logger) error {
+	return migrateUnder(ctx, c, migrations, log,
+		`SELECT pg_advisory_lock($1::int, hashtext(current_schema()))`,
+		`SELECT pg_advisory_unlock($1::int, hashtext(current_schema()))`, int32(advisoryLockID))
+}
+
+// migrateUnder applies the pending migrations while holding the advisory
+// lock that lock takes with key.
+func migrateUnder(ctx context.Context, c Conn, migrations []Migration, log *slog.Logger, lock, unlock string, key any) error {
+	if _, err := c.Exec(ctx, lock, key); err != nil {
 		return fmt.Errorf("take the migration lock: %w", err)
 	}
 	defer func() {
-		if _, err := c.Exec(ctx, `SELECT pg_advisory_unlock($1)`, advisoryLockID); err != nil && log != nil {
+		if _, err := c.Exec(ctx, unlock, key); err != nil && log != nil {
 			log.WarnContext(ctx, "could not release the migration lock", slog.String("error", err.Error()))
 		}
 	}()

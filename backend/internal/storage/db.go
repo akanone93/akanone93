@@ -113,6 +113,17 @@ func (db *DB) Migrate(ctx context.Context, migrations []Migration) error {
 	return Migrate(ctx, c.Conn(), migrations, db.log)
 }
 
+// MigrateSchema applies the pending migrations of the connection's own
+// schema under a lock of that schema (see MigrateSchema); for tests.
+func (db *DB) MigrateSchema(ctx context.Context, migrations []Migration) error {
+	c, err := db.pool.Acquire(ctx)
+	if err != nil {
+		return fmt.Errorf("acquire a connection to migrate: %w", err)
+	}
+	defer c.Release()
+	return MigrateSchema(ctx, c.Conn(), migrations, db.log)
+}
+
 // Tenant is what a transaction may see. The zero value sees no tenant
 // rows at all.
 type Tenant struct {
