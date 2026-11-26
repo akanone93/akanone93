@@ -327,3 +327,46 @@ func TestValidatePageWithoutCatalogueReadsFunctionOutput(t *testing.T) {
 		t.Error("a compilation of drafts still checks an expression that reads no function output")
 	}
 }
+
+// The function list Studio sends its validator types a function step's
+// output, so the editor reports a field the output does not have (build log
+// rows 133, 184; FN-004).
+func TestValidatePageWithAFunctionListTypesTheOutput(t *testing.T) {
+	t.Parallel()
+	m := withFunctions(t, "loans.quote")
+	fns, err := ParseFunctionList([]byte(`[{"name": "loans.quote", "placement": "server", "version": 3,
+		"inputSchema": "{\"type\": \"object\", \"properties\": {\"months\": {\"type\": \"integer\"}}}",
+		"outputSchema": "{\"type\": \"object\", \"properties\": {\"months\": {\"type\": \"integer\"}}, \"required\": [\"months\"]}"}]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	opts := DefaultOptions()
+	opts.Functions = fns
+	v, diags := NewValidator(m, opts)
+	if diags.HasErrors() {
+		t.Fatal(diags)
+	}
+	read := func(value string) []byte {
+		return pageEdit(t, func(doc map[string]any) {
+			doc["lifecycle"] = map[string]any{"onEnter": map[string]any{"steps": []any{
+				map[string]any{
+					"id": "quote", "action": "invokeFunction", "next": "keep",
+					"input": map[string]any{"function": "loans.quote", "input": map[string]any{"months": 12}},
+				},
+				map[string]any{
+					"id": "keep", "action": "setState",
+					"input": map[string]any{"path": "page.months", "value": map[string]any{"$expr": value}},
+				},
+			}}}
+		})
+	}
+	if diags := v.ValidatePage(calculatorPage, read("steps.quote.output?.months ?? 0")); diags.HasErrors() {
+		t.Errorf("a field the output has: %v", diags)
+	}
+	if diags := v.ValidatePage(calculatorPage, read("steps.quote.output?.rate ?? 0")); !diags.HasErrors() {
+		t.Error("a field the output does not have is not reported")
+	}
+	if _, err := ParseFunctionList([]byte(`[{"placement": "server"}]`)); err == nil {
+		t.Error("an entry without a name is accepted")
+	}
+}

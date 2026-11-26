@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import type { RouterContext } from "../../router.tsx";
 import { JsonEditorOverlay, type LoadPublished } from "../json-editor/index.ts";
 import { useAssetNames } from "../plugin-canvas/use-asset-facts.ts";
-import { useValidation } from "../problems/use-validation.ts";
+import { useFunctionList, useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 
 /** The app's own documents have no plugin release to compare with: the comparison says nothing is published. */
@@ -33,7 +33,8 @@ export function AppJsonEditor(props: {
     "createValidator"
   >;
   const assetNames = useAssetNames(props.appId);
-  const validation = useValidation(createValidator, props.project, props.documents, assetNames);
+  const functionList = useFunctionList();
+  const validation = useValidation(createValidator, props.project, props.documents, assetNames, functionList);
   return (
     <JsonEditorOverlay
       open

@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { createClient } from "@connectrpc/connect";
+import { AppService, FunctionAdminService } from "@plux/api";
 import {
   type Problem,
   type ProjectFile,
@@ -9,7 +11,10 @@ import {
   parseSites,
   ValidatorCancelled,
 } from "@plux/validator";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useApp } from "../../lib/use-app.tsx";
 import { projectFiles } from "./project-files.ts";
 import type { ValidatorClient, ValidatorFactory } from "./validator-client.ts";
 
@@ -97,6 +102,50 @@ export function assetStandIns(names: readonly string[]): { readonly path: string
   return names.map((name) => ({ path: `assets/${name}`, data: "" }));
 }
 
+/** Where the function list goes among the files the validator loads (`compiler.ParseFunctionList`). */
+export const FUNCTION_LIST_FILE = ".studio/functions.json";
+
+/**
+ * The functions of the app's development environment as the validator's function list, so the editors type what a
+ * function step outputs (FN-004, build log rows 133 and 184): "pending" while it is read, null when there is none to
+ * give (no app in the route, no environment, or the person may not read functions); the release build checks them in
+ * full whatever the editor had.
+ */
+export function useFunctionList(): ProjectFile | null | "pending" {
+  const app = (useParams({ strict: false }) as { app?: string }).app ?? "";
+  const { session } = useApp();
+  const list = useQuery({
+    queryKey: ["validator-functions", app],
+    enabled: app !== "",
+    retry: false,
+    staleTime: 60_000,
+    queryFn: async (): Promise<ProjectFile | null> => {
+      const { environments } = await createClient(AppService, session.transport).listEnvironments({ appId: app });
+      const dev = environments.find((e) => e.key === "development") ?? environments.find((e) => !e.production);
+      if (dev === undefined) {
+        return null;
+      }
+      const { functions } = await createClient(FunctionAdminService, session.transport).listFunctions({
+        appId: app,
+        environmentId: dev.id,
+        page: { pageSize: 500 },
+      });
+      const entries = functions.map((f) => ({
+        name: f.name,
+        placement: f.placement,
+        version: f.version,
+        inputSchema: f.inputSchema,
+        outputSchema: f.outputSchema,
+      }));
+      return { path: FUNCTION_LIST_FILE, data: JSON.stringify(entries) };
+    },
+  });
+  if (app === "" || list.isError) {
+    return null;
+  }
+  return list.isPending ? "pending" : (list.data ?? null);
+}
+
 /** One empty list for callers without assets: a fresh `[]` each render would restart the validation each render. */
 const NO_ASSETS: readonly string[] = [];
 
@@ -121,6 +170,8 @@ export function useValidation(
   plugin: Documents | undefined,
   /** The names of the app's stored asset files; validation waits for them. */
   assetFiles: readonly string[] | undefined = NO_ASSETS,
+  /** The functions of the app's development environment (`useFunctionList`); validation waits while "pending". */
+  functionList: ProjectFile | null | "pending" = null,
 ): Validation {
   const [result, setResult] = useState<Validation>({ state: "idle" });
   const [validator, setValidator] = useState<ValidatorClient | undefined>(undefined);
@@ -151,11 +202,16 @@ export function useValidation(
       validator !== current.current ||
       app === undefined ||
       plugin === undefined ||
-      assetFiles === undefined
+      assetFiles === undefined ||
+      functionList === "pending"
     ) {
       return;
     }
-    const files = [...projectFiles(wholeProject(app, plugin)), ...assetStandIns(assetFiles)];
+    const files = [
+      ...projectFiles(wholeProject(app, plugin)),
+      ...assetStandIns(assetFiles),
+      ...(functionList === null ? [] : [functionList]),
+    ];
     if (sameFiles(loaded.current, files)) {
       return;
     }
@@ -194,6 +250,6 @@ export function useValidation(
         setResult({ state: "failed" });
       },
     );
-  }, [validator, app, plugin, assetFiles]);
+  }, [validator, app, plugin, assetFiles, functionList]);
   return result;
 }

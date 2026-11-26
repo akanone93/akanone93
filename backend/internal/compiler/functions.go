@@ -7,6 +7,8 @@ import (
 	"cmp"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"math"
 	"regexp"
 	"slices"
@@ -75,6 +77,51 @@ type FunctionEntry struct {
 // alias.
 type FunctionLister interface {
 	FunctionEntries() []FunctionEntry
+}
+
+// FunctionListEntry is one function of a catalogue sent as JSON, as Studio
+// sends the latest versions of an environment's functions (FunctionAdmin
+// ListFunctions) to the validator it runs in the browser: its name, where it
+// runs, its version and the JSON Schemas of its input and output, each as
+// the text the server returns (build log rows 133, 184).
+type FunctionListEntry struct {
+	Name         string `json:"name"`
+	Placement    string `json:"placement"`
+	Version      uint32 `json:"version"`
+	InputSchema  string `json:"inputSchema"`
+	OutputSchema string `json:"outputSchema"`
+}
+
+// ParseFunctionList reads a JSON list of FunctionListEntry as a catalogue
+// for checking drafts: device functions count as enabled, since whether an
+// environment allows them is the release build's to check (FN-055), and an
+// editor only needs their types (FN-004).
+func ParseFunctionList(data []byte) (*FunctionSet, error) {
+	var list []FunctionListEntry
+	if err := json.Unmarshal(data, &list); err != nil {
+		return nil, fmt.Errorf("compiler: the function list: %w", err)
+	}
+	entries := make([]FunctionEntry, 0, len(list))
+	for _, e := range list {
+		if e.Name == "" {
+			return nil, errors.New("compiler: the function list has an entry without a name")
+		}
+		entries = append(entries, FunctionEntry{Name: e.Name, Info: FunctionInfo{
+			Placement:    schema.Placement(e.Placement),
+			Version:      e.Version,
+			InputSchema:  rawSchema(e.InputSchema),
+			OutputSchema: rawSchema(e.OutputSchema),
+		}})
+	}
+	return NewFunctionSet(entries, true), nil
+}
+
+// rawSchema is a schema's text as JSON, or nil when it is empty (unknown).
+func rawSchema(text string) json.RawMessage {
+	if text == "" {
+		return nil
+	}
+	return json.RawMessage(text)
 }
 
 // FunctionSet is a FunctionCatalogue over a fixed list of entries. It is

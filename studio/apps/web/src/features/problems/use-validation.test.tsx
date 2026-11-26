@@ -4,7 +4,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import type { Problem, ProjectFile } from "@plux/validator";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
-import { useValidation } from "./use-validation.ts";
+import { FUNCTION_LIST_FILE, useValidation } from "./use-validation.ts";
 import type { ValidatorClient, ValidatorFactory } from "./validator-client.ts";
 
 afterEach(cleanup);
@@ -84,5 +84,24 @@ describe("the validator across refetches (build log entry 252)", () => {
     await v.release();
     await waitFor(() => expect(result.current.state).toBe("failed"));
     expect(v.made.length).toBe(2);
+  });
+});
+
+describe("the function list (build log rows 133, 184)", () => {
+  test("validation waits for the function list, then loads it with the project", async () => {
+    const v = fakeValidators();
+    const app = [doc("app.json", "{}")];
+    const plugin = [doc("plugins/a/plugin.json", '{"key":"a"}')];
+    const list: ProjectFile = { path: FUNCTION_LIST_FILE, data: '[{"name":"loans.quote","placement":"server"}]' };
+    const { rerender } = renderHook(
+      ({ fns }: { fns: ProjectFile | null | "pending" }) => useValidation(v.factory, app, plugin, NO_ASSETS, fns),
+      { initialProps: { fns: "pending" as ProjectFile | null | "pending" } },
+    );
+    await new Promise((r) => setTimeout(r, 20));
+    expect(v.made[0]?.loads.length ?? 0).toBe(0);
+    rerender({ fns: list });
+    await waitFor(() => expect(v.made[0]?.loads.length).toBe(1));
+    expect(v.made[0]?.loads[0]?.find((f) => f.path === FUNCTION_LIST_FILE)?.data).toBe(list.data);
+    await v.release();
   });
 });

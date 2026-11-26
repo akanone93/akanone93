@@ -28,6 +28,10 @@ import (
 // threaded.
 var validator *compiler.Validator
 
+// functionListFile is where Studio puts the function list among the files it
+// loads (compiler.ParseFunctionList).
+const functionListFile = ".studio/functions.json"
+
 // pluxValidatePage(files, file, data) loads the project in files when files
 // is a non-empty array of {path, data, encoding?} (encoding "base64" marks a
 // binary file), then validates data as the document at file, by the kind its
@@ -53,7 +57,18 @@ func pluxValidatePage(_ js.Value, args []js.Value) any {
 			}
 			fsys[f.Get("path").String()] = &fstest.MapFile{Data: data}
 		}
-		validator, loadDiags = compiler.NewValidator(fsys, compiler.Options{Limits: limits.Defaults()})
+		opts := compiler.Options{Limits: limits.Defaults()}
+		// Studio adds the functions of the app's development environment as a file of its own (build log rows 133,
+		// 184): it is no project file, so it is taken out, and the editor types the outputs of function steps.
+		if f, ok := fsys[functionListFile]; ok {
+			delete(fsys, functionListFile)
+			fns, err := compiler.ParseFunctionList(f.Data)
+			if err != nil {
+				return errorJSON(err.Error())
+			}
+			opts.Functions = fns
+		}
+		validator, loadDiags = compiler.NewValidator(fsys, opts)
 	}
 	if validator == nil {
 		if len(loadDiags) > 0 {

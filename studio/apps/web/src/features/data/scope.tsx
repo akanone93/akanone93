@@ -23,7 +23,7 @@ import { usePublishedLoader } from "../json-editor/use-published.ts";
 import { L10nSessionsProvider, useAppSession } from "../localisation/index.ts";
 import type { AppSession } from "../localisation/l10n-sessions.tsx";
 import { useAppDocuments, usePluginDocuments } from "../plugin-canvas/use-plugin-documents.ts";
-import { useValidation } from "../problems/use-validation.ts";
+import { useFunctionList, useValidation } from "../problems/use-validation.ts";
 import { browserValidator, type ValidatorClient } from "../problems/validator-client.ts";
 import { dataMessages } from "./data.messages.ts";
 
@@ -91,7 +91,8 @@ function Inner(props: { plugin: string; children: ReactNode }): ReactElement {
   >;
   const docs = usePluginDocuments(app, props.plugin);
   const appDocs = useAppDocuments(app);
-  const validation = useValidation(createValidator, appDocs.data, docs.data);
+  const functionList = useFunctionList();
+  const validation = useValidation(createValidator, appDocs.data, docs.data, undefined, functionList);
   const done = validation.state === "done" ? validation : undefined;
   const appSession = useAppSession();
   const loadPublished = usePublishedLoader(props.plugin);

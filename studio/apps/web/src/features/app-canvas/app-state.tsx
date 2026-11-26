@@ -8,7 +8,7 @@ import type { RouterContext } from "../../router.tsx";
 import { useCanEdit, useEditSession } from "../editor/editor-provider.tsx";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { useAssetNames } from "../plugin-canvas/use-asset-facts.ts";
-import { useValidation } from "../problems/use-validation.ts";
+import { useFunctionList, useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { loadedDocs } from "../safety/index.ts";
 import { StateDesignerOverlay } from "../state-designer/index.ts";
@@ -31,7 +31,8 @@ export function AppStateDesigner(props: {
     "createValidator"
   >;
   const assetNames = useAssetNames(props.appId);
-  const validation = useValidation(createValidator, props.project, props.documents, assetNames);
+  const functionList = useFunctionList();
+  const validation = useValidation(createValidator, props.project, props.documents, assetNames, functionList);
   const session = useEditSession();
   const editable = useCanEdit();
   const loaded = useMemo(() => loadedDocs(props.project ?? []), [props.project]);

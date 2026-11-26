@@ -10,7 +10,7 @@ import { extrasOf } from "../action-graph/graph-model.ts";
 import { useNativeActions } from "../action-graph/use-native-actions.ts";
 import { documentJson } from "../plugin-canvas/plugin-model.ts";
 import { useAssetNames } from "../plugin-canvas/use-asset-facts.ts";
-import { useValidation } from "../problems/use-validation.ts";
+import { useFunctionList, useValidation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 
 type Json = Record<string, unknown>;
@@ -59,7 +59,8 @@ export function AppLogic(props: {
     "createValidator"
   >;
   const assetNames = useAssetNames(props.appId);
-  const validation = useValidation(createValidator, props.project, props.documents, assetNames);
+  const functionList = useFunctionList();
+  const validation = useValidation(createValidator, props.project, props.documents, assetNames, functionList);
   const custom = useNativeActions(props.appId);
   const project = props.project;
   const extras = useMemo(

@@ -65,7 +65,7 @@ import { MatrixOverlay, usePreviewBar } from "../preview/preview-bar.tsx";
 import { problemsByNode } from "../problems/problem-nodes.ts";
 import { ProblemCounts } from "../problems/problems-panel.tsx";
 import { usePageChecks } from "../problems/use-page-checks.ts";
-import { useValidation, type Validation } from "../problems/use-validation.ts";
+import { useFunctionList, useValidation, type Validation } from "../problems/use-validation.ts";
 import { browserValidator } from "../problems/validator-client.ts";
 import { RustEditorHost } from "../rust-editor/index.ts";
 import { useStateTarget } from "../state-designer/index.ts";
@@ -832,7 +832,8 @@ function PluginCanvasView({
   const tests = useMemo(() => createClient(FunctionAdminService, app.transport), [app.transport]);
   const nativeWidgets = useNativeWidgets(params.app ?? "");
   const assetNames = useAssetNames(params.app);
-  const loaded = useValidation(createValidator, appDocs.data, docs.data, assetNames);
+  const functionList = useFunctionList();
+  const loaded = useValidation(createValidator, appDocs.data, docs.data, assetNames, functionList);
   const stateTarget = useStateTarget(docs.data, appDocs.data);
   const local = useEditor((st) => st.docs);
   const parsed = useMemo(() => (docs.data ?? []).map((d) => ({ ...d, parsed: documentJson(d) })), [docs.data]);
