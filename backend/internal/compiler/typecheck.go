@@ -772,16 +772,44 @@ func (t *typer) stepInputs(g *graph, i int, s *scope, from string) {
 			is = t.recordScope(g, st, s)
 		}
 		ptr := g.ptr + plxerr.Pointer("steps", strconv.Itoa(i), "input", name)
-		// A value written to state takes its literals' types from the entry it writes, as a prop's
-		// binding does from the prop: {"a": 1, "b": true} is then the entry's object type.
-		if want := stateValueType(st, name, is); want != "" {
+		// A value written to state, a record written to a collection and an operation's input take
+		// their literals' types from what they are written to, as a prop's binding does from the
+		// prop: {"a": 1, "b": true} is then that object type, its fields checked.
+		if want, ws := t.inputType(g, st, name, is); want != "" {
 			if src, ok := bareExpr(st.Input[name]); ok {
-				t.compileExpecting(src, want, is, from, g.file, ptr)
+				t.compileExpecting(src, want, ws, from, g.file, ptr)
 				continue
 			}
 		}
 		t.compileAll(st.Input[name], is, from, g.file, ptr)
 	}
+}
+
+// inputType is the type a step's input is written as, and the scope
+// that knows it: a setState value's entry type, a dbInsert or dbUpsert
+// record's collection record type (build log row 135), an apiCall
+// input's operation input type (row 141); "" for any other input.
+func (t *typer) inputType(g *graph, st schema.Step, input string, s *scope) (string, *scope) {
+	switch {
+	case input == "record" && (st.Action == "dbInsert" || st.Action == "dbUpsert"):
+		c := t.u.collectionOf(g.plugin, literalString(st.Input["collection"]))
+		if c == nil {
+			return "", s
+		}
+		name, spec := recordType(c)
+		return name, s.withTypes(map[string]pxl.TypeSpec{name: spec})
+	case input == "input" && st.Action == "apiCall":
+		_, op := t.u.operation(g, literalString(st.Input["operation"]))
+		if op == nil || op.Input == "" {
+			return "", s
+		}
+		te, err := parseTypeExpr(op.Input)
+		if err != nil || !t.u.typeKnown(g.plugin, te) {
+			return "", s
+		}
+		return te.String(), s
+	}
+	return stateValueType(st, input, s), s
 }
 
 // stateValueType is the type a setState step's value must have: the

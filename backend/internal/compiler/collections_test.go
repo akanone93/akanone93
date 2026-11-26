@@ -290,3 +290,40 @@ func TestPreviewCollections(t *testing.T) {
 		t.Fatal("malformed previous collections were accepted")
 	}
 }
+
+// TestDBRecordLiteralIsTheCollectionRecord checks that an object literal
+// written by dbInsert or dbUpsert is typed as the collection's record:
+// mixed values compile, and a field the collection does not have, or a
+// value of the wrong type, is an error (build log row 135). A typed value
+// is written as before.
+// Verifies: DB-006.
+func TestDBRecordLiteralIsTheCollectionRecord(t *testing.T) {
+	t.Parallel()
+	compile := func(action, record string) *Result {
+		m := project(t, stateDir)
+		edit(t, m, statePl, func(doc map[string]any) {
+			doc["collections"] = []any{collection(1, taskFields, []string{"id"}, nil)}
+		})
+		edit(t, m, stateGraph, func(doc map[string]any) {
+			steps := doc["steps"].([]any)
+			steps[len(steps)-1].(map[string]any)["next"] = "put"
+			input := map[string]any{"collection": "tasks", "record": map[string]any{"$expr": record}}
+			if action == "dbUpsert" {
+				input["key"] = "t1"
+			}
+			doc["steps"] = append(steps, map[string]any{"id": "put", "action": action, "input": input})
+		})
+		return compileFS(m)
+	}
+	for _, action := range []string{"dbInsert", "dbUpsert"} {
+		if res := compile(action, `{"id": "t1", "title": "Tea", "done": false}`); res.Diagnostics.HasErrors() {
+			t.Errorf("%s of a record literal:\n%s", action, list(res.Diagnostics))
+		}
+		if res := compile(action, `{"id": "t1", "colour": "red"}`); !res.Diagnostics.HasErrors() {
+			t.Errorf("%s of a field the collection does not have compiled", action)
+		}
+		if res := compile(action, `{"id": "t1", "done": "yes"}`); !res.Diagnostics.HasErrors() {
+			t.Errorf("%s of a field of the wrong type compiled", action)
+		}
+	}
+}

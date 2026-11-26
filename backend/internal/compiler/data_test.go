@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"testing"
 	"testing/fstest"
 
@@ -319,6 +320,33 @@ func TestApiCallOutputIsTyped(t *testing.T) {
 	})
 	if !compileFS(m).Diagnostics.HasErrors() {
 		t.Error("a field the output type lacks was accepted")
+	}
+}
+
+// TestApiCallInputLiteralIsTheOperationInput checks that an object literal
+// given to an operation is typed as the operation's declared input, so its
+// fields are checked and a map of mixed values compiles (build log
+// row 141).
+// Verifies: DAT-004.
+func TestApiCallInputLiteralIsTheOperationInput(t *testing.T) {
+	t.Parallel()
+	compileOp := func(op, input string) *Result {
+		m := project(t, dataDir)
+		edit(t, m, "plugins/shop/pages/tasks.page.json", func(doc map[string]any) {
+			at(t, doc, "root/slots/body/children/2/events/onPressed")["steps"] = raw(t, `[
+				{"action": "apiCall", "id": "call", "input": {"operation": "`+op+`", "input": {"$expr": `+strconv.Quote(input)+`}}}]`)
+		})
+		return compileFS(m)
+	}
+	compile := func(input string) *Result { return compileOp("tasks.createTask", input) }
+	onlyRaised(t, compile(`{"title": "New"}`))
+	// A Task's fields are a string and a bool: a map of mixed values, typed by the input.
+	onlyRaised(t, compileOp("tasks.deleteTask", `{"id": "t1", "title": "Tea", "done": true}`))
+	if !compile(`{"title": "New", "colour": "red"}`).Diagnostics.HasErrors() {
+		t.Error("a field the operation's input type lacks was accepted")
+	}
+	if !compile(`{"title": 3}`).Diagnostics.HasErrors() {
+		t.Error("a field of the wrong type was accepted")
 	}
 }
 
