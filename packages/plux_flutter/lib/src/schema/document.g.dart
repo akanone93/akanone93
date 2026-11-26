@@ -2075,7 +2075,7 @@ final class FunctionCapabilities {
 /// output schemas are derived from the function's types at build time (FN-004)
 /// and never written here. File: `functions/<name>/function.json`.
 final class FunctionDocument {
-  const FunctionDocument({required this.schemaVersion, required this.kind, required this.id, required this.name, this.description, required this.placement, this.capabilities, this.env, this.limits, this.assurance, this.attestation, this.sca, this.pure, this.cacheTtlSeconds, this.tests});
+  const FunctionDocument({required this.schemaVersion, required this.kind, required this.id, required this.name, this.description, required this.placement, this.capabilities, this.env, this.limits, this.assurance, this.attestation, this.sca, this.outputType, this.pure, this.cacheTtlSeconds, this.tests});
 
   /// Decodes a JSON object.
   factory FunctionDocument.fromJson(Object json) {
@@ -2093,6 +2093,7 @@ final class FunctionDocument {
       assurance: m['assurance'] == null ? null : AssuranceLevel.fromJson(m['assurance']!),
       attestation: m['attestation'] == null ? null : m['attestation']! as bool,
       sca: m['sca'] == null ? null : m['sca']! as bool,
+      outputType: m['outputType'] == null ? null : m['outputType']! as String,
       pure: m['pure'] == null ? null : m['pure']! as bool,
       cacheTtlSeconds: m['cacheTtlSeconds'] == null ? null : (m['cacheTtlSeconds']! as num).toInt(),
       tests: m['tests'] == null ? null : [for (final e in m['tests']! as List<Object?>) FunctionTestCase.fromJson(e!)],
@@ -2127,6 +2128,10 @@ final class FunctionDocument {
   final bool? attestation;
   /// Whether the invocation requires strong customer authentication (SEC-027).
   final bool? sca;
+  /// The app or plugin type an `invokeFunction` step's output has, instead of a
+  /// type of its own; the compiler checks that the function's output has the
+  /// same shape (FN-004).
+  final String? outputType;
   /// Whether the function is free of side effects, so its results may be cached
   /// by input hash (FN-014).
   final bool? pure;
@@ -2150,6 +2155,7 @@ final class FunctionDocument {
         if (assurance != null) 'assurance': assurance!.toJson(),
         if (attestation != null) 'attestation': attestation!,
         if (sca != null) 'sca': sca!,
+        if (outputType != null) 'outputType': outputType!,
         if (pure != null) 'pure': pure!,
         if (cacheTtlSeconds != null) 'cacheTtlSeconds': cacheTtlSeconds!,
         if (tests != null) 'tests': [for (final e in tests!) e.toJson()],

@@ -3104,9 +3104,9 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 `FUNCTION_DECLARATION_MISMATCH` · error · Function declaration mismatch
 
-**Cause.** The placement or name that the crate asserts differs from the function document (FN-008, FN-016).
+**Cause.** The placement or name that the crate asserts differs from the function document (FN-008, FN-016), or the function's output does not have the shape of the type its document names as `outputType` (FN-004).
 
-**Fix.** Make the crate and `function.json` agree on the name and placement.
+**Fix.** Make the crate and `function.json` agree on the name and placement, and the output type on the fields of the type `outputType` names.
 
 ### PLX-7206
 

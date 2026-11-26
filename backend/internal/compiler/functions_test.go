@@ -231,6 +231,46 @@ func TestInvokeFunctionOutputIsTyped_ACT_001(t *testing.T) {
 	wantDiag(t, Compile(m, opts), plxerr.FunctionTypeMismatch, calculateGraph, "/steps/2/input/value/$expr")
 }
 
+// A function document may name the app type of its output (outputType):
+// the step's output then has that type, so it can be kept as one, and the
+// compiler refuses a function whose output has another shape (build log
+// row 136).
+// Verifies: FN-004.
+func TestFunctionOutputTypeIsTheNamedAppType_FN_004(t *testing.T) {
+	t.Parallel()
+	opts := catalogueOf(map[string]FunctionInfo{"loans.quote": serverQuote()}, true)
+	setup := func(fields []any) fstest.MapFS {
+		m := withFunctions(t, "loans.quote")
+		edit(t, m, appFile, func(doc map[string]any) {
+			types, _ := doc["types"].([]any)
+			doc["types"] = append(types, map[string]any{"name": "LoanQuote", "fields": fields})
+		})
+		edit(t, m, pluginFile, func(doc map[string]any) {
+			doc["state"] = append(doc["state"].([]any), map[string]any{
+				"id": "01c0c450-6c00-7000-8000-0000000fffa2", "name": "quote", "persistence": "session", "type": "LoanQuote?", "default": nil,
+			})
+		})
+		m["functions/loans.quote/function.json"] = &fstest.MapFile{Data: []byte(`{"schemaVersion":"1.0.0","kind":"function","id":"01c0c450-6c00-7000-8000-0000000fff52","name":"loans.quote","placement":"server","outputType":"LoanQuote"}`)}
+		edit(t, m, calculateGraph, func(doc map[string]any) {
+			steps := doc["steps"].([]any)
+			steps[0].(map[string]any)["next"] = "charge"
+			step := map[string]any{"action": "invokeFunction", "id": "charge", "input": quoteInputValue(t), "next": "keep"}
+			keep := map[string]any{
+				"action": "setState", "id": "keep", "next": "track",
+				"input": map[string]any{"path": "plugin.quote", "value": map[string]any{"$expr": "steps.charge.output"}},
+			}
+			doc["steps"] = append([]any{steps[0], step, keep}, steps[1:]...)
+		})
+		return m
+	}
+	same := []any{map[string]any{"name": "total", "type": "double"}, map[string]any{"name": "label", "type": "string?"}}
+	if res := Compile(setup(same), opts); len(errorsOf(res)) != 0 {
+		t.Fatalf("the output kept as its named type:\n%s", list(res.Diagnostics))
+	}
+	other := []any{map[string]any{"name": "total", "type": "int"}, map[string]any{"name": "label", "type": "string?"}}
+	wantDiag(t, Compile(setup(other), opts), plxerr.FunctionDeclarationMismatch, calculateGraph, "/steps/1/input/function")
+}
+
 // TestDeviceFunctionsRefuseServerCapabilities_FN_008 checks that a
 // device-placed function that asks for http, secrets, claims or other
 // functions is refused, in its document and in the catalogue.

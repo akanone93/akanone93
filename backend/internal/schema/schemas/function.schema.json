@@ -135,6 +135,12 @@
       "type": "boolean",
       "description": "Whether the invocation requires strong customer authentication (SEC-027)."
     },
+    "outputType": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]*$",
+      "maxLength": 128,
+      "description": "The app or plugin type an `invokeFunction` step's output has, instead of a type of its own; the compiler checks that the function's output has the same shape (FN-004)."
+    },
     "pure": {
       "type": "boolean",
       "description": "Whether the function is free of side effects, so its results may be cached by input hash (FN-014)."

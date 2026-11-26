@@ -378,6 +378,11 @@ function's schemas ([actions guide](actions.md)):
  "onSuccess": "show", "onError": "failed"}
 ```
 
+The step's output has a type of its own, made from the output schema. To keep it in state or pass
+it on as an app or plugin type with the same fields, name that type in `function.json` as
+`outputType` (for example `"outputType": "FeeQuote"`): the output then has that type, and the
+compiler refuses a function whose output has another shape (`PLX-7205`).
+
 The compiler resolves the name and checks the types (`PLX-7031`, `PLX-7032`). A server function
 runs through `FunctionService.Invoke` with DPoP and a valid token (`FN-020`). The caller may send
 an idempotency key: a retry with the same key and input within 24 hours returns the first result

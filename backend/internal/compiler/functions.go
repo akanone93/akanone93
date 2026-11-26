@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"math"
 	"regexp"
 	"slices"
@@ -395,9 +396,20 @@ func (u *unit) matchFunctionObject(c vctx, v any, t *fnType) {
 // its schema is unknown. The step may not have run, so the type is
 // nullable.
 func (t *typer) functionOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSpec) string {
+	name := literalString(st.Input["function"])
 	info := t.u.stepFunction(g, st)
+	declared := t.u.declaredOutput(name, g.plugin)
+	if declared != "" && grantOf(g.plugin, name) != nil {
+		// The function names the app type of its output (row 136): the step's output has that type, once its
+		// output is known to have the same shape.
+		if info != nil && len(info.OutputSchema) > 0 {
+			t.u.checkDeclaredOutput(g, st, name, declared, info.OutputSchema)
+		}
+		t.u.fnSteps = noteStep(t.u.fnSteps, g.file, st.ID)
+		return declared + "?"
+	}
 	if info == nil || len(info.OutputSchema) == 0 {
-		if t.u.opts.Functions == nil && grantOf(g.plugin, literalString(st.Input["function"])) != nil {
+		if t.u.opts.Functions == nil && grantOf(g.plugin, name) != nil {
 			t.u.fnUntyped = noteStep(t.u.fnUntyped, g.file, st.ID)
 		}
 		return ""
@@ -642,4 +654,82 @@ func optionalU32(v *int64) uint32 {
 func createUUIDBytes(b *flatbuffers.Builder, id [16]byte) flatbuffers.UOffsetT {
 	hi, lo := uuidHalves(id)
 	return fbs.CreateUuid(b, hi, lo)
+}
+
+// declaredOutput is the type a function's document names for its output
+// (`outputType`), when the project has the document and the plugin's scope
+// declares the type; "" otherwise.
+func (u *unit) declaredOutput(name string, pl *plugin) string {
+	for _, fn := range u.project.Functions {
+		if fn.Doc == nil || fn.Doc.Name != name || fn.Doc.OutputType == "" {
+			continue
+		}
+		if _, ok := u.scopeTypes(pl)[fn.Doc.OutputType]; ok {
+			return fn.Doc.OutputType
+		}
+	}
+	return ""
+}
+
+// scopeTypes are the types a plugin's expressions may name: the registry's,
+// the app's and the plugin's own.
+func (u *unit) scopeTypes(pl *plugin) map[string]pxl.TypeSpec {
+	out := map[string]pxl.TypeSpec{}
+	for _, m := range []map[string]pxl.TypeSpec{u.types.base, u.types.app, u.types.plugin[pl]} {
+		maps.Copy(out, m)
+	}
+	return out
+}
+
+// checkDeclaredOutput reports a function whose output does not have the
+// shape of the type its document names (FN-004).
+func (u *unit) checkDeclaredOutput(g *graph, st schema.Step, name, declared string, schemaText json.RawMessage) {
+	fnTypes := map[string]pxl.TypeSpec{}
+	out := parseFnSchema(schemaText)
+	expr := out.typeExpr("PluxFnOut", fnTypes)
+	if expr == "" || !sameShape(expr, fnTypes, declared, u.scopeTypes(g.plugin)) {
+		u.report(plxerr.FunctionDeclarationMismatch, g.file, stepPointer(g, st.ID)+plxerr.Pointer("input", "function"),
+			"function %q declares its output as %s, but its output has another shape", name, declared)
+	}
+}
+
+// stepPointer is the JSON pointer of the step with id in its graph.
+func stepPointer(g *graph, id string) string {
+	i := slices.IndexFunc(g.steps, func(s schema.Step) bool { return s.ID == id })
+	return g.ptr + plxerr.Pointer("steps", strconv.Itoa(i))
+}
+
+// sameShape reports whether type expression a, with its object and enum
+// types in as, has the shape of b with its types in bs: the same fields of
+// the same shapes, the same enumeration members, the same nullability.
+func sameShape(a string, as map[string]pxl.TypeSpec, b string, bs map[string]pxl.TypeSpec) bool {
+	if strings.HasSuffix(a, "?") != strings.HasSuffix(b, "?") {
+		return false
+	}
+	a, b = strings.TrimSuffix(a, "?"), strings.TrimSuffix(b, "?")
+	for _, wrap := range [][2]string{{"list<", ">"}, {"map<string,", ">"}} {
+		ina, oka := strings.CutPrefix(a, wrap[0])
+		inb, okb := strings.CutPrefix(b, wrap[0])
+		if oka || okb {
+			return oka && okb && sameShape(strings.TrimSuffix(ina, wrap[1]), as, strings.TrimSuffix(inb, wrap[1]), bs)
+		}
+	}
+	sa, namedA := as[a]
+	sb, namedB := bs[b]
+	if !namedA || !namedB {
+		return !namedA && !namedB && a == b
+	}
+	if len(sa.Enum) > 0 || len(sb.Enum) > 0 {
+		return slices.Equal(slices.Sorted(slices.Values(sa.Enum)), slices.Sorted(slices.Values(sb.Enum)))
+	}
+	if len(sa.Fields) != len(sb.Fields) {
+		return false
+	}
+	for f, ta := range sa.Fields {
+		tb, ok := sb.Fields[f]
+		if !ok || !sameShape(ta, as, tb, bs) {
+			return false
+		}
+	}
+	return true
 }

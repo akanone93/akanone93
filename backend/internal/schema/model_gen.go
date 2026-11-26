@@ -1142,6 +1142,10 @@ type FunctionDocument struct {
 	// Sca: Whether the invocation requires strong customer authentication
 	// (SEC-027).
 	Sca *bool `json:"sca,omitempty"`
+	// OutputType: The app or plugin type an `invokeFunction` step's output has,
+	// instead of a type of its own; the compiler checks that the function's
+	// output has the same shape (FN-004).
+	OutputType string `json:"outputType,omitempty"`
 	// Pure: Whether the function is free of side effects, so its results may be
 	// cached by input hash (FN-014).
 	Pure *bool `json:"pure,omitempty"`

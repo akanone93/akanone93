@@ -642,6 +642,7 @@ A Plux Function: its name, placement, capabilities, limits, required assurance a
 | `assurance` | [AssuranceLevel](#assurancelevel) |  | The assurance level a device must hold to invoke the function; the `defaultFunctionAssurance` setting applies when absent (SEC-007). |
 | `attestation` | boolean |  | Whether the invocation requires a fresh attestation of the device. |
 | `sca` | boolean |  | Whether the invocation requires strong customer authentication (SEC-027). |
+| `outputType` | string |  | The app or plugin type an `invokeFunction` step's output has, instead of a type of its own; the compiler checks that the function's output has the same shape (FN-004). |
 | `pure` | boolean |  | Whether the function is free of side effects, so its results may be cached by input hash (FN-014). |
 | `cacheTtlSeconds` | integer |  | How long the result of a pure function may be cached (FN-014). |
 | `tests` | list of [FunctionTestCase](#functiontestcase) |  | Stored test cases, run by `plux fn test` and in CI; a failing case blocks deployment to production (FN-031). |

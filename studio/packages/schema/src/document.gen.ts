@@ -745,6 +745,8 @@ export interface FunctionDocument {
   readonly attestation?: boolean;
   /** Whether the invocation requires strong customer authentication (SEC-027). */
   readonly sca?: boolean;
+  /** The app or plugin type an `invokeFunction` step's output has, instead of a type of its own; the compiler checks that the function's output has the same shape (FN-004). */
+  readonly outputType?: string;
   /** Whether the function is free of side effects, so its results may be cached by input hash (FN-014). */
   readonly pure?: boolean;
   /** How long the result of a pure function may be cached (FN-014). */

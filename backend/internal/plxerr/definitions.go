@@ -1970,8 +1970,8 @@ var registry = []Definition{
 	},
 	{
 		FunctionDeclarationMismatch, "FUNCTION_DECLARATION_MISMATCH", SeverityError, "Function declaration mismatch",
-		"The placement or name that the crate asserts differs from the function document (FN-008, FN-016).",
-		"Make the crate and `function.json` agree on the name and placement.", false,
+		"The placement or name that the crate asserts differs from the function document (FN-008, FN-016), or the function's output does not have the shape of the type its document names as `outputType` (FN-004).",
+		"Make the crate and `function.json` agree on the name and placement, and the output type on the fields of the type `outputType` names.", false,
 	},
 	{
 		FunctionBuildNotReproducible, "FUNCTION_BUILD_NOT_REPRODUCIBLE", SeverityError, "Function build not reproducible",
