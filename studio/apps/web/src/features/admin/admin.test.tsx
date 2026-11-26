@@ -64,7 +64,9 @@ describe("[STU-116] organisation administration", () => {
     await screen.findByText("AR_GATEWAY_KEY");
     expect(screen.getByText("…x9Qa")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Secrets of development" })).toBeTruthy();
-    fireEvent.change(screen.getAllByRole("textbox", { name: "Key" })[1] as HTMLElement, {
+    // The environment whose secrets are listed says so (row 235).
+    expect(screen.getByRole("button", { name: "Shown below" }).getAttribute("aria-pressed")).toBe("true");
+    fireEvent.change(screen.getByRole("textbox", { name: "Key" }), {
       target: { value: "AR_PARTNER_KEY" },
     });
     const value = screen.getByLabelText("Value") as HTMLInputElement;
@@ -75,7 +77,11 @@ describe("[STU-116] organisation administration", () => {
       expect(calls(state)).toContain('setSecret:{"environmentId":"env-dev","key":"AR_PARTNER_KEY","valueLength":12}'),
     );
     await waitFor(() => expect((screen.getByLabelText("Value") as HTMLInputElement).value).toBe(""));
+    // Deleting a secret is confirmed first; nothing is deleted before (row 235).
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    const dialog = await screen.findByRole("alertdialog", { name: "Delete the secret AR_GATEWAY_KEY?" });
+    expect(calls(state).some((c) => c.startsWith("deleteSecret:"))).toBe(false);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
     await waitFor(() =>
       expect(calls(state)).toContain('deleteSecret:{"environmentId":"env-dev","key":"AR_GATEWAY_KEY"}'),
     );
@@ -84,6 +90,10 @@ describe("[STU-116] organisation administration", () => {
   test("O32 creates an environment, and only with environment.manage", async () => {
     const state: Upstream = { admin: { calls: [], apps: [{ id: "app1", name: "Apply Register" }] } };
     renderApp(`${base}/environments`, { permissions: [...all, "secrets.manage", "environment.manage"], ...state });
+    // The fields that create an environment open from their button (row 235).
+    const open = await screen.findByRole("button", { name: "New environment" });
+    await waitFor(() => expect(open.getAttribute("aria-disabled")).not.toBe("true"));
+    fireEvent.click(open);
     const key = (await screen.findAllByRole("textbox", { name: "Key" }))[0] as HTMLElement;
     fireEvent.change(key, { target: { value: "qa" } });
     fireEvent.change(screen.getAllByRole("textbox", { name: "Name" })[0] as HTMLElement, { target: { value: "QA" } });
@@ -97,7 +107,7 @@ describe("[STU-116] organisation administration", () => {
     cleanup();
     renderApp(`${base}/environments`, { permissions: [...all, "secrets.manage"], ...state });
     await screen.findByRole("button", { name: "Set secret" });
-    expect(screen.getByRole("button", { name: "Create environment" }).getAttribute("aria-disabled")).toBe("true");
+    expect(screen.getByRole("button", { name: "New environment" }).getAttribute("aria-disabled")).toBe("true");
   });
 
   test("a page without its permission shows the forbidden page", async () => {

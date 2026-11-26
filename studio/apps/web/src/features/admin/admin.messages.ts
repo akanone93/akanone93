@@ -107,6 +107,32 @@ export function adminMessages(i18n: I18n) {
       message: "Show secrets",
       comment: "Button that shows the secrets of an environment below the list.",
     }),
+    environmentsShowing: i18n._({
+      id: "admin.environmentsShowing",
+      message: "Shown below",
+      comment: "Button of the environment whose secrets are listed below the list, which it shows.",
+    }),
+    environmentsNew: i18n._({
+      id: "admin.environmentsNew",
+      message: "New environment",
+      comment: "Button that opens the fields that create an environment of the chosen app.",
+    }),
+    secretDeleteTitle: (key: string) =>
+      i18n._({
+        id: "admin.secretDeleteTitle",
+        message: "Delete the secret {key}?",
+        values: { key },
+        comment: "Title of the dialog that confirms deleting a secret; {key} is its key, e.g. AR_GATEWAY_KEY.",
+      }),
+    secretDeleteText: (environment: string) =>
+      i18n._({
+        id: "admin.secretDeleteText",
+        message:
+          "Functions and gateway upstreams of {environment} that name it stop getting a value. Its value cannot be shown or restored; setting it again needs the value.",
+        values: { environment },
+        comment: "Text of the dialog that confirms deleting a secret; {environment} is the environment's name.",
+      }),
+    cancel: i18n._({ id: "admin.cancel", message: "Cancel", comment: "Button that closes a dialog without a change." }),
     environmentsCreate: i18n._({
       id: "admin.environmentsCreate",
       message: "Create environment",

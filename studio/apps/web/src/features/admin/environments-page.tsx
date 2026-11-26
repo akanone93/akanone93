@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { useLingui } from "@lingui/react";
 import { AppService } from "@plux/api";
-import { Button, Field, Select, Tooltip } from "@plux/ui";
+import { AlertDialog, Button, Field, Icon, Select, StatusPill, Tooltip } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { adminMessages } from "./admin.messages.ts";
 import { CreateForm, Frame, fmt, Table } from "./parts.tsx";
@@ -18,8 +19,6 @@ export function EnvironmentsPage(): ReactElement {
   const m = adminMessages(useLingui().i18n);
   const organizationId = useOrgId();
   const apps = useRpc(AppService);
-  const canEnvironments = useCan("environment.manage");
-  const canSecrets = useCan("secrets.manage");
   const { run, failed, error } = useRun();
   const [chosenApp, setChosenApp] = useState<string>();
   const [chosenEnv, setChosenEnv] = useState<string>();
@@ -75,7 +74,14 @@ export function EnvironmentsPage(): ReactElement {
               {e.key}
             </span>,
             e.name,
-            e.production ? m.yes : m.no,
+            e.production ? (
+              <StatusPill key="p" status="warning" label={m.environmentsProduction} />
+            ) : (
+              <span key="p" className="text-muted-foreground">
+                {m.no}
+              </span>
+            ),
+            // The environment whose secrets are listed below says so; the others show theirs.
             <Button
               key="s"
               size="sm"
@@ -83,40 +89,97 @@ export function EnvironmentsPage(): ReactElement {
               aria-pressed={e.id === environmentId}
               onClick={() => setChosenEnv(e.id)}
             >
-              {m.environmentsShowSecrets}
+              {e.id === environmentId ? m.environmentsShowing : m.environmentsShowSecrets}
             </Button>,
           ],
         }))}
       />
-      <CreateForm
-        fields={[
-          { name: "key", label: m.colKey, required: true },
-          { name: "name", label: m.colName, required: true },
-          {
-            name: "production",
-            label: m.environmentsProduction,
-            options: [
-              { value: "no", label: m.no },
-              { value: "yes", label: m.yes },
-            ],
-          },
-        ]}
-        submit={m.environmentsCreate}
-        disabled={!canEnvironments || appId === ""}
-        deniedReason={m.noPermission}
-        onSubmit={(v) =>
-          run(() =>
-            apps.createEnvironment({ appId, key: v("key"), name: v("name"), production: v("production") === "yes" }),
-          )
-        }
+      <NewEnvironment appId={appId} run={run} />
+      <Secrets
+        environmentId={environmentId}
+        environmentName={environmentName}
+        secrets={secrets.data?.secrets ?? []}
+        run={run}
       />
+    </Frame>
+  );
+}
+
+type Run = ReturnType<typeof useRun>["run"];
+
+/** The button that opens the fields creating an environment of the chosen app, and those fields until it is made. */
+function NewEnvironment({ appId, run }: { readonly appId: string; readonly run: Run }): ReactElement {
+  const m = adminMessages(useLingui().i18n);
+  const apps = useRpc(AppService);
+  const canEnvironments = useCan("environment.manage");
+  const [creating, setCreating] = useState(false);
+  return !creating ? (
+    <div>
+      <Tooltip content={canEnvironments ? undefined : m.noPermission} disabledTrigger={!canEnvironments}>
+        <Button variant="secondary" disabled={!canEnvironments || appId === ""} onClick={() => setCreating(true)}>
+          <Icon name="plus" />
+          {m.environmentsNew}
+        </Button>
+      </Tooltip>
+    </div>
+  ) : (
+    <CreateForm
+      fields={[
+        { name: "key", label: m.colKey, required: true },
+        { name: "name", label: m.colName, required: true },
+        {
+          name: "production",
+          label: m.environmentsProduction,
+          options: [
+            { value: "no", label: m.no },
+            { value: "yes", label: m.yes },
+          ],
+        },
+      ]}
+      submit={m.environmentsCreate}
+      disabled={!canEnvironments || appId === ""}
+      deniedReason={m.noPermission}
+      onSubmit={async (v) => {
+        const done = await run(() =>
+          apps.createEnvironment({ appId, key: v("key"), name: v("name"), production: v("production") === "yes" }),
+        );
+        if (done) {
+          setCreating(false);
+        }
+        return done;
+      }}
+    />
+  );
+}
+
+/**
+ * The secrets of one environment: their keys, the last characters of their values and when they changed; one is set
+ * with its key and value, and one is deleted after a confirmation, as what names it stops getting a value (SEC-106).
+ */
+function Secrets(props: {
+  readonly environmentId: string;
+  readonly environmentName: string;
+  readonly secrets: readonly {
+    readonly key: string;
+    readonly hint: string;
+    readonly updatedAt?: Timestamp | undefined;
+  }[];
+  readonly run: Run;
+}): ReactElement {
+  const { environmentId, environmentName, secrets, run } = props;
+  const m = adminMessages(useLingui().i18n);
+  const apps = useRpc(AppService);
+  const canSecrets = useCan("secrets.manage");
+  const [deleting, setDeleting] = useState<string | null>(null);
+  return (
+    <>
       <h2 className="text-label font-medium">{m.secretsOf(environmentName)}</h2>
       <p className="text-body text-muted-foreground">{m.secretsNote}</p>
       <Table
         caption={m.secretsOf(environmentName)}
         heads={[m.colKey, m.secretsHint, m.secretsUpdated, ""]}
         empty={m.nothing}
-        rows={(secrets.data?.secrets ?? []).map((s) => ({
+        rows={secrets.map((s) => ({
           key: s.key,
           cells: [
             <span key="k" className="font-mono">
@@ -127,12 +190,7 @@ export function EnvironmentsPage(): ReactElement {
             </span>,
             fmt(s.updatedAt, m.never),
             <Tooltip key="d" content={canSecrets ? undefined : m.noPermission} disabledTrigger={!canSecrets}>
-              <Button
-                size="sm"
-                variant="danger"
-                disabled={!canSecrets}
-                onClick={() => run(() => apps.deleteSecret({ environmentId, key: s.key }))}
-              >
+              <Button size="sm" variant="danger" disabled={!canSecrets} onClick={() => setDeleting(s.key)}>
                 {m.delete}
               </Button>
             </Tooltip>,
@@ -149,6 +207,25 @@ export function EnvironmentsPage(): ReactElement {
         deniedReason={m.noPermission}
         onSubmit={(v) => run(() => apps.setSecret({ environmentId, key: v("key"), value: v("value") }))}
       />
-    </Frame>
+      {/* Deleting a secret breaks what names it and cannot be undone: it is confirmed first. */}
+      <AlertDialog
+        open={deleting !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleting(null);
+          }
+        }}
+        title={m.secretDeleteTitle(deleting ?? "")}
+        description={m.secretDeleteText(environmentName)}
+        labels={{ cancel: m.cancel, confirm: m.delete }}
+        onConfirm={() => {
+          const key = deleting;
+          setDeleting(null);
+          if (key !== null) {
+            void run(() => apps.deleteSecret({ environmentId, key }));
+          }
+        }}
+      />
+    </>
   );
 }

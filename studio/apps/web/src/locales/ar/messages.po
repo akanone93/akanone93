@@ -3756,6 +3756,12 @@ msgstr "إلغاء"
 msgid "appCanvas.cancel"
 msgstr "إلغاء"
 
+#. Button that closes a dialog without a change.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.cancel"
+msgstr "إلغاء"
+
 #. Button that dismisses a dialog without acting.
 #. js-lingui-explicit-id
 #: apps/web/src/components/dialogs/dialogs.messages.ts
@@ -5807,6 +5813,12 @@ msgstr "حذف الشاشة"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.deleteConfirmAction"
 msgstr "حذف الشاشة"
+
+#. Title of the dialog that confirms deleting a secret; {key} is its key, e.g. AR_GATEWAY_KEY.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretDeleteTitle"
+msgstr "هل تريد حذف السر {key}؟"
 
 #. Title of the confirmation before an asset is deleted.
 #. js-lingui-explicit-id
@@ -8109,6 +8121,12 @@ msgstr "الدوال"
 #: apps/web/src/features/action-graph/action-graph.messages.ts
 msgid "actionGraph.groupFunction"
 msgstr "الدوال"
+
+#. Text of the dialog that confirms deleting a secret; {environment} is the environment's name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.secretDeleteText"
+msgstr "الدوال ومصادر البوابة في {environment} التي تسمّيه لن تحصل على قيمة بعد الآن. لا يمكن عرض قيمته ولا استعادتها؛ وتعيينه من جديد يحتاج إلى القيمة."
 
 #. Capability label.
 #. js-lingui-explicit-id
@@ -11380,6 +11398,12 @@ msgstr "جديدة"
 #: apps/web/src/features/devices/devices.messages.ts
 msgid "devices.newCode"
 msgstr "رمز جديد"
+
+#. Button that opens the fields that create an environment of the chosen app.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsNew"
+msgstr "بيئة جديدة"
 
 #. Link and heading of the experiment wizard.
 #. js-lingui-explicit-id
@@ -17198,6 +17222,12 @@ msgstr "عرض {screen}"
 #: apps/web/src/features/preview/preview.messages.ts
 msgid "preview.chromeShown"
 msgstr "ظاهرة"
+
+#. Button of the environment whose secrets are listed below the list, which it shows.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.environmentsShowing"
+msgstr "معروضة أدناه"
 
 #. Help under the shell settings' entry route: the generated app follows app.json's entryRoute from its release, this one only before.
 #. js-lingui-explicit-id
