@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button, Field, Input } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { useEnvironment, usePermissions, useScope } from "../security/use-security.ts";
+import { EnvironmentPicker } from "./environment-picker.tsx";
 import { Frame } from "./frame.tsx";
 import { useGuarded } from "./guarded.tsx";
 import { releasesMessages } from "./releases.messages.ts";
@@ -28,6 +29,7 @@ export function KillSwitchPage(): ReactElement {
   return (
     <Frame
       nav={<ReleasesTabs />}
+      actions={<EnvironmentPicker />}
       id="kill-title"
       title={m.killTitle}
       caption={m.killCaption}

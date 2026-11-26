@@ -9,6 +9,7 @@ import type { ReactElement } from "react";
 import { PageEmpty } from "../../components/page.tsx";
 import { Table } from "../security/parts.tsx";
 import { useEnvironment, useScope } from "../security/use-security.ts";
+import { EnvironmentPicker } from "./environment-picker.tsx";
 import { Frame } from "./frame.tsx";
 import { releasesMessages, stateNames } from "./releases.messages.ts";
 import { defaultChannel } from "./releases.schema.ts";
@@ -30,6 +31,7 @@ export function ReleasesPage(): ReactElement {
     <Frame
       id="releases-title"
       nav={<ReleasesTabs />}
+      actions={<EnvironmentPicker />}
       title={m.timelineTitle}
       caption={m.timelineCaption}
       loading={environment.loading || releases.isPending || rollouts.isPending}

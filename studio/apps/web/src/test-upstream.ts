@@ -5,6 +5,7 @@ import { create } from "@bufbuild/protobuf";
 import { timestampFromMs } from "@bufbuild/protobuf/wkt";
 import { Code, ConnectError, createRouterTransport, type ServiceImpl } from "@connectrpc/connect";
 import {
+  type AdvanceReleaseRequestRequest,
   AnalyticsService,
   type ApplyChangeSetRequest,
   AppProjectService,
@@ -209,6 +210,8 @@ export interface ReleaseFixture {
   };
   /** The plan the rollout step sent, parsed. */
   plan?: unknown;
+  /** The environment and channel the target step sent. */
+  target?: { environmentId: string; channel: string };
   /** The visual diff job, when one was requested. */
   diff?: { state: string; error?: string };
   /** The RPCs received, in order, with the step they completed. */
@@ -1639,6 +1642,18 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
     r.state = to;
     return { request: view() };
   };
+  /** Keeps what a reports, target or rollout step sent, as the tests read it. */
+  const note = (step: AdvanceReleaseRequestRequest["step"]) => {
+    if (step.case === "reports") {
+      r.acknowledged = step.value.acknowledgedWarnings;
+    }
+    if (step.case === "target") {
+      fx.target = { environmentId: step.value.environmentId, channel: step.value.channel };
+    }
+    if (step.case === "rollout") {
+      fx.plan = JSON.parse(new TextDecoder().decode(step.value.plan));
+    }
+  };
   return {
     createReleaseRequest: (req) => {
       if (fx.stepUp !== undefined && !fx.stepUp.done) {
@@ -1692,12 +1707,7 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
           return { request: view() };
         }
       }
-      if (req.step.case === "reports") {
-        r.acknowledged = req.step.value.acknowledgedWarnings;
-      }
-      if (req.step.case === "rollout") {
-        fx.plan = JSON.parse(new TextDecoder().decode(req.step.value.plan));
-      }
+      note(req.step);
       // The visual diff is parked (ADR-0113): the server's diffs step and approval do not wait for a render.
       return move(releaseOrder[releaseOrder.indexOf(r.state) + 1] ?? "released");
     },

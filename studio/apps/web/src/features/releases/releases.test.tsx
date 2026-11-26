@@ -59,6 +59,21 @@ describe("[STU-101] releases timeline (A3)", () => {
     expect(screen.getByText("first")).toBeTruthy();
   });
 
+  test("picks the environment, kept in the address (build log row 305)", async () => {
+    const { router } = open("", { releases: { releases, rollouts: [rollout(ACTIVE)] } });
+    const env = await screen.findByRole("combobox", { name: "Environment" });
+    expect(env.textContent).toContain("development");
+    fireEvent.click(env);
+    const production = await screen.findByRole("option", { name: "production" });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    fireEvent.pointerDown(production);
+    fireEvent.mouseDown(production);
+    fireEvent.pointerUp(production);
+    fireEvent.mouseUp(production);
+    fireEvent.click(production);
+    await waitFor(() => expect(router.state.location.search).toEqual({ env: "production" }));
+  });
+
   test("shows the empty and the error state", async () => {
     open("", { releases: { releases: [] } });
     await screen.findByText("No releases yet.");

@@ -91,8 +91,17 @@ describe("[STU-100] publish flow", () => {
     await step("Changelog");
     press("Continue");
     await step("Target");
-    // The environment is named, not shown as its ID (build log row 301).
-    await screen.findByText("Environment: development");
+    // The environment is named, not shown as its ID (build log row 301), and can be chosen (row 305).
+    const env = await screen.findByRole("combobox", { name: "Environment" });
+    expect(env.textContent).toContain("development");
+    fireEvent.click(env);
+    const production = await screen.findByRole("option", { name: "production" });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    fireEvent.pointerDown(production);
+    fireEvent.mouseDown(production);
+    fireEvent.pointerUp(production);
+    fireEvent.mouseUp(production);
+    fireEvent.click(production);
     press("Continue");
     await step("Approval");
     press("Request approval");
@@ -102,6 +111,7 @@ describe("[STU-100] publish flow", () => {
     press("Release");
     fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
     await screen.findByText("Released as release 7.");
+    expect(release.target).toEqual({ environmentId: "env-prod", channel: "production" });
     expect(credential.get).toHaveBeenCalledTimes(1);
     expect(stepUps).toEqual(["begin", "complete:su-1"]);
     expect(release.calls).toEqual([

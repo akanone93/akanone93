@@ -8,6 +8,7 @@ import { buttonVariants } from "@plux/ui/components/button";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { PageEmpty } from "../../components/page.tsx";
+import { EnvironmentPicker } from "../releases/environment-picker.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { ExperimentsTabs } from "../releases/tabs.tsx";
 import { Table } from "../security/parts.tsx";
@@ -36,6 +37,7 @@ export function ExperimentsPage(): ReactElement {
     <Frame
       id="experiments-title"
       nav={<ExperimentsTabs />}
+      actions={<EnvironmentPicker />}
       title={m.listTitle}
       caption={m.listCaption}
       loading={environment.loading || list.isPending}

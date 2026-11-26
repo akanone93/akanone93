@@ -3,7 +3,7 @@
 
 import { useLingui } from "@lingui/react";
 import type { VisualDiffJob } from "@plux/api";
-import { Button, Field, Input, StatusPill, Textarea } from "@plux/ui";
+import { Button, Field, Input, Select, StatusPill, Textarea } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { StepUpDialog } from "../../components/dialogs/index.ts";
 import { useEnvironments } from "../functions/use-functions.ts";
@@ -137,18 +137,33 @@ export function ChangelogPanel({ request, editable, busy, api, run }: PanelProps
   );
 }
 
-/** Step 6: the environment, by its name, and the channel; the build is promoted unchanged (REL-004). */
+/**
+ * Step 6: the environment, picked by its name, and the channel; the build is promoted unchanged (REL-004). The
+ * server checks the release against the chosen environment when the step completes (STU-100).
+ */
 export function TargetPanel({ request, editable, busy, api, run }: PanelProps): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const [channel, setChannel] = useState(request.channel);
+  const [target, setTarget] = useState(request.environmentId);
   const environments = useEnvironments(request.appId);
-  const environment = environments.data?.environments.find((e) => e.id === request.environmentId);
+  const list = environments.data?.environments ?? [];
+  const environment = list.find((e) => e.id === request.environmentId);
   const named = environment?.name || environment?.key;
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-body">
-        {m.environment}: {named ?? <span className="font-mono">{request.environmentId}</span>}
-      </p>
+      {editable && list.length > 0 ? (
+        <Field label={m.environment}>
+          <Select
+            options={list.map((e) => ({ value: e.id, label: e.name || e.key }))}
+            value={target}
+            onValueChange={setTarget}
+          />
+        </Field>
+      ) : (
+        <p className="text-body">
+          {m.environment}: {named ?? <span className="font-mono">{request.environmentId}</span>}
+        </p>
+      )}
       <Field label={m.channel}>
         <Input value={channel} readOnly={!editable} onChange={(e) => setChannel(e.target.value)} />
       </Field>
@@ -161,7 +176,7 @@ export function TargetPanel({ request, editable, busy, api, run }: PanelProps): 
               run(() =>
                 api.advance({
                   case: "target",
-                  value: { environmentId: request.environmentId, channel: channel.trim() },
+                  value: { environmentId: target, channel: channel.trim() },
                 }),
               )
             }

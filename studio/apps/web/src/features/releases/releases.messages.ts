@@ -21,6 +21,11 @@ export function releasesMessages(i18n: I18n) {
       message: "Every release of this environment, newest first, with the rollouts that serve it.",
       comment: "Caption under the release timeline heading.",
     }),
+    environmentLabel: i18n._({
+      id: "releases.environmentLabel",
+      message: "Environment",
+      comment: "Label of the environment picker of the releases, kill switch, experiments and flags pages.",
+    }),
     channelLabel: i18n._({ id: "releases.channelLabel", message: "Channel", comment: "Label of the channel filter." }),
     colRelease: i18n._({ id: "releases.colRelease", message: "Release", comment: "Column heading." }),
     colCreated: i18n._({ id: "releases.colCreated", message: "Created", comment: "Column heading." }),

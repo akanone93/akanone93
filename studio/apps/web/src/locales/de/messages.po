@@ -7055,6 +7055,12 @@ msgstr "Einstiegsroute"
 msgid "preview.frame.android-entry"
 msgstr "Android-Einsteigergerät"
 
+#. Label of the environment picker of the releases, kill switch, experiments and flags pages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.environmentLabel"
+msgstr "Umgebung"
+
 #. Label of the environment of the release.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts

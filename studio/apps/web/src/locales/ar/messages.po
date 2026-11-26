@@ -7055,6 +7055,12 @@ msgstr "مسار الدخول"
 msgid "preview.frame.android-entry"
 msgstr "جهاز أندرويد اقتصادي"
 
+#. Label of the environment picker of the releases, kill switch, experiments and flags pages.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.environmentLabel"
+msgstr "البيئة"
+
 #. Label of the environment of the release.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts

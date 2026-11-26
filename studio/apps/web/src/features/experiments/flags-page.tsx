@@ -6,6 +6,7 @@ import { FlagType } from "@plux/api";
 import { Button, Field, Input, Select } from "@plux/ui";
 import { type ReactElement, useState } from "react";
 import { PageEmpty } from "../../components/page.tsx";
+import { EnvironmentPicker } from "../releases/environment-picker.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { ExperimentsTabs } from "../releases/tabs.tsx";
 import { Table } from "../security/parts.tsx";
@@ -247,6 +248,7 @@ export function FlagsPage(): ReactElement {
   return (
     <Frame
       nav={<ExperimentsTabs />}
+      actions={<EnvironmentPicker />}
       id="flags-title"
       title={m.flagsTitle}
       caption={m.flagsCaption}
