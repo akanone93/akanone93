@@ -81,7 +81,7 @@ func (e env) testCmd(args []string) int {
 	}
 	opts := plxtest.Options{
 		Project: fsys, Compiler: options(false), Tests: cfg.Tests, Entropy: rand.Reader,
-		Runtime: plxtest.Dependency{Version: runtimeConstraint, Path: *runtime},
+		Runtime: plxtest.Dependency{Version: runtimeConstraint, FunctionsVersion: optionalConstraint, Path: *runtime},
 	}
 	plan, err := plxtest.Prepare(opts)
 	if err != nil {

@@ -14,7 +14,9 @@ import (
 	"maps"
 	"slices"
 
+	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/signing/runkey"
 )
@@ -36,6 +38,14 @@ type Release struct {
 	PublicKey []byte
 	// Files are the baseline's files by path relative to BaselineDir.
 	Files map[string][]byte
+	// Kinds are the page kinds of the routes that are not screens: the
+	// harness opens those pages as the runtime presents them, as a dialog
+	// or a sheet (SCH-022).
+	Kinds map[string]schema.PageKind
+	// DeviceFunctions says whether a bundle carries device functions
+	// (section.wasm.v1): the harness then registers the device function
+	// engine, as a host that runs them does (FN-050).
+	DeviceFunctions bool
 }
 
 // The baseline's JSON, as `plux pull` writes it and the runtime reads it.
@@ -77,7 +87,7 @@ func BuildRelease(res *compiler.Result, k *runkey.Key) (*Release, error) {
 		return nil, errors.New("plxtest: the compilation made no app bundle")
 	}
 	appID := uuid7.UUID(res.App.ID).String()
-	rel := &Release{AppID: appID, KeyID: k.ID(), PublicKey: k.Public(), Files: map[string][]byte{}}
+	rel := &Release{AppID: appID, KeyID: k.ID(), PublicKey: k.Public(), Files: map[string][]byte{}, Kinds: pageKinds(res.Project)}
 	b := baseline{
 		App: appID, Environment: "production", Channel: "production", Sequence: 1,
 		Bundles: []entry{}, Assets: []asset{},
@@ -89,6 +99,7 @@ func BuildRelease(res *compiler.Result, k *runkey.Key) (*Release, error) {
 			plugin, file = "", "bundles/_app.pxb"
 		}
 		rel.Files[file] = c.Data
+		rel.DeviceFunctions = rel.DeviceFunctions || slices.Contains(c.Features, bundle.FeatureWasm)
 		b.Bundles = append(b.Bundles, entry{
 			Plugin: plugin, Version: 1, SHA256: hex.EncodeToString(c.Hash[:]), File: file,
 			KeyID: k.ID(), Algorithm: runkey.Algorithm, Signature: base64.StdEncoding.EncodeToString(k.Sign(c.Hash[:])),
@@ -107,4 +118,21 @@ func BuildRelease(res *compiler.Result, k *runkey.Key) (*Release, error) {
 		rel.Files[name] = append(data, '\n')
 	}
 	return rel, nil
+}
+
+// pageKinds are the kinds of the project's routed pages that are not
+// screens, by route.
+func pageKinds(project *schema.Project) map[string]schema.PageKind {
+	kinds := map[string]schema.PageKind{}
+	if project == nil {
+		return kinds
+	}
+	for _, pl := range project.Plugins {
+		for _, pg := range pl.Pages {
+			if pg.Doc != nil && pg.Doc.Route != "" && pg.Doc.PageKind != "" && pg.Doc.PageKind != schema.PageKindScreen {
+				kinds[pg.Doc.Route] = pg.Doc.PageKind
+			}
+		}
+	}
+	return kinds
 }

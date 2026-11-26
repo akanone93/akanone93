@@ -67,7 +67,7 @@ func (e env) renderWorkerServe(args []string) int {
 		return e.fail("render-worker serve", err)
 	}
 	h, err := renderworker.New(renderworker.Options{
-		Flutter: flutterPath, Fonts: fontData, Runtime: plxtest.Dependency{Version: runtimeConstraint, Path: *runtime},
+		Flutter: flutterPath, Fonts: fontData, Runtime: plxtest.Dependency{Version: runtimeConstraint, FunctionsVersion: optionalConstraint, Path: *runtime},
 		WorkDir: *work, Log: e.stderr, Concurrency: *concurrency,
 	})
 	if err != nil {

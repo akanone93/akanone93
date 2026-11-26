@@ -5,6 +5,7 @@
 //
 // ignore_for_file: implementation_imports, avoid_print
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -21,7 +22,7 @@ import 'package:plux_flutter/src/security/software_keys.dart'
 import 'package:plux_flutter/src/store/kv_store.dart' show SecretStore;
 import 'package:plux_flutter/src/sync/sync_engine.dart'
     show MemoryCredentialStore, MemorySecretStore;
-
+{{FUNCTIONS_IMPORT}}
 import 'plux_project.dart';
 
 /// The JSON value a scenario file holds.
@@ -148,11 +149,14 @@ final class ScenarioSession {
   }
 
   /// Starts the runtime on the test release, applies the given state and
-  /// data source states, and shows [page] with [params]. Call [finish]
-  /// when the scenario is over, whatever its outcome.
+  /// data source states, and shows [page] with [params]; a page of [kind]
+  /// `dialog`, `bottomSheet` or `fullscreenDialog` opens as the runtime
+  /// presents it. Call [finish] when the scenario is over, whatever its
+  /// outcome.
   static Future<ScenarioSession> start(
     WidgetTester tester, {
     required String page,
+    String kind = 'screen',
     Map<String, Object?> params = const {},
     Map<String, Object?> state = const {},
     Map<String, String> dataSources = const {},
@@ -190,7 +194,7 @@ final class ScenarioSession {
           },
           navigationDelegate: _Recorder(routes),
           navigatorKey: navigatorKey,
-          nativeRoutes: pluxTestNativeRoutes,
+{{FUNCTIONS_ARG}}          nativeRoutes: pluxTestNativeRoutes,
           nativeSlots: pluxTestNativeSlots,
           nativeActions: pluxTestNativeActions,
         ),
@@ -208,7 +212,9 @@ final class ScenarioSession {
     final session = ScenarioSession._(tester, routes, errors, semantics, dir);
     try {
       if (startup == null || !startup.ready) {
-        throw TestFailure('the runtime has no release to show: $startup');
+        throw TestFailure(
+          'the runtime has no release to show: $startup${session._problems()}',
+        );
       }
       for (final MapEntry(:key, :value) in state.entries) {
         final written = await tester.runAsync(
@@ -231,18 +237,38 @@ final class ScenarioSession {
           ),
         );
       }
+      final screen = kind == 'screen';
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
           theme: theme,
           darkTheme: theme,
           debugShowCheckedModeBanner: false,
-          home: RepaintBoundary(
-            key: session._shot,
-            child: PluxScope(child: PluxView(page, inputs: params)),
-          ),
+          // A dialog or a sheet shows over the screen it opens from, so
+          // the whole navigator is captured.
+          builder: screen
+              ? null
+              : (context, child) =>
+                    RepaintBoundary(key: session._shot, child: child),
+          home: screen
+              ? RepaintBoundary(
+                  key: session._shot,
+                  child: PluxScope(child: PluxView(page, inputs: params)),
+                )
+              : const Scaffold(),
         ),
       );
+      if (!screen) {
+        final route = PluxRouteSpec(
+          name: page,
+          arguments: params,
+          presentation: PluxPresentation.values.byName(kind),
+          builder: (_) => PluxScope(child: PluxView(page, inputs: params)),
+        ).toRoute<Object?>(navigatorKey.currentContext!);
+        unawaited(navigatorKey.currentState!.push(route));
+        // Lets the dialog or sheet finish coming in.
+        await tester.pump(const Duration(seconds: 1));
+      }
       await _settle(tester);
     } on Object {
       await session.finish();

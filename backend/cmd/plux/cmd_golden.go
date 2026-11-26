@@ -202,7 +202,7 @@ func (e env) renderGoldens(f goldenRunFlags, res *compiler.Result, flutterPath s
 	}
 	plan, err := plxgolden.Prepare(plxgolden.Options{
 		Result: res, Plugin: f.plugin, Fonts: fontData, Entropy: rand.Reader,
-		Runtime: plxtest.Dependency{Version: runtimeConstraint, Path: f.runtime},
+		Runtime: plxtest.Dependency{Version: runtimeConstraint, FunctionsVersion: optionalConstraint, Path: f.runtime},
 	}, filepath.Join(workDir, "_images"))
 	if err != nil {
 		return nil, e.fail("golden run", err), false

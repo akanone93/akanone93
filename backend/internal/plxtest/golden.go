@@ -81,8 +81,8 @@ func GenerateGolden(in GoldenInput) map[string][]byte {
 	for name, data := range in.Fonts {
 		files["fonts/"+name] = data
 	}
-	files["pubspec.yaml"] = []byte(pubspec(in.Runtime))
-	files["test/plux_harness.dart"] = []byte(harness(len(in.DataSources) > 0))
+	files["pubspec.yaml"] = []byte(pubspec(in.Runtime, in.Release.DeviceFunctions))
+	files["test/plux_harness.dart"] = []byte(harness(len(in.DataSources) > 0, in.Release.DeviceFunctions))
 	files["test/plux_project.dart"] = []byte(project(Input{Release: in.Release, Natives: in.Natives}))
 	files["test/golden_test.dart"] = []byte(goldenTest(in))
 	return files
@@ -116,7 +116,9 @@ func goldenTest(in GoldenInput) string {
 	b.WriteString("};\n\nvoid main() {\n  setUpAll(_loadFonts);\n  group(" + codegen.DartString(GoldenGroup) + ", () {\n")
 	for i, c := range in.Cases {
 		fmt.Fprintf(&b, "    testWidgets(%s, (tester) async {\n", codegen.DartString(c.ID))
-		fmt.Fprintf(&b, "      final s = await ScenarioSession.start(\n        tester,\n        page: %s,\n        params: %s,\n        dataSources: _dataSources,\n", codegen.DartString(c.Route), object(c.Params))
+		fmt.Fprintf(&b, "      final s = await ScenarioSession.start(\n        tester,\n        page: %s,\n", codegen.DartString(c.Route))
+		writeKind(&b, in.Release.Kinds[c.Route])
+		fmt.Fprintf(&b, "        params: %s,\n        dataSources: _dataSources,\n", object(c.Params))
 		fmt.Fprintf(&b, "        frame: const Size(%d, %d),\n        pixelRatio: %s,\n        textScale: %s,\n        themeMode: %s,\n        locale: %s,\n        theme: _themeFor(%s),\n      );\n",
 			c.Width, c.Height, number(c.Ratio), number(c.TextScale), themeMode(c.Dark), codegen.DartString(c.Locale), brightness(c.Dark))
 		fmt.Fprintf(&b, "      try {\n        final png = await s.capture();\n        await tester.runAsync(() => File('$_out/%04d.png').writeAsBytes(png));\n      } finally {\n        await s.finish();\n      }\n    });\n", i)

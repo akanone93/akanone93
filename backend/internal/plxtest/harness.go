@@ -9,7 +9,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"maps"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
@@ -22,12 +24,17 @@ import (
 //go:embed templates/plux_harness.dart.tmpl
 var harnessTemplate string
 
-// Dependency says where the generated project gets plux_flutter from: a
-// version constraint from pub.dev, or a local checkout of the runtime.
+// Dependency says where the generated project gets plux_flutter, and
+// plux_functions for a release with device functions, from: version
+// constraints from pub.dev, or a local checkout of the runtime.
 type Dependency struct {
 	// Version is a pub constraint such as ^0.5.0; used when Path is empty.
 	Version string
-	// Path is the directory of a plux_flutter checkout.
+	// FunctionsVersion is the pub constraint of plux_functions; used when
+	// Path is empty.
+	FunctionsVersion string
+	// Path is the directory of a plux_flutter checkout; plux_functions is
+	// taken from the package directory beside it.
 	Path string
 }
 
@@ -67,15 +74,15 @@ func Generate(in Input) (map[string][]byte, []Case, error) {
 	for p, data := range in.Release.Files {
 		files[BaselineDir+"/"+p] = data
 	}
-	files["pubspec.yaml"] = []byte(pubspec(in.Runtime))
+	files["pubspec.yaml"] = []byte(pubspec(in.Runtime, in.Release.DeviceFunctions))
 	hasMocks := slices.ContainsFunc(in.Files, func(f *File) bool {
 		return slices.ContainsFunc(f.Doc.Scenarios, func(s schema.Scenario) bool { return s.Given != nil && len(s.Given.DataSources) > 0 })
 	})
-	files["test/plux_harness.dart"] = []byte(harness(hasMocks))
+	files["test/plux_harness.dart"] = []byte(harness(hasMocks, in.Release.DeviceFunctions))
 	files["test/plux_project.dart"] = []byte(project(in))
 	var cases []Case
 	for i, f := range in.Files {
-		code, fc, err := scenarioFile(f)
+		code, fc, err := scenarioFile(f, in.Release.Kinds)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -86,10 +93,22 @@ func Generate(in Input) (map[string][]byte, []Case, error) {
 	return files, cases, nil
 }
 
-func pubspec(dep Dependency) string {
+func pubspec(dep Dependency, functions bool) string {
 	runtime := "  plux_flutter: " + dep.Version + "\n"
 	if dep.Path != "" {
 		runtime = "  plux_flutter:\n    path: " + codegen.DartString(dep.Path) + "\n"
+	}
+	var overrides string
+	if functions {
+		// The device function engine runs the release's device functions,
+		// as in a host that registers it (FN-050).
+		if dep.Path == "" {
+			runtime += "  plux_functions: " + dep.FunctionsVersion + "\n"
+		} else {
+			runtime += "  plux_functions:\n    path: " + codegen.DartString(filepath.Join(filepath.Dir(dep.Path), "plux_functions")) + "\n"
+			// plux_functions asks for the published runtime; the checkout stands in for it.
+			overrides = "dependency_overrides:\n  plux_flutter:\n    path: " + codegen.DartString(dep.Path) + "\n"
+		}
 	}
 	return `# Written by plux test; it is rewritten on every run, so do not edit it.
 name: plux_scenarios
@@ -105,12 +124,14 @@ dependencies:
 ` + runtime + `dev_dependencies:
   flutter_test:
     sdk: flutter
-`
+` + overrides
 }
 
-func harness(mocks bool) string {
+func harness(mocks, functions bool) string {
 	r := strings.NewReplacer(
 		"{{BASELINE_DIR}}", BaselineDir,
+		"{{FUNCTIONS_IMPORT}}", dartIf(functions, "import 'package:plux_functions/plux_functions.dart';\n"),
+		"{{FUNCTIONS_ARG}}", dartIf(functions, "          functionEngine: PluxFunctions(),\n"),
 		"{{DATA_MOCKS_IMPORT}}", dartIf(mocks, "import 'package:plux_flutter/src/data/mocks.dart' show DataMockState;\n"),
 		// The runtime's test overrides take the mocks a scenario starts with (build log #198).
 		"{{DATA_MOCKS_ARG}}", dartIf(mocks, "          dataMocks: {for (final e in dataSources.entries) e.key: DataMockState.values.byName(e.value)},\n"),
@@ -186,8 +207,16 @@ final pluxTestRootKeys = <PluxPublicKey>[
 	return b.String()
 }
 
+// writeKind passes the page kind of a page that is not a screen, which the
+// harness presents as the runtime does.
+func writeKind(w io.Writer, kind schema.PageKind) {
+	if kind != "" && kind != schema.PageKindScreen {
+		_, _ = fmt.Fprintf(w, "        kind: %s,\n", codegen.DartString(string(kind)))
+	}
+}
+
 // scenarioFile is the test file of one scenario file.
-func scenarioFile(f *File) ([]byte, []Case, error) {
+func scenarioFile(f *File, kinds map[string]schema.PageKind) ([]byte, []Case, error) {
 	var b bytes.Buffer
 	b.WriteString("// Written by plux test from " + f.Path + "; do not edit.\n\n")
 	b.WriteString("import 'package:flutter_test/flutter_test.dart';\n\nimport 'plux_harness.dart';\n\nvoid main() {\n")
@@ -196,7 +225,7 @@ func scenarioFile(f *File) ([]byte, []Case, error) {
 	for i, s := range f.Doc.Scenarios {
 		line, _ := f.Locate(pointer("scenarios", strconv.Itoa(i)))
 		cases = append(cases, Case{File: f.Path, Name: s.Name, Line: line})
-		if err := writeScenario(&b, f, i, s); err != nil {
+		if err := writeScenario(&b, f, i, s, kinds[s.Page]); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -205,7 +234,7 @@ func scenarioFile(f *File) ([]byte, []Case, error) {
 }
 
 // writeScenario writes the widget test of the scenario with index i.
-func writeScenario(b *bytes.Buffer, f *File, i int, s schema.Scenario) error {
+func writeScenario(b *bytes.Buffer, f *File, i int, s schema.Scenario, kind schema.PageKind) error {
 	at := func(more ...string) string {
 		line, col := f.Locate(pointer(append([]string{"scenarios", strconv.Itoa(i)}, more...)...))
 		return fmt.Sprintf("%s:%d:%d", f.Path, line, col)
@@ -213,6 +242,7 @@ func writeScenario(b *bytes.Buffer, f *File, i int, s schema.Scenario) error {
 	fmt.Fprintf(b, "    testWidgets(%s, (tester) async {\n", codegen.DartString(s.Name))
 	b.WriteString("      final s = await ScenarioSession.start(\n        tester,\n")
 	fmt.Fprintf(b, "        page: %s,\n", codegen.DartString(s.Page))
+	writeKind(b, kind)
 	if g := s.Given; g != nil {
 		writeGiven(b, g)
 	}
