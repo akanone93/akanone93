@@ -1185,6 +1185,16 @@ type FunctionTestCase struct {
 	// Claims: The verified user claims the case is invoked with (server
 	// placement, `SEC-026`); none when absent.
 	Claims json.RawMessage `json:"claims,omitempty"`
+	// Env: Values of the function's `env` variables the case runs with (server
+	// placement, `FN-031`); every name must be one the function declares in
+	// `env`. These are configuration values, never secrets: a case cannot set a
+	// secret.
+	Env map[string]string `json:"env,omitempty"`
+	// HTTP: Scripted responses of `http_request`, keyed by the exact URL, as the
+	// SDK's mock host scripts them (`FN-031`). The capability, the domain
+	// allowlist and the call limit still apply; a URL with no scripted response
+	// is refused as egress.
+	HTTP map[string]FunctionTestResponse `json:"http,omitempty"`
 	// Output: The JSON output the function must return.
 	Output json.RawMessage `json:"output,omitempty"`
 	// Error: The business error the function must return.
@@ -1194,6 +1204,14 @@ type FunctionTestCase struct {
 // FunctionTestError — The business error the function must return.
 type FunctionTestError struct {
 	Code string `json:"code"`
+}
+
+// FunctionTestResponse — A scripted response of `http_request`.
+type FunctionTestResponse struct {
+	Status  int64             `json:"status"`
+	Headers map[string]string `json:"headers,omitempty"`
+	// Body: The response body, as UTF-8 text.
+	Body string `json:"body,omitempty"`
 }
 
 // GoldenMatrix — What a golden run renders.

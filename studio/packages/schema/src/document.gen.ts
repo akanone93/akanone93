@@ -784,6 +784,10 @@ export interface FunctionTestCase {
   readonly input: JsonValue;
   /** The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent. */
   readonly claims?: JsonValue;
+  /** Values of the function's `env` variables the case runs with (server placement, `FN-031`); every name must be one the function declares in `env`. These are configuration values, never secrets: a case cannot set a secret. */
+  readonly env?: { readonly [key: string]: string };
+  /** Scripted responses of `http_request`, keyed by the exact URL, as the SDK's mock host scripts them (`FN-031`). The capability, the domain allowlist and the call limit still apply; a URL with no scripted response is refused as egress. */
+  readonly http?: { readonly [key: string]: FunctionTestResponse };
   /** The JSON output the function must return. */
   readonly output?: JsonValue;
   /** The business error the function must return. */
@@ -795,6 +799,16 @@ export interface FunctionTestCase {
 /** The business error the function must return. */
 export interface FunctionTestError {
   readonly code: string;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** A scripted response of `http_request`. */
+export interface FunctionTestResponse {
+  readonly status: number;
+  readonly headers?: { readonly [key: string]: string };
+  /** The response body, as UTF-8 text. */
+  readonly body?: string;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }

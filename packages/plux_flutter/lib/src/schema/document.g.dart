@@ -2222,7 +2222,7 @@ final class FunctionLimits {
 }
 
 final class FunctionTestCase {
-  const FunctionTestCase({required this.name, required this.input, this.claims, this.output, this.error});
+  const FunctionTestCase({required this.name, required this.input, this.claims, this.env, this.http, this.output, this.error});
 
   /// Decodes a JSON object.
   factory FunctionTestCase.fromJson(Object json) {
@@ -2231,6 +2231,8 @@ final class FunctionTestCase {
       name: m['name']! as String,
       input: m['input'],
       claims: m.containsKey('claims') ? JsonValue(m['claims']) : null,
+      env: m['env'] == null ? null : {for (final e in (m['env']! as Map<String, Object?>).entries) e.key: e.value! as String},
+      http: m['http'] == null ? null : {for (final e in (m['http']! as Map<String, Object?>).entries) e.key: FunctionTestResponse.fromJson(e.value!)},
       output: m.containsKey('output') ? JsonValue(m['output']) : null,
       error: m['error'] == null ? null : FunctionTestError.fromJson(m['error']!),
     );
@@ -2242,6 +2244,16 @@ final class FunctionTestCase {
   /// The verified user claims the case is invoked with (server placement,
   /// `SEC-026`); none when absent.
   final JsonValue? claims;
+  /// Values of the function's `env` variables the case runs with (server
+  /// placement, `FN-031`); every name must be one the function declares in
+  /// `env`. These are configuration values, never secrets: a case cannot set a
+  /// secret.
+  final Map<String, String>? env;
+  /// Scripted responses of `http_request`, keyed by the exact URL, as the SDK's
+  /// mock host scripts them (`FN-031`). The capability, the domain allowlist
+  /// and the call limit still apply; a URL with no scripted response is refused
+  /// as egress.
+  final Map<String, FunctionTestResponse>? http;
   /// The JSON output the function must return.
   final JsonValue? output;
   /// The business error the function must return.
@@ -2252,6 +2264,8 @@ final class FunctionTestCase {
         'name': name,
         'input': input,
         if (claims != null) 'claims': claims!.value,
+        if (env != null) 'env': {for (final e in env!.entries) e.key: e.value},
+        if (http != null) 'http': {for (final e in http!.entries) e.key: e.value.toJson()},
         if (output != null) 'output': output!.value,
         if (error != null) 'error': error!.toJson(),
       };
@@ -2274,6 +2288,33 @@ final class FunctionTestError {
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
         'code': code,
+      };
+}
+
+/// A scripted response of `http_request`.
+final class FunctionTestResponse {
+  const FunctionTestResponse({required this.status, this.headers, this.body});
+
+  /// Decodes a JSON object.
+  factory FunctionTestResponse.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FunctionTestResponse(
+      status: (m['status']! as num).toInt(),
+      headers: m['headers'] == null ? null : {for (final e in (m['headers']! as Map<String, Object?>).entries) e.key: e.value! as String},
+      body: m['body'] == null ? null : m['body']! as String,
+    );
+  }
+
+  final int status;
+  final Map<String, String>? headers;
+  /// The response body, as UTF-8 text.
+  final String? body;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'status': status,
+        if (headers != null) 'headers': {for (final e in headers!.entries) e.key: e.value},
+        if (body != null) 'body': body!,
       };
 }
 

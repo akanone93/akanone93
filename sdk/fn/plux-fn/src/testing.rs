@@ -146,6 +146,33 @@ impl MockHost {
         self
     }
 
+    /// Sets what a stored case of `function.json` runs with, as the server's
+    /// stored-test runner does (`FN-031`): its `claims`, its `env` values and
+    /// its scripted `http` responses, keyed by the exact URL, with the body as
+    /// UTF-8 text. A stored case cannot set a secret.
+    pub fn apply_case(&self, case: &Value) -> &Self {
+        if let Some(claims) = case.get("claims") {
+            self.set_claims(claims.clone());
+        }
+        for (name, value) in case
+            .get("env")
+            .and_then(Value::as_object)
+            .into_iter()
+            .flatten()
+        {
+            self.set_env(name, value.as_str().expect("an env value is a string"));
+        }
+        for (url, response) in case
+            .get("http")
+            .and_then(Value::as_object)
+            .into_iter()
+            .flatten()
+        {
+            self.respond(url, scripted_response(response));
+        }
+        self
+    }
+
     /// Installs the nested-invoke handler: `(name, input JSON)` to
     /// `tag || JSON` bytes (see [`output_reply`] and [`business_reply`]).
     pub fn on_invoke(
@@ -382,6 +409,34 @@ impl Deref for TestServer {
     }
 }
 
+/// A scripted response of a stored case: `status`, optional `headers` and an
+/// optional UTF-8 `body`.
+fn scripted_response(response: &Value) -> HttpResponse {
+    let status = response["status"]
+        .as_u64()
+        .and_then(|s| u16::try_from(s).ok())
+        .expect("a scripted status is a status code");
+    let headers = response
+        .get("headers")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+        .map(|(name, value)| {
+            let value = value.as_str().expect("a header value is a string");
+            (name.clone(), value.to_owned())
+        })
+        .collect();
+    let body = response
+        .get("body")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    HttpResponse {
+        status,
+        headers,
+        body: body.as_bytes().to_vec(),
+    }
+}
+
 /// How an entry reply decodes.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Reply {
@@ -409,16 +464,31 @@ pub fn decode_reply(reply: &[u8]) -> Reply {
 }
 
 /// Replays the `tests` of a function document: every case runs `run` (which
-/// receives the case and its input bytes and returns the entry reply) and
-/// compares the output, or the business error code, with the stored one.
-/// Authors and the examples use it so cases and code cannot drift (`FN-030`).
+/// receives the case and its input bytes and returns the entry reply; it
+/// sets the case up with [`MockHost::apply_case`]) and compares the output,
+/// or the business error code, with the stored one. A case may set only the
+/// `env` variables the document declares, as on the server. Authors and the
+/// examples use it so cases and code cannot drift (`FN-030`, `FN-031`).
 pub fn replay(document: &str, mut run: impl FnMut(&Value, &[u8]) -> Vec<u8>) -> usize {
     let document: Value = serde_json::from_str(document).expect("function.json is JSON");
+    let declared = document["env"].as_array().cloned().unwrap_or_default();
     let cases = document["tests"]
         .as_array()
         .expect("function.json has tests");
     for case in cases {
         let name = case["name"].as_str().expect("case name");
+        for variable in case
+            .get("env")
+            .and_then(Value::as_object)
+            .into_iter()
+            .flatten()
+            .map(|(v, _)| v)
+        {
+            assert!(
+                declared.contains(&Value::from(variable.as_str())),
+                "case {name} sets {variable}, which the function does not declare in env"
+            );
+        }
         let input = serde_json::to_vec(&case["input"]).expect("case input");
         let reply = decode_reply(&run(case, &input));
         if let Some(code) = case.get("error").map(|e| &e["code"]) {
@@ -486,6 +556,43 @@ mod tests {
             device.invoke_function("f", b"{}"),
             Err(HostError::CapabilityDenied)
         );
+    }
+
+    #[test]
+    fn a_stored_case_sets_claims_env_and_http() {
+        let server = TestServer::new();
+        server.apply_case(&json!({
+            "claims": {"tier": "gold"},
+            "env": {"FEE_TABLE": "standard"},
+            "http": {"https://api.test/x": {"status": 201, "headers": {"a": "b"}, "body": "ok"}},
+        }));
+        let ctx = server.context();
+        assert_eq!(ctx.claims().unwrap().get_str("tier"), Some("gold"));
+        assert_eq!(ctx.env("FEE_TABLE").unwrap(), Some("standard".to_owned()));
+        let response = ctx
+            .http()
+            .send(&HttpRequest::get("https://api.test/x"))
+            .unwrap();
+        assert_eq!(
+            (
+                response.status,
+                response.headers.get("a").map(String::as_str),
+                response.body.as_slice()
+            ),
+            (201, Some("b"), b"ok".as_slice())
+        );
+        assert_eq!(
+            ctx.http().send(&HttpRequest::get("https://api.test/y")),
+            Err(HostError::EgressRefused)
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "case c sets OTHER, which the function does not declare in env")]
+    fn replay_refuses_an_undeclared_env_variable() {
+        let document =
+            r#"{"env":["REGION"],"tests":[{"name":"c","input":1,"env":{"OTHER":"x"},"output":1}]}"#;
+        replay(document, |_, _| output_reply(&1));
     }
 
     #[test]

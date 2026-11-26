@@ -132,9 +132,7 @@ mod tests {
     fn every_stored_case_replays() {
         let cases = replay(include_str!("../function.json"), |case, input| {
             let server = TestServer::new();
-            if let Some(claims) = case.get("claims") {
-                server.set_claims(claims.clone());
-            }
+            server.apply_case(case);
             __plux_entry_with(server.static_host(), input)
         });
         assert!(cases >= 6);

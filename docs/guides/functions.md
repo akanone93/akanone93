@@ -224,9 +224,25 @@ runs, in order (`FN-030`):
    engine. A difference between the engines fails the run.
 
 A stored case is an input and either the expected `output` or the expected business `error`
-code; a server function may also give `claims`. At most `function.testCases` (100 by default)
+code. A server function's case may also give `claims`, `env` values and scripted `http`
+responses (`FN-031`):
+
+```json
+{"name": "standard fee from the table", "input": {"amount": "1000"},
+ "env": {"FEE_TABLE": "standard"},
+ "http": {"https://rates.example.com/v1/eur": {"status": 200, "body": "{\"rate\":\"1.08\"}"}},
+ "output": {"fee": "1.00"}}
+```
+
+`env` may set only variables the function declares in `env`; a case that sets another fails.
+`http` answers `http_request` by the exact URL, with an optional `headers` object and the body
+as UTF-8 text. The `http` capability, the domain allowlist and the call limit still apply, and
+a URL with no scripted response is refused as egress, so a case can test the failure path too.
+A case cannot set a secret: `secret_get` stays unavailable, and a function that needs one keeps
+that path in `cargo test` with the mock host. At most `function.testCases` (100 by default)
 cases are stored per function. The scaffold's `every_stored_case_replays` test runs the same
-cases under `cargo test`, so CI that only runs `cargo test` still checks them.
+cases under `cargo test`, each set up with `MockHost::apply_case`, so CI that only runs
+`cargo test` still checks them.
 
 `plux fn build <name>` builds locally and writes the module, the schemas and the provenance to
 `functions/<name>/target/plux/`. It runs without the server's sandbox and prints a warning to

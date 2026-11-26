@@ -676,6 +676,8 @@ Per-function limits that tighten the registry values (FN-011, LIM-002).
 | `name` | string | yes |  |
 | `input` | JSON value | yes | The JSON input passed to the function. |
 | `claims` | JSON value |  | The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent. |
+| `env` | map of string |  | Values of the function's `env` variables the case runs with (server placement, `FN-031`); every name must be one the function declares in `env`. These are configuration values, never secrets: a case cannot set a secret. |
+| `http` | map of [FunctionTestResponse](#functiontestresponse) |  | Scripted responses of `http_request`, keyed by the exact URL, as the SDK's mock host scripts them (`FN-031`). The capability, the domain allowlist and the call limit still apply; a URL with no scripted response is refused as egress. |
 | `output` | JSON value |  | The JSON output the function must return. |
 | `error` | [FunctionTestError](#functiontesterror) |  | The business error the function must return. |
 
@@ -686,6 +688,16 @@ The business error the function must return.
 | Property | Type | Required | Description |
 |---|---|---|---|
 | `code` | string | yes |  |
+
+### FunctionTestResponse
+
+A scripted response of `http_request`.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `status` | integer | yes |  |
+| `headers` | map of string |  |  |
+| `body` | string |  | The response body, as UTF-8 text. |
 
 ### GoldenMatrix
 

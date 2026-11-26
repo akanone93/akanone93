@@ -8,6 +8,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/fnhost"
@@ -32,14 +34,22 @@ type TestResult struct {
 
 // RunTests runs the stored test cases of the declaration against the module
 // on the function host, as a server function, each in a fresh instance with
-// the case's claims (FN-031, SEC-026). Capabilities are the declared ones, but
-// the host serves only an in-memory key-value store, so a case never reaches
-// the network or a secret. The module holds the one function the build
+// the case's claims, env values and scripted HTTP responses (FN-031, SEC-026).
+// Capabilities are the declared ones, but the host serves only an in-memory
+// key-value store and the case's script, so a case never reaches the network
+// or a secret. The module holds the one function the build
 // produced, at index 0. The limits are the registry's, tightened by the
 // document's own (FN-011). A case that fails, or that the host could not run,
 // is a failed TestResult, never an error; an error is a failure to set the run
 // up.
 func RunTests(ctx context.Context, engine *fnhost.Engine, module []byte, decl *Declaration, set limits.Set) ([]TestResult, error) {
+	return runTests(ctx, engine, module, decl, set, 0)
+}
+
+// runTests is RunTests with the entry of the module's dispatch table the
+// cases call: 0 for a built function, another entry of the conformance probe
+// in the tests.
+func runTests(ctx context.Context, engine *fnhost.Engine, module []byte, decl *Declaration, set limits.Set, index uint32) ([]TestResult, error) {
 	cases := decl.Function.Tests
 	if len(cases) == 0 {
 		return []TestResult{}, nil
@@ -55,10 +65,14 @@ func RunTests(ctx context.Context, engine *fnhost.Engine, module []byte, decl *D
 	lim, grants := testLimits(set, decl), testGrants(decl)
 	results := make([]TestResult, len(cases))
 	for i, c := range cases {
+		if name, ok := undeclaredEnv(decl, c); ok {
+			results[i] = TestResult{Name: c.Name, Message: fmt.Sprintf("the case sets %s, which the function does not declare in env", name)}
+			continue
+		}
 		call := fnhost.Call{
-			Input: []byte(c.Input), Limits: lim, Grants: grants, Claims: c.Claims,
+			Index: index, Input: []byte(c.Input), Limits: lim, Grants: grants, Claims: c.Claims, Env: c.Env,
 			Context: fnhost.ContextInfo{App: "test", Environment: "test", AssuranceLevel: string(decl.Function.Assurance)},
-			Host:    &testHost{kv: map[string][]byte{}},
+			Host:    &testHost{kv: map[string][]byte{}, http: c.HTTP},
 		}
 		out, _, err := engine.Invoke(ctx, m, call)
 		results[i] = judgeCase(c, out, err)
@@ -67,6 +81,18 @@ func RunTests(ctx context.Context, engine *fnhost.Engine, module []byte, decl *D
 		}
 	}
 	return results, nil
+}
+
+// undeclaredEnv names the first variable, in sorted order, that the case sets
+// and the function does not declare in env; a case reads only what the
+// function may read in a real environment (FN-002).
+func undeclaredEnv(decl *Declaration, c schema.FunctionTestCase) (string, bool) {
+	for _, name := range slices.Sorted(maps.Keys(c.Env)) {
+		if !slices.Contains(decl.Function.Env, name) {
+			return name, true
+		}
+	}
+	return "", false
 }
 
 // judgeCase compares what the function did with what the case expects.
@@ -156,9 +182,13 @@ func testGrants(decl *Declaration) fnhost.Grants {
 	}
 }
 
-// testHost serves one test case: an in-memory key-value namespace and nothing
-// else. It is used by one invocation on one goroutine.
-type testHost struct{ kv map[string][]byte }
+// testHost serves one test case: an in-memory key-value namespace and the
+// case's scripted HTTP responses, and nothing else. It is used by one
+// invocation on one goroutine.
+type testHost struct {
+	kv   map[string][]byte
+	http map[string]schema.FunctionTestResponse
+}
 
 func (h *testHost) KVGet(_ context.Context, key string) ([]byte, error) {
 	v, ok := h.kv[key]
@@ -181,8 +211,16 @@ func (h *testHost) KVDelete(_ context.Context, key string) error {
 	return nil
 }
 
-func (*testHost) HTTP(context.Context, fnhost.HTTPRequest) (fnhost.HTTPResponse, error) {
-	return fnhost.HTTPResponse{}, fnhost.ErrUnavailable
+// HTTP answers from the case's script by the exact URL; a URL with no
+// response is refused as egress, as the SDK's mock host refuses it. The
+// function host has already applied the capability, the allowlist and the
+// call limit.
+func (h *testHost) HTTP(_ context.Context, req fnhost.HTTPRequest) (fnhost.HTTPResponse, error) {
+	r, ok := h.http[req.URL]
+	if !ok {
+		return fnhost.HTTPResponse{}, fnhost.ErrEgressRefused
+	}
+	return fnhost.HTTPResponse{Status: int(r.Status), Headers: maps.Clone(r.Headers), Body: []byte(r.Body)}, nil
 }
 
 func (*testHost) Secret(context.Context, string) ([]byte, error) { return nil, fnhost.ErrUnavailable }

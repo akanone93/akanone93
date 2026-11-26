@@ -184,6 +184,51 @@
           "description": "The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent.",
           "x-plux-raw": true
         },
+        "env": {
+          "type": "object",
+          "description": "Values of the function's `env` variables the case runs with (server placement, `FN-031`); every name must be one the function declares in `env`. These are configuration values, never secrets: a case cannot set a secret.",
+          "propertyNames": {
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "maxLength": 128
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "http": {
+          "type": "object",
+          "description": "Scripted responses of `http_request`, keyed by the exact URL, as the SDK's mock host scripts them (`FN-031`). The capability, the domain allowlist and the call limit still apply; a URL with no scripted response is refused as egress.",
+          "propertyNames": {
+            "pattern": "^https?://",
+            "maxLength": 2048
+          },
+          "additionalProperties": {
+            "type": "object",
+            "description": "A scripted response of `http_request`.",
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "status": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 599
+              },
+              "headers": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "body": {
+                "type": "string",
+                "description": "The response body, as UTF-8 text."
+              }
+            },
+            "additionalProperties": false,
+            "x-plux-type": "FunctionTestResponse"
+          }
+        },
         "output": {
           "description": "The JSON output the function must return.",
           "x-plux-raw": true

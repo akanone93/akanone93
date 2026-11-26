@@ -140,8 +140,9 @@ mod tests {
 
     #[test]
     fn every_stored_case_replays() {
-        let host = {{harness}}::new();
-        let cases = replay(include_str!("../function.json"), |_, input| {
+        let cases = replay(include_str!("../function.json"), |case, input| {
+            let host = {{harness}}::new();
+            host.apply_case(case);
             __plux_entry_with(host.static_host(), input)
         });
         assert!(cases >= 1);

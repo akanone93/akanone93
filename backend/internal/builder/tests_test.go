@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -146,5 +147,83 @@ func TestWasmSchemaReaderRefusesAModuleWithoutSchemas_FN_004(t *testing.T) {
 	_, err := r.Schemas(t.Context(), probeModule(t), 1)
 	if code, _ := plxerr.CodeOf(err); code != plxerr.FunctionSchemaDerivationFailed {
 		t.Errorf("error = %v; want PLX-7204", err)
+	}
+}
+
+// probeEntryHTTP and probeEntryContext are the probe's HTTP and context-dump
+// entries (schema/testdata/functions/probe/src/lib.rs). Both read their input
+// as raw bytes, not JSON.
+const (
+	probeEntryHTTP    = 2
+	probeEntryContext = 6
+)
+
+// fixedClockEngine is testEngine with the clock of the conformance vectors,
+// so that the context dump is deterministic.
+func fixedClockEngine(t *testing.T) *fnhost.Engine {
+	t.Helper()
+	at := time.Unix(0, 1_700_000_000_000_000_000)
+	e, err := fnhost.NewEngine(t.Context(), fnhost.Config{Clock: func() time.Time { return at }, Random: rand.Reader, MaxMemoryBytes: 256 << 20})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = e.Close(context.WithoutCancel(t.Context())) })
+	return e
+}
+
+// Verifies: FN-031, FN-002.
+func TestStoredCaseRunsWithItsEnvValues_FN_031(t *testing.T) {
+	dump := func(env string) json.RawMessage {
+		return raw(`{"context":{"app":"test","environment":"test","placement":"server","assuranceLevel":""},` +
+			`"clock":1700000000000000000,"wall":1700000000000000000,"env":` + env + `}`)
+	}
+	decl := declarationWith(
+		schema.FunctionTestCase{Name: "set", Input: raw(`REGION`), Env: map[string]string{"REGION": "eu-west"}, Output: dump(`"eu-west"`)},
+		schema.FunctionTestCase{Name: "unset", Input: raw(`REGION`), Output: dump(`-1`)},
+		schema.FunctionTestCase{Name: "undeclared", Input: raw(`OTHER`), Env: map[string]string{"OTHER": "x"}, Output: dump(`"x"`)},
+	)
+	decl.Function.Env = []string{"REGION"}
+	got, err := runTests(t.Context(), fixedClockEngine(t), probeModule(t), decl, limits.Defaults(), probeEntryContext)
+	if err != nil || len(got) != 3 {
+		t.Fatalf("results = %+v, %v", got, err)
+	}
+	if !got[0].Passed || !got[1].Passed {
+		t.Errorf("a case reads the env values it sets, and only those: %+v", got[:2])
+	}
+	if got[2].Passed || !strings.Contains(got[2].Message, "OTHER") {
+		t.Errorf("a case that sets a variable the function does not declare must fail and name it: %+v", got[2])
+	}
+}
+
+// Verifies: FN-031, FN-012, SEC-102.
+func TestStoredCaseAnswersHTTPFromItsScript_FN_031(t *testing.T) {
+	const url = "https://api.example.com/v1/x"
+	script := map[string]schema.FunctionTestResponse{
+		url:                          {Status: 200, Headers: map[string]string{"content-type": "text/plain"}, Body: "hello"},
+		"https://other.example.org/": {Status: 200, Body: "never served"},
+	}
+	decl := declarationWith(
+		schema.FunctionTestCase{
+			Name: "scripted", Input: raw(url), HTTP: script,
+			Output: raw(`{"status":200,"headers":{"content-type":"text/plain"},"body":"aGVsbG8="}`),
+		},
+		schema.FunctionTestCase{Name: "unscripted", Input: raw(`https://api.example.com/v1/y`), HTTP: script, Output: raw(`{"status":-4}`)},
+		schema.FunctionTestCase{Name: "not allowed", Input: raw(`https://other.example.org/`), HTTP: script, Output: raw(`{"status":-4}`)},
+		schema.FunctionTestCase{Name: "no script", Input: raw(url), Output: raw(`{"status":-4}`)},
+	)
+	decl.Function.Capabilities = &schema.FunctionCapabilities{HTTP: []string{"api.example.com"}}
+	got, err := runTests(t.Context(), testEngine(t), probeModule(t), decl, limits.Defaults(), probeEntryHTTP)
+	if err != nil || len(got) != 4 {
+		t.Fatalf("results = %+v, %v", got, err)
+	}
+	for _, r := range got {
+		if !r.Passed {
+			t.Errorf("case %q: %s", r.Name, r.Message)
+		}
+	}
+	decl.Function.Capabilities = nil
+	got, err = runTests(t.Context(), testEngine(t), probeModule(t), declarationWith(decl.Function.Tests[0]), limits.Defaults(), probeEntryHTTP)
+	if err != nil || len(got) != 1 || got[0].Passed {
+		t.Errorf("a script must not stand in for the http capability: %+v, %v", got, err)
 	}
 }
