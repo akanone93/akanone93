@@ -85,8 +85,10 @@ async function evidenceOf(
     build.jobId === "" ? Promise.resolve(undefined) : clients.publish.getPublishJob({ jobId: build.jobId }),
   ]);
   const built = versions.find((v) => v.version === build.version);
+  // The version before a build is the newest one a release holds: a cancelled request builds versions that no
+  // release holds, and against those a first release would read as unchanged (build log row 296).
   const previous = versions
-    .filter((v) => v.version < build.version)
+    .filter((v) => v.version < build.version && v.released)
     .reduce<PluginVersion | undefined>(
       (best, v) => (best === undefined || v.version > best.version ? v : best),
       undefined,

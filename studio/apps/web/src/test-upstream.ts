@@ -231,7 +231,8 @@ export interface ReleaseFixture {
   rejectApproval?: boolean;
   /** What the build evidence reads: the plugin versions per plugin id, the accessibility diagnostics and the document changes. */
   evidence?: {
-    versions: Record<string, { version: number; size: number; snapshot: string }[]>;
+    /** `released` is whether a release holds the version; true when unset. */
+    versions: Record<string, { version: number; size: number; snapshot: string; released?: boolean }[]>;
     /** Per publish job id. */
     diagnostics?: Record<string, { code: string; message: string; severity: number }[]>;
     changes?: { path: string; change: string; patch: { op: string; path: string; value?: unknown }[] }[];
@@ -1010,13 +1011,14 @@ export function createUpstream(state: UpstreamData) {
                     version: BigInt(v.version),
                     bundleSize: BigInt(v.size),
                     sourceSnapshotId: v.snapshot,
+                    released: v.released ?? true,
                   }),
                 )
               : state.published === undefined
                 ? []
                 : [
-                    create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1" }),
-                    create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0" }),
+                    create(PluginVersionSchema, { id: "v1", version: 1n, sourceSnapshotId: "snap-1", released: true }),
+                    create(PluginVersionSchema, { id: "v0", version: 0n, sourceSnapshotId: "snap-0", released: true }),
                   ],
       }),
     });

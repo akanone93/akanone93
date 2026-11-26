@@ -147,8 +147,12 @@ type PluginVersion struct {
 	SourceSnapshotId string                 `protobuf:"bytes,14,opt,name=source_snapshot_id,json=sourceSnapshotId,proto3" json:"source_snapshot_id,omitempty"`
 	PublishedBy      *Actor                 `protobuf:"bytes,15,opt,name=published_by,json=publishedBy,proto3" json:"published_by,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// released says whether a release holds this version; set by
+	// ListPluginVersions. A cancelled release request builds versions that no
+	// release holds, so the version before a build is the newest released one.
+	Released      bool `protobuf:"varint,17,opt,name=released,proto3" json:"released,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PluginVersion) Reset() {
@@ -291,6 +295,13 @@ func (x *PluginVersion) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *PluginVersion) GetReleased() bool {
+	if x != nil {
+		return x.Released
+	}
+	return false
 }
 
 // Release is an immutable set of plugin versions plus one app bundle
@@ -1880,7 +1891,7 @@ var File_plux_v1_release_proto protoreflect.FileDescriptor
 
 const file_plux_v1_release_proto_rawDesc = "" +
 	"\n" +
-	"\x15plux/v1/release.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xa4\x04\n" +
+	"\x15plux/v1/release.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xc0\x04\n" +
 	"\rPluginVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x1d\n" +
@@ -1902,7 +1913,8 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\x12source_snapshot_id\x18\x0e \x01(\tR\x10sourceSnapshotId\x121\n" +
 	"\fpublished_by\x18\x0f \x01(\v2\x0e.plux.v1.ActorR\vpublishedBy\x129\n" +
 	"\n" +
-	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xcb\x03\n" +
+	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1a\n" +
+	"\breleased\x18\x11 \x01(\bR\breleased\"\xcb\x03\n" +
 	"\aRelease\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x1a\n" +

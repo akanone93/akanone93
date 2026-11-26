@@ -789,4 +789,11 @@ func TestBuiltButUnreleasedIsUnpublished_STU_100(t *testing.T) {
 	if plugin, app := unpublished(); plugin || app {
 		t.Errorf("released: plugin %v, app %v, want neither unpublished", plugin, app)
 	}
+	// The listing says which versions a release holds, so that the publish
+	// flow compares a build with the last release (build log row 296).
+	f.publish(t, f.loans, false)
+	vs, err := f.rel.ListVersions(ctx, f.owner, f.loans, "", 0, 10)
+	if err != nil || len(vs) != 2 || vs[0].Released || !vs[1].Released {
+		t.Fatalf("versions = %+v, %v; want the newest unreleased and the one before released", vs, err)
+	}
 }

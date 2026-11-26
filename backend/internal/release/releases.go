@@ -48,6 +48,9 @@ type Version struct {
 	SourceSnapshotID string
 	PublishedBy      audit.Actor
 	CreatedAt        time.Time
+	// Released says whether a release holds the version; set by
+	// ListVersions only.
+	Released bool
 }
 
 // Release is an immutable set of one version per active plugin and one
@@ -498,7 +501,9 @@ func (s *Service) ListVersions(ctx context.Context, p auth.Principal, pluginID, 
 			return failure(err, "version")
 		}
 		for _, r := range rows {
-			out = append(out, versionOf(r))
+			v := versionOf(r.PluginVersion)
+			v.Released = r.Released
+			out = append(out, v)
 		}
 		return nil
 	})

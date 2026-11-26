@@ -31479,6 +31479,13 @@ components:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created_at
+        released:
+          type: boolean
+          title: released
+          description: |-
+            released says whether a release holds this version; set by
+             ListPluginVersions. A cancelled release request builds versions that no
+             release holds, so the version before a build is the newest released one.
       title: PluginVersion
       additionalProperties: false
       description: PluginVersion is an immutable published plugin (REL-001).

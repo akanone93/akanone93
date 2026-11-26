@@ -58,6 +58,10 @@ message PluginVersion {
   string source_snapshot_id = 14;
   Actor published_by = 15;
   google.protobuf.Timestamp created_at = 16;
+  // released says whether a release holds this version; set by
+  // ListPluginVersions. A cancelled release request builds versions that no
+  // release holds, so the version before a build is the newest released one.
+  bool released = 17;
 }
 
 // Release is an immutable set of plugin versions plus one app bundle

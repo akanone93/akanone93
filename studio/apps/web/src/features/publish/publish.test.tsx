@@ -424,6 +424,21 @@ describe("[STU-100] build evidence and diffs", () => {
     expect(screen.getByText("No accessibility findings")).toBeTruthy();
   });
 
+  test("a build after a cancelled request compares with the last release, not the last build (build log row 296)", async () => {
+    const cancelled = {
+      ...evidence,
+      versions: {
+        ...evidence.versions,
+        p1: [{ version: 0, size: 1024, snapshot: "s0", released: false }, ...(evidence.versions["p1"] ?? []).slice(1)],
+      },
+    };
+    open("/publish/r1", fixture("reports", {}, { evidence: cancelled }), { summaries });
+    await step("Reports");
+    await screen.findByText("3.0 KiB");
+    expect(screen.queryByText("+2.0 KiB against the version before")).toBeNull();
+    expect(screen.getAllByText("First version").length).toBe(2);
+  });
+
   test("the app bundle's row shows its size, from the app's own versions (#197)", async () => {
     const withApp = {
       ...evidence,

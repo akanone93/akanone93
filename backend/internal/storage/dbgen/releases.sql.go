@@ -1092,10 +1092,12 @@ func (q *Queries) ListReleases(ctx context.Context, arg ListReleasesParams) ([]R
 }
 
 const listVersions = `-- name: ListVersions :many
-SELECT id, organization_id, app_id, plugin_id, plugin_key, version, label, notes, bundle_sha256, bundle_size, source_map_sha256, required_features, min_runtime, signature, key_id, algorithm, environment_id, source_snapshot_id, sources, published_by_kind, published_by_id, published_by, created_at, native_uses FROM plugin_versions
- WHERE app_id = $1 AND plugin_id IS NOT DISTINCT FROM $2::uuid
-   AND version < $3::bigint
- ORDER BY version DESC
+SELECT v.id, v.organization_id, v.app_id, v.plugin_id, v.plugin_key, v.version, v.label, v.notes, v.bundle_sha256, v.bundle_size, v.source_map_sha256, v.required_features, v.min_runtime, v.signature, v.key_id, v.algorithm, v.environment_id, v.source_snapshot_id, v.sources, v.published_by_kind, v.published_by_id, v.published_by, v.created_at, v.native_uses,
+       EXISTS (SELECT 1 FROM release_versions rv WHERE rv.plugin_version_id = v.id)::bool AS released
+  FROM plugin_versions v
+ WHERE v.app_id = $1 AND v.plugin_id IS NOT DISTINCT FROM $2::uuid
+   AND v.version < $3::bigint
+ ORDER BY v.version DESC
  LIMIT $4
 `
 
@@ -1106,7 +1108,15 @@ type ListVersionsParams struct {
 	PageSize      int32
 }
 
-func (q *Queries) ListVersions(ctx context.Context, arg ListVersionsParams) ([]PluginVersion, error) {
+type ListVersionsRow struct {
+	PluginVersion PluginVersion
+	Released      bool
+}
+
+// The versions of a plugin, or with a null plugin of the app's own bundle,
+// newest first, each with whether a release holds it: a cancelled request
+// builds versions that no release holds.
+func (q *Queries) ListVersions(ctx context.Context, arg ListVersionsParams) ([]ListVersionsRow, error) {
 	rows, err := q.db.Query(ctx, listVersions,
 		arg.AppID,
 		arg.PluginID,
@@ -1117,34 +1127,35 @@ func (q *Queries) ListVersions(ctx context.Context, arg ListVersionsParams) ([]P
 		return nil, err
 	}
 	defer rows.Close()
-	items := []PluginVersion{}
+	items := []ListVersionsRow{}
 	for rows.Next() {
-		var i PluginVersion
+		var i ListVersionsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.OrganizationID,
-			&i.AppID,
-			&i.PluginID,
-			&i.PluginKey,
-			&i.Version,
-			&i.Label,
-			&i.Notes,
-			&i.BundleSha256,
-			&i.BundleSize,
-			&i.SourceMapSha256,
-			&i.RequiredFeatures,
-			&i.MinRuntime,
-			&i.Signature,
-			&i.KeyID,
-			&i.Algorithm,
-			&i.EnvironmentID,
-			&i.SourceSnapshotID,
-			&i.Sources,
-			&i.PublishedByKind,
-			&i.PublishedByID,
-			&i.PublishedBy,
-			&i.CreatedAt,
-			&i.NativeUses,
+			&i.PluginVersion.ID,
+			&i.PluginVersion.OrganizationID,
+			&i.PluginVersion.AppID,
+			&i.PluginVersion.PluginID,
+			&i.PluginVersion.PluginKey,
+			&i.PluginVersion.Version,
+			&i.PluginVersion.Label,
+			&i.PluginVersion.Notes,
+			&i.PluginVersion.BundleSha256,
+			&i.PluginVersion.BundleSize,
+			&i.PluginVersion.SourceMapSha256,
+			&i.PluginVersion.RequiredFeatures,
+			&i.PluginVersion.MinRuntime,
+			&i.PluginVersion.Signature,
+			&i.PluginVersion.KeyID,
+			&i.PluginVersion.Algorithm,
+			&i.PluginVersion.EnvironmentID,
+			&i.PluginVersion.SourceSnapshotID,
+			&i.PluginVersion.Sources,
+			&i.PluginVersion.PublishedByKind,
+			&i.PluginVersion.PublishedByID,
+			&i.PluginVersion.PublishedBy,
+			&i.PluginVersion.CreatedAt,
+			&i.PluginVersion.NativeUses,
+			&i.Released,
 		); err != nil {
 			return nil, err
 		}

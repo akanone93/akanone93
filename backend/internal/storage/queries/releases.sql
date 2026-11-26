@@ -74,10 +74,15 @@ SELECT v.* FROM plugin_versions v
  LIMIT 1;
 
 -- name: ListVersions :many
-SELECT * FROM plugin_versions
- WHERE app_id = $1 AND plugin_id IS NOT DISTINCT FROM sqlc.narg(plugin_id)::uuid
-   AND version < sqlc.arg(before_version)::bigint
- ORDER BY version DESC
+-- The versions of a plugin, or with a null plugin of the app's own bundle,
+-- newest first, each with whether a release holds it: a cancelled request
+-- builds versions that no release holds.
+SELECT sqlc.embed(v),
+       EXISTS (SELECT 1 FROM release_versions rv WHERE rv.plugin_version_id = v.id)::bool AS released
+  FROM plugin_versions v
+ WHERE v.app_id = $1 AND v.plugin_id IS NOT DISTINCT FROM sqlc.narg(plugin_id)::uuid
+   AND v.version < sqlc.arg(before_version)::bigint
+ ORDER BY v.version DESC
  LIMIT sqlc.arg(page_size);
 
 -- name: NextReleaseSequence :one

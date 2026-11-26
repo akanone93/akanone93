@@ -419,6 +419,7 @@ func versionProto(v release.Version) *pluxv1.PluginVersion {
 		BundleSha256: v.BundleSHA256, BundleSize: v.BundleSize, RequiredFeatures: v.RequiredFeatures,
 		MinRuntime: v.MinRuntime, Signature: v.Signature, KeyId: v.KeyID, Algorithm: v.Algorithm,
 		SourceSnapshotId: v.SourceSnapshotID, PublishedBy: actorProto(v.PublishedBy), CreatedAt: ts(v.CreatedAt),
+		Released: v.Released,
 	}
 }
 
