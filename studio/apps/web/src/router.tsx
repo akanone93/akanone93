@@ -407,10 +407,10 @@ function localisationRoute(path: string, component: "LocalisationPage" | "Heatma
 const localisationGridRoute = localisationRoute("", "LocalisationPage");
 const localisationHeatmapRoute = localisationRoute("/heatmap", "HeatmapPage");
 
-/** A6-A9: experiments, the wizard, one experiment and the flags (STU-103); actions are gated by experiments.manage and flags.manage. */
+/** A6-A9: experiments, the wizard, one experiment, the flags and the segments (STU-103); actions are gated by experiments.manage, flags.manage and, for segments (draft documents), app.manage. */
 function experimentsRoute(
   path: string,
-  component: "ExperimentsPage" | "NewExperimentPage" | "ExperimentPage" | "FlagsPage",
+  component: "ExperimentsPage" | "NewExperimentPage" | "ExperimentPage" | "FlagsPage" | "SegmentsPage",
   search: typeof experimentsSearchSchema | typeof newExperimentSearchSchema | typeof releaseEnvSearchSchema,
 ) {
   return createRoute({
@@ -425,6 +425,7 @@ function experimentsRoute(
 const experimentsListRoute = experimentsRoute("", "ExperimentsPage", experimentsSearchSchema);
 const newExperimentRoute = experimentsRoute("/new", "NewExperimentPage", newExperimentSearchSchema);
 const flagsRoute = experimentsRoute("/flags", "FlagsPage", releaseEnvSearchSchema);
+const segmentsRoute = experimentsRoute("/segments", "SegmentsPage", releaseEnvSearchSchema);
 const experimentRoute = experimentsRoute("/$expId", "ExperimentPage", releaseEnvSearchSchema);
 /** O7-O12: the Approvals area (STU-102). Reading needs `app.read`; the break-glass list needs `audit.read` (F14). */
 function approvalsRoute(
@@ -673,6 +674,7 @@ const routeTree = rootRoute.addChildren([
       testRunRoute,
       newExperimentRoute,
       flagsRoute,
+      segmentsRoute,
       experimentRoute,
       securityProfileRoute,
       publishStartRoute,

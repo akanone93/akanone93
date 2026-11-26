@@ -38,6 +38,7 @@ export function ExperimentsTabs(): ReactElement {
       tabs={[
         { href: base, label: m.listTitle, icon: "funnel", exact: true },
         { href: `${base}/flags`, label: m.flagsLink, icon: "toggle-right" },
+        { href: `${base}/segments`, label: m.segmentsLink, icon: "users" },
       ]}
     />
   );

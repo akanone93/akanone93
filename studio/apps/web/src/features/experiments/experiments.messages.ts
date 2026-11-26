@@ -380,6 +380,94 @@ export function experimentsMessages(i18n: I18n) {
       comment: "Button that loads a flag into the form.",
     }),
     deleteFlag: i18n._({ id: "experiments.deleteFlag", message: "Delete", comment: "Button that deletes a flag." }),
+    segmentsLink: i18n._({
+      id: "experiments.segmentsLink",
+      message: "Segments",
+      comment: "Tab of the Experiments area that lists the app's segments.",
+    }),
+    segmentsTitle: i18n._({
+      id: "experiments.segmentsTitle",
+      message: "Segments",
+      comment: "Title of the page that lists the app's segments.",
+    }),
+    segmentsCaption: i18n._({
+      id: "experiments.segmentsCaption",
+      message: "Named audiences of the app. Flags, experiments and rollouts name a segment by its key.",
+      comment: "Caption of the segments page.",
+    }),
+    noSegments: i18n._({
+      id: "experiments.noSegments",
+      message: "No segments yet.",
+      comment: "Shown when the app has no segment.",
+    }),
+    segmentKeyField: i18n._({
+      id: "experiments.segmentKeyField",
+      message: "Segment key",
+      comment: "Label of the key of a segment, and the heading of its column.",
+    }),
+    segmentNameField: i18n._({
+      id: "experiments.segmentNameField",
+      message: "Name",
+      comment: "Label of the name of a segment, and the heading of its column.",
+    }),
+    segmentDescriptionField: i18n._({
+      id: "experiments.segmentDescriptionField",
+      message: "Description",
+      comment: "Label of the description of a segment.",
+    }),
+    segmentConditionsField: i18n._({
+      id: "experiments.segmentConditionsField",
+      message: "Conditions",
+      comment: "Label of the conditions of a segment, one per line.",
+    }),
+    segmentConditionsHelp: i18n._({
+      id: "experiments.segmentConditionsHelp",
+      message:
+        "One condition per line, all of which must hold: an attribute, an operator and a value, such as user.segment eq beta or region in DE, AT.",
+      comment: "Help under the conditions of a segment. Do not translate the example attributes, operators and values.",
+    }),
+    badSegmentKey: i18n._({
+      id: "experiments.badSegmentKey",
+      message: "A segment key is lower case letters, digits and hyphens, and starts with a letter.",
+      comment: "Shown when a segment key is not valid.",
+    }),
+    badSegmentConditions: i18n._({
+      id: "experiments.badSegmentConditions",
+      message: "Each line must be an attribute, one of eq, neq, in, notIn, lt, lte, gt, gte, and a value.",
+      comment: "Shown when a line of the conditions is not a condition. Do not translate the operators.",
+    }),
+    segmentRuleHead: i18n._({
+      id: "experiments.segmentRuleHead",
+      message: "Conditions",
+      comment: "Heading of the column with the conditions of each segment.",
+    }),
+    segmentRuleComplex: i18n._({
+      id: "experiments.segmentRuleComplex",
+      message: "A rule with groups: edit it in the app's JSON editor.",
+      comment: "Shown instead of the conditions of a segment whose rule has any-of or nested groups.",
+    }),
+    newSegmentHeading: i18n._({
+      id: "experiments.newSegmentHeading",
+      message: "New segment",
+      comment: "Heading of the form that creates a segment.",
+    }),
+    editSegmentHeading: (key: string) =>
+      i18n._({
+        id: "experiments.editSegmentHeading",
+        message: "Edit segment {key}",
+        comment: "Heading of the form that edits a segment.",
+        values: { key },
+      }),
+    saveSegment: i18n._({
+      id: "experiments.saveSegment",
+      message: "Save segment",
+      comment: "Button that saves a segment to the app's draft.",
+    }),
+    cancelEdit: i18n._({
+      id: "experiments.cancelEdit",
+      message: "Cancel",
+      comment: "Button that leaves the edit of a segment without saving.",
+    }),
     declaredHeading: i18n._({
       id: "experiments.declaredHeading",
       message: "Flags the app declares",

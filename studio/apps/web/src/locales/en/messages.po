@@ -1540,6 +1540,12 @@ msgstr "A part of the file was larger than the server accepts. Upload the file a
 msgid "publish.reportsBlocked"
 msgstr "A report has errors. Open Problems, fix them and freeze again."
 
+#. Shown instead of the conditions of a segment whose rule has any-of or nested groups.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentRuleComplex"
+msgstr "A rule with groups: edit it in the app's JSON editor."
+
 #. Title shown when a page needs a session signed in with a second factor.
 #. js-lingui-explicit-id
 #: apps/web/src/components/refusal.messages.ts
@@ -1551,6 +1557,12 @@ msgstr "A second factor is required"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.keys.caption"
 msgstr "A security key or passkey is your second factor: you sign in with it, and confirm publishing, approvals and command-line sign-ins with it."
+
+#. Shown when a segment key is not valid.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.badSegmentKey"
+msgstr "A segment key is lower case letters, digits and hyphens, and starts with a letter."
 
 #. Explains which images work as the app icon.
 #. js-lingui-explicit-id
@@ -3738,6 +3750,12 @@ msgstr "Cancel"
 msgid "gateway.cancel"
 msgstr "Cancel"
 
+#. Button that leaves the edit of a segment without saving.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.cancelEdit"
+msgstr "Cancel"
+
 #. Dialog button.
 #. js-lingui-explicit-id
 #: apps/web/src/features/editor/lock.messages.ts
@@ -4866,6 +4884,18 @@ msgstr "Condition"
 msgid "condition.title"
 msgstr "Conditions"
 
+#. Label of the conditions of a segment, one per line.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentConditionsField"
+msgstr "Conditions"
+
+#. Heading of the column with the conditions of each segment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentRuleHead"
+msgstr "Conditions"
+
 #. Field label.
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
@@ -5922,6 +5952,12 @@ msgstr "Description"
 msgid "experiments.flagDescription"
 msgstr "Description"
 
+#. Label of the description of a segment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentDescriptionField"
+msgstr "Description"
+
 #. Label of the app description field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
@@ -6540,6 +6576,12 @@ msgstr "Each editor opens over the canvas; Close or Escape returns here."
 msgid "newApp.environments.hint"
 msgstr "Each environment has its own variables, secrets, signing keys and devices."
 
+#. Shown when a line of the conditions is not a condition. Do not translate the operators.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.badSegmentConditions"
+msgstr "Each line must be an attribute, one of eq, neq, in, notIn, lt, lte, gt, gte, and a value."
+
 #. Error under the per-segment values of a flag.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -6629,6 +6671,12 @@ msgstr "Edit in action graph"
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.openEditor"
 msgstr "Edit in the Rust editor"
+
+#. Heading of the form that edits a segment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.editSegmentHeading"
+msgstr "Edit segment {key}"
 
 #. Accessible name of the field that edits a text in place on the canvas.
 #. js-lingui-explicit-id
@@ -11111,6 +11159,12 @@ msgstr "Name"
 msgid "gateway.field.name"
 msgstr "Name"
 
+#. Label of the name of a segment, and the heading of its column.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentNameField"
+msgstr "Name"
+
 #. Label of a name field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/designers/designers.messages.ts
@@ -11212,6 +11266,12 @@ msgstr "Name, icons, identifiers, version, permissions and push of the installed
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.fieldUsers"
 msgstr "Named approvers (comma separated)"
+
+#. Caption of the segments page.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentsCaption"
+msgstr "Named audiences of the app. Flags, experiments and rollouts name a segment by its key."
 
 #. Short description of a requirement.
 #. js-lingui-explicit-id
@@ -11500,6 +11560,12 @@ msgstr "New screen"
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
 msgid "pluginCanvas.untitled"
 msgstr "New screen"
+
+#. Heading of the form that creates a segment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.newSegmentHeading"
+msgstr "New segment"
 
 #. Diff label.
 #. js-lingui-explicit-id
@@ -12070,6 +12136,12 @@ msgstr "No screenshot"
 #: apps/web/src/features/profile/profile.messages.ts
 msgid "profile.keys.empty"
 msgstr "No security key yet. Add one to publish, approve and sign in to the command line."
+
+#. Shown when the app has no segment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.noSegments"
+msgstr "No segments yet."
 
 #. Shown for a command without a shortcut.
 #. js-lingui-explicit-id
@@ -12658,6 +12730,12 @@ msgstr "On the device"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.stagesSequential"
 msgstr "One after the other"
+
+#. Help under the conditions of a segment. Do not translate the example attributes, operators and values.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentConditionsHelp"
+msgstr "One condition per line, all of which must hold: an attribute, an operator and a value, such as user.segment eq beta or region in DE, AT."
 
 #. Description of the dialog.
 #. js-lingui-explicit-id
@@ -16029,6 +16107,12 @@ msgstr "Save scenario"
 msgid "devices.screenshotSave"
 msgstr "Save screenshot"
 
+#. Button that saves a segment to the app's draft.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.saveSegment"
+msgstr "Save segment"
+
 #. Command: save the selected nodes as a template.
 #. js-lingui-explicit-id
 #: apps/web/src/features/library/canvas/canvas.messages.ts
@@ -16653,11 +16737,29 @@ msgstr "See the licence"
 msgid "experiments.segmentNameLabel"
 msgstr "Segment key"
 
+#. Label of the key of a segment, and the heading of its column.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentKeyField"
+msgstr "Segment key"
+
 #. Help under the segment field.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.segmentHelp"
 msgstr "Segment keys separated by commas; a device in any of them is eligible. Leave empty to reach every subject."
+
+#. Tab of the Experiments area that lists the app's segments.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentsLink"
+msgstr "Segments"
+
+#. Title of the page that lists the app's segments.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.segmentsTitle"
+msgstr "Segments"
 
 #. Canvas tool that selects and moves plugins; a press on the background draws a selection box.
 #. js-lingui-explicit-id

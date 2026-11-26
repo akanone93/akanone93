@@ -5,3 +5,4 @@ export { ExperimentPage } from "./experiment-page.tsx";
 export { ExperimentsPage } from "./experiments-page.tsx";
 export { FlagsPage } from "./flags-page.tsx";
 export { NewExperimentPage } from "./new-experiment-page.tsx";
+export { SegmentsPage } from "./segments-page.tsx";
