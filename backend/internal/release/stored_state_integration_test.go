@@ -56,6 +56,10 @@ func TestPublishChecksStoredState(t *testing.T) {
 	if job := f.publish(t, f.loans, false); job.State != release.StateSucceeded || job.Version != 1 {
 		t.Fatalf("the first version: %+v", job)
 	}
+	// Devices store what a release holds.
+	if _, diags, err := f.rel.CreateRelease(ctx, f.owner, f.app, f.envs["development"].ID, nil, ""); err != nil || diags.HasErrors() {
+		t.Fatalf("the first release: %v %v", diags, err)
+	}
 	put(head + `"type": "string", "default": ""}`)
 	if job := f.publish(t, f.loans, false); job.State != release.StateFailed || !hasCode(job.Diagnostics, plxerr.StateMigrationRequired) {
 		t.Errorf("a type change without a migration: %+v", job)
@@ -67,5 +71,11 @@ func TestPublishChecksStoredState(t *testing.T) {
 	put(head + `"type": "string", "default": "", "migration": {"from": "int", "value": {"$expr": "string(previous)"}}}`)
 	if job := f.publish(t, f.loans, false); job.State != release.StateSucceeded || job.Version != 2 {
 		t.Errorf("a type change with a migration: %+v", job)
+	}
+	// Version 2 reached no device (no release holds it): devices still store the int of the release, so the
+	// migration is still needed (row 298).
+	put(head + `"type": "string", "default": ""}`)
+	if job := f.publish(t, f.loans, false); job.State != release.StateFailed || !hasCode(job.Diagnostics, plxerr.StateMigrationRequired) {
+		t.Errorf("a type change against the release, after a version no release holds: %+v", job)
 	}
 }

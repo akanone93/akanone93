@@ -885,12 +885,13 @@ func (s *Service) hostBuildChecks(ctx context.Context, p auth.Principal, row dbg
 }
 
 // storedStateChecks compares what devices store of the published bundle
-// with the bundle's latest version, which is newer than any release
-// devices hold: a session, persisted or secure state entry whose type
-// changed needs a migration from the previous type or a reset (STA-040),
-// and a changed collection needs a new version, a plan where data would
-// be lost, and a warning the publisher acknowledges (DB-005). The first
-// version of a bundle needs nothing.
+// with the bundle's newest version a release holds, which is what devices
+// store now (STA-040): a session, persisted or secure state entry whose type
+// changed needs a migration from the previous type or a reset, and a changed
+// collection needs a new version, a plan where data would be lost, and a
+// warning the publisher acknowledges (DB-005). A version no release holds —
+// built for a request that was cancelled — reached no device and does not
+// count (build log row 298). A bundle no release holds yet needs nothing.
 func (s *Service) storedStateChecks(ctx context.Context, p auth.Principal, row dbgen.PublishJob, c compiled) (plxerr.Diagnostics, error) {
 	data, err := s.previousBundle(ctx, p, row)
 	if err != nil || data == nil {
@@ -913,7 +914,7 @@ func (s *Service) storedStateChecks(ctx context.Context, p auth.Principal, row d
 func (s *Service) previousBundle(ctx context.Context, p auth.Principal, row dbgen.PublishJob) ([]byte, error) {
 	var prev []byte
 	if err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		v, err := dbgen.New(tx).LatestVersion(ctx, dbgen.LatestVersionParams{AppID: row.AppID, PluginID: row.PluginID})
+		v, err := dbgen.New(tx).LatestReleasedVersion(ctx, dbgen.LatestReleasedVersionParams{AppID: row.AppID, PluginID: row.PluginID})
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil
 		}
