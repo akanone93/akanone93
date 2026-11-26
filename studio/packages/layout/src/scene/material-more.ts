@@ -323,10 +323,92 @@ const segmentedButton: Builder = (node, ctx) => {
   });
 };
 
-/** A vertical `Stepper`: 72-px step headers and, below the current step, its controls. */
+/** A box named as a part of `node` (`<id>#<name>`), which its painter draws in. */
+function part(node: SceneNode, name: string, box: RenderBox): RenderBox {
+  box.debugId = `${node.id}#${name}`;
+  return box;
+}
+
+/**
+ * A horizontal `Stepper` as Flutter's `_buildHorizontal` lays it out (build log row 295): a 72-high header, 24 in from
+ * each side, of each step's 24-wide circle with its title 12 after it, the steps joined by 1-high connectors 8 from
+ * them that share the rest of the row; below it the current step's room, padded 24. Flutter gives that room the rest of
+ * a bounded height; a canvas has none, so it is the vertical stepper's.
+ */
+function horizontalStepper(node: SceneNode, ctx: MaterialContext): RenderBox {
+  const steps = records(node.props["steps"]);
+  const items: RenderBox[] = [];
+  steps.forEach((step, index) => {
+    const title = part(
+      node,
+      `htitle${index}`,
+      label(node, `title${index}`, String(step["title"] ?? ""), ctx, style("bodyLarge")),
+    );
+    items.push(
+      new RenderFlex({
+        direction: Axis.horizontal,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        textDirection: ctx.direction,
+        children: [
+          part(
+            node,
+            `hcircle${index}`,
+            new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ width: 24, height: 72 }) }),
+          ),
+          new RenderPadding({
+            padding: EdgeInsetsDirectional.only({ start: 12 }),
+            textDirection: ctx.direction,
+            child: title,
+          }),
+        ],
+      }),
+    );
+    if (index < steps.length - 1) {
+      items.push(
+        expanded(
+          new RenderPadding({
+            padding: EdgeInsets.symmetric({ horizontal: 8 }),
+            textDirection: ctx.direction,
+            child: part(
+              node,
+              `hline${index}`,
+              new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ height: 1 }) }),
+            ),
+          }),
+        ),
+      );
+    }
+  });
+  const header = new RenderConstrainedBox({
+    additionalConstraints: BoxConstraints.tightFor({ height: 72 }),
+    child: new RenderPadding({
+      padding: EdgeInsets.symmetric({ horizontal: 24 }),
+      textDirection: ctx.direction,
+      child: new RenderFlex({
+        direction: Axis.horizontal,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        textDirection: ctx.direction,
+        children: items,
+      }),
+    }),
+  });
+  const room = new RenderPadding({
+    padding: EdgeInsets.all(24),
+    textDirection: ctx.direction,
+    child: new RenderConstrainedBox({ additionalConstraints: BoxConstraints.tightFor({ height: 64 }) }),
+  });
+  return new RenderConstrainedBox({
+    additionalConstraints: new BoxConstraints({ minWidth: Number.POSITIVE_INFINITY }),
+    child: column([header, room], CrossAxisAlignment.stretch),
+  });
+}
+
+/** A `Stepper`: a vertical one's 72-px step headers and, below the current step, its controls; or a horizontal one. */
 const stepper: Builder = (node, ctx) => {
   if (node.props["type"] === "horizontal") {
-    throw new Error(`node "${node.id}": a horizontal Stepper needs a bounded height`);
+    return horizontalStepper(node, ctx);
   }
   const steps = records(node.props["steps"]);
   const current = num(node, "currentStep", 0);

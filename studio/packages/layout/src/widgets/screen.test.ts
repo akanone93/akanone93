@@ -1132,6 +1132,56 @@ describe("bound content on painted screens (build log row 138) [STU-005]", () =>
     expect(painted?.boxes?.[0]?.border).toMatchObject({ kind: "all" });
   });
 
+  test("a NestedScrollView takes its header slivers and its body from the document's slots (row 295)", () => {
+    const layout = layoutScreen(
+      {
+        id: "nested",
+        type: "NestedScrollView",
+        slots: {
+          headerSlivers: { id: "bar", type: "SliverAppBar", slots: { title: text("title", "Education") } },
+          body: { id: "list", type: "Column", children: [text("row", "Nordvia Bank")] },
+        },
+      },
+      { engine, theme, paint },
+    );
+    expect(layout.unbuilt).toBeUndefined();
+    expect(textsOf(layout, "title")).toEqual(["Education"]);
+    expect(textsOf(layout, "row")).toEqual(["Nordvia Bank"]);
+    const bar = layout.boxes.find((b) => b.id === "title");
+    const row = layout.boxes.find((b) => b.id === "row");
+    expect((row?.y ?? 0) > (bar?.y ?? 0)).toBe(true);
+  });
+
+  test("a horizontal Stepper lays its steps out in a row, joined by connectors, and paints them (row 295)", () => {
+    const layout = layoutScreen(
+      column({
+        id: "steps",
+        type: "Stepper",
+        props: {
+          type: "horizontal",
+          currentStep: 1,
+          steps: [
+            { title: "ID", state: "complete", isActive: true },
+            { title: "Selfie", isActive: true },
+            { title: "Address" },
+          ],
+        },
+      }),
+      { engine, theme, paint },
+    );
+    expect(layout.unbuilt).toBeUndefined();
+    const rect = (name: string) => layout.boxes.find((b) => b.id === `steps#${name}`);
+    const circles = [0, 1, 2].map((i) => rect(`hcircle${i}`));
+    expect(circles.every((c) => c?.w === 24 && c.h === 72)).toBe(true);
+    // In a row, start to end, with a connector between each pair that shares the rest of the row.
+    expect((circles[0]?.x ?? 0) < (circles[1]?.x ?? 0) && (circles[1]?.x ?? 0) < (circles[2]?.x ?? 0)).toBe(true);
+    expect(rect("hline0")?.h).toBe(1);
+    expect(rect("hline1")?.w).toBeCloseTo(rect("hline0")?.w ?? 0, 0);
+    const painted = layout.boxes.find((b) => b.id === "steps")?.paint;
+    expect(painted?.texts?.map((t) => t.text)).toEqual(["ID", "2", "Selfie", "3", "Address"]);
+    expect(painted?.glyphs?.map((g) => g.name)).toEqual(["check"]);
+  });
+
   test("a RangeSlider paints its track, the range between its values and a thumb at each end", () => {
     const layout = layoutScreen(
       column({

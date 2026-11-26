@@ -135,10 +135,48 @@ interface Out {
   glyphs: PlacedGlyph[];
 }
 
-/** The paint of a vertical `Stepper` in `r`; undefined when it has no steps or runs across. */
-export function stepperPaint(props: Obj, r: Rect, theme: PaintTheme): StepperPaint | undefined {
+/**
+ * A horizontal `Stepper` (build log row 295): each step's circle and title where the layout put them (its parts
+ * `hcircle<i>`, `htitle<i>`), and the connectors between them (`hline<i>`).
+ */
+function horizontalPaint(steps: readonly Step[], f: Frame, part: (name: string) => Rect | undefined): StepperPaint {
+  const out: Out = { boxes: [], texts: [], glyphs: [] };
+  steps.forEach((step, index) => {
+    const circle = part(`hcircle${index}`);
+    if (circle !== undefined) {
+      drawCircle(step, index, circle.x + circle.w / 2, circle.y + circle.h / 2, f, out);
+    }
+    const title = part(`htitle${index}`);
+    if (title !== undefined) {
+      out.texts.push({
+        text: step.title,
+        x: title.x,
+        y: title.y,
+        w: title.w + 1,
+        style: f.title,
+        color: textColor(step, f),
+      });
+    }
+    const line = part(`hline${index}`);
+    if (line !== undefined) {
+      out.boxes.push({ ...line, fill: LINE_COLOR });
+    }
+  });
+  return out;
+}
+
+/**
+ * The paint of a `Stepper` in `r`; undefined when it has no steps, or runs across and its parts are not laid out
+ * (`part` gives the rect of one, by name).
+ */
+export function stepperPaint(
+  props: Obj,
+  r: Rect,
+  theme: PaintTheme,
+  part?: (name: string) => Rect | undefined,
+): StepperPaint | undefined {
   const steps = stepsOf(props);
-  if (steps.length === 0 || props["type"] === "horizontal") {
+  if (steps.length === 0 || (props["type"] === "horizontal" && part === undefined)) {
     return undefined;
   }
   const scale = typeScaleOf(theme);
@@ -152,6 +190,9 @@ export function stepperPaint(props: Obj, r: Rect, theme: PaintTheme): StepperPai
     subtitle: { ...bodySmall, italic: false },
     number: { ...bodySmall, size: 12, height: 1, letterSpacing: 0, italic: false },
   };
+  if (props["type"] === "horizontal" && part !== undefined) {
+    return horizontalPaint(steps, f, part);
+  }
   const current = typeof props["currentStep"] === "number" ? props["currentStep"] : 0;
   const cx = f.rtl ? r.x + r.w - MARGIN - CIRCLE / 2 : r.x + MARGIN + CIRCLE / 2;
   const line = (y: number, h: number): BoxPaint => ({ x: cx - 0.5, y, w: 1, h, fill: LINE_COLOR });

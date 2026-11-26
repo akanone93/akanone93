@@ -78,7 +78,8 @@ interface Painted {
   readonly opacity?: number;
 }
 
-type Painter = (props: Obj, r: Rect, theme: PaintTheme) => Painted;
+/** A widget's painter: its props, its rect and the theme, and the rects of its named parts (`<id>#<name>`). */
+type Painter = (props: Obj, r: Rect, theme: PaintTheme, part: (name: string) => Rect | undefined) => Painted;
 
 const CARD_RADII: Radii = [12, 12, 12, 12];
 
@@ -270,7 +271,7 @@ const painters: ReadonlyMap<string, Painter> = new Map<string, Painter>([
   ["SecurePinPad", securePinPadPaint],
   ["CurrencyPicker", (props, r, theme) => pickerPaint(props, r, theme, "currency")],
   ["CountryPicker", (props, r, theme) => pickerPaint(props, r, theme, "country")],
-  ["Stepper", (props, r, theme) => stepperPaint(props, r, theme) ?? {}],
+  ["Stepper", (props, r, theme, part) => stepperPaint(props, r, theme, part) ?? {}],
   ["Image", image],
   ["CircleAvatar", circleAvatar],
   ["Container", container],
@@ -730,7 +731,7 @@ function ownPaintOf(node: PaintNode, r: Rect, theme: PaintTheme, rects: Readonly
     (surface === undefined ? undefined : { boxes: surface }) ??
     (layer2 === undefined ? undefined : { boxes: layer2.boxes, parts: layer2.parts }) ??
     (control === undefined ? undefined : { boxes: control(node, r, theme) }) ??
-    painters.get(type)?.(node.props ?? {}, r, theme) ??
+    painters.get(type)?.(node.props ?? {}, r, theme, (name) => rects.get(`${node.id}#${name}`)) ??
     {}
   );
 }

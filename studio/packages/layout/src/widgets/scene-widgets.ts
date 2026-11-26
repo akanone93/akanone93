@@ -334,10 +334,15 @@ function sceneChildren(node: WidgetNode, bridge: Bridge, deep: boolean): SceneNo
     return listed === undefined ? converted : { ...converted, slot: listed };
   });
   const slots = slotChildren(node, bridge, deep);
-  // A NestedScrollView's body is its last child; the header slivers come before it.
-  return type === "NestedScrollView"
-    ? [...children, ...slots.filter((s) => s.slot === undefined)]
-    : [...children, ...slots];
+  if (type === "NestedScrollView") {
+    // A NestedScrollView's body is its last child; the header slivers come before it. A document gives them as its
+    // `headerSlivers` and `body` slots (build log row 295).
+    const unslotted = (list: SceneNode[]) => list.map(({ slot: _slot, ...c }) => c as SceneNode);
+    const headers = slots.filter((s) => s.slot === "headerSlivers");
+    const body = slots.filter((s) => s.slot === "body" || s.slot === undefined);
+    return [...children, ...unslotted(headers), ...unslotted(body)];
+  }
+  return [...children, ...slots];
 }
 
 /** Types that need a bounded height, which a screen does not give: they are drawn in a box of the theme's viewport height. */
