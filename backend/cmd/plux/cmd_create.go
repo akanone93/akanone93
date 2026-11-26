@@ -209,13 +209,18 @@ func projectInput(ctx context.Context, cl *clients, c common, env, channel strin
 		return generator.Input{}, baseline{}, fmt.Errorf("create a directory for the release: %w", err)
 	}
 	defer func() { _ = os.RemoveAll(pulled) }()
-	base, err := pullBaseline(ctx, cl, c, env, channel, pulled, false)
+	base, sealed, err := pullBaseline(ctx, cl, c, env, channel, pulled, false, true)
 	if err != nil {
 		return generator.Input{}, baseline{}, err
 	}
 	in, err := createInput(pulled, base)
 	if err != nil {
 		return generator.Input{}, baseline{}, err
+	}
+	if sealed {
+		// The shell is read from the bundles, but a confidential release is not embedded: the project gets its
+		// keys alone and syncs the release on first launch, as Studio's download does (build log row 294).
+		in.Baseline = keysOnly(in.Baseline)
 	}
 	if in.DevKeys, err = devKeys(ctx, cl, c.app); err != nil {
 		return generator.Input{}, baseline{}, err
@@ -347,6 +352,18 @@ func ownRepository(env []string) []string {
 			continue
 		}
 		out = append(out, kv)
+	}
+	return out
+}
+
+// keysOnly is the part of a pulled baseline a confidential release embeds:
+// its keys and root, never its bundles, assets or baseline.json.
+func keysOnly(tree map[string][]byte) map[string][]byte {
+	out := map[string][]byte{}
+	for _, name := range []string{"keys.json", "root.json"} {
+		if data, ok := tree[name]; ok {
+			out[name] = data
+		}
 	}
 	return out
 }

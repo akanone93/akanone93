@@ -74,6 +74,18 @@ func (m ReleaseMaker) Create(ctx context.Context, p auth.Principal, appID, envir
 	return r.Sequence, nil
 }
 
+// Check implements Releaser.
+func (m ReleaseMaker) Check(ctx context.Context, p auth.Principal, appID, environmentID string, versions map[string]int64) error {
+	diags, err := m.Releases.CheckRelease(ctx, p, appID, environmentID, versions)
+	if err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if diags.HasErrors() {
+		return plxerr.New(plxerr.ReleaseInconsistent, "the release cannot be made in this environment: %s", summarise(diags))
+	}
+	return nil
+}
+
 // Promote implements Releaser.
 func (m ReleaseMaker) Promote(ctx context.Context, p auth.Principal, appID string, sequence int64, environmentID, channel string) error {
 	_, err := m.Releases.PromoteRelease(ctx, p, appID, sequence, environmentID, channel)

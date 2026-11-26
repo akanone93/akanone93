@@ -117,7 +117,14 @@ func (f *fakeFunctions) Catalogue(_ context.Context, organizationID, appID, envi
 
 // fakeReleaser records the releases it makes.
 type fakeReleaser struct {
-	created, promoted int
+	created, promoted, checked int
+	// refuse is what Check says of every set, when not nil.
+	refuse error
+}
+
+func (r *fakeReleaser) Check(context.Context, auth.Principal, string, string, map[string]int64) error {
+	r.checked++
+	return r.refuse
 }
 
 func (r *fakeReleaser) Create(context.Context, auth.Principal, string, string, map[string]int64, string) (int64, error) {
@@ -817,5 +824,35 @@ func TestParkedVisualDiffIsSkipped_STU_100(t *testing.T) {
 	}
 	if k.queue.count() != 0 {
 		t.Errorf("%d renders queued; none was asked for", k.queue.count())
+	}
+}
+
+// A request whose builds could not be made a release in its environment
+// stops at the target step with why, before approval (build log row 301).
+func TestTargetChecksTheRelease_STU_100(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	k := f.requests(t, 1)
+	ctx := context.Background()
+	r := toDiffsStep(t, f, k, "production", 1)
+	for _, step := range []releasereq.Step{{Kind: releasereq.StateDiffs}, {Kind: releasereq.StateChangelog}} {
+		var err error
+		if r, err = k.svc.Advance(ctx, f.owner, f.app, r.ID, step); err != nil {
+			t.Fatalf("%s: %v", step.Kind, err)
+		}
+	}
+	k.releaser.refuse = plxerr.New(plxerr.ReleaseInconsistent, "the environment has no upstream \"orgs\" registered")
+	if _, err := k.svc.Advance(ctx, f.owner, f.app, r.ID, releasereq.Step{Kind: releasereq.StateTarget}); !codeIs(err, plxerr.ReleaseInconsistent) {
+		t.Fatalf("a release the environment cannot serve: %v", err)
+	}
+	if got, err := k.svc.Get(ctx, f.owner, f.app, r.ID); err != nil || got.State != releasereq.StateTarget {
+		t.Fatalf("after the refusal = %+v, %v; want the target step", got, err)
+	}
+	k.releaser.refuse = nil
+	if got, err := k.svc.Advance(ctx, f.owner, f.app, r.ID, releasereq.Step{Kind: releasereq.StateTarget}); err != nil || got.State != releasereq.StateApproval {
+		t.Fatalf("once it can = %+v, %v; want the approval step", got, err)
+	}
+	if k.releaser.checked != 2 || k.releaser.created != 0 {
+		t.Errorf("checked %d, created %d; want 2 checks and no release", k.releaser.checked, k.releaser.created)
 	}
 }

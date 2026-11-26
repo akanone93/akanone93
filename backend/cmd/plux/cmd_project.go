@@ -792,9 +792,12 @@ func (e env) pull(args []string) int {
 	if err != nil {
 		return e.fail("pull", err)
 	}
-	b, err := pullBaseline(context.Background(), cl, c, *envKey, *channel, *out, true)
+	b, sealed, err := pullBaseline(context.Background(), cl, c, *envKey, *channel, *out, true, false)
 	if err != nil {
 		return e.fail("pull", err)
+	}
+	if sealed {
+		return e.emit(c.json, b, fmt.Sprintf("%s/%s holds confidential release %d, which is delivered sealed: pulled its %d keys into %s, not its bundles. The app syncs the release on first launch.", *envKey, *channel, b.Sequence, len(b.Keys), *out))
 	}
 	if b.Sequence == 0 {
 		return e.emit(c.json, b, fmt.Sprintf("%s/%s has no release yet: pulled its %d keys into %s. The app syncs its first release when one is published.", *envKey, *channel, len(b.Keys), *out))
@@ -802,57 +805,89 @@ func (e env) pull(args []string) int {
 	return e.emit(c.json, b, fmt.Sprintf("Pulled release %d (%d bundles, %d asset files, %d keys) into %s.", b.Sequence, len(b.Bundles), len(b.Assets), len(b.Keys), *out))
 }
 
-func pullBaseline(ctx context.Context, cl *clients, c common, envKey, channel, dir string, keysWithoutRelease bool) (baseline, error) {
+// pullBaseline writes a channel's release into dir as the app's baseline, and
+// says whether the release is confidential (SEC-053). The bundles of a
+// confidential release are written only when sealedBundles asks for them (to
+// read the app's shell from, never to embed): otherwise dir gets its keys
+// alone, as Studio's project download embeds it (build log row 294).
+func pullBaseline(ctx context.Context, cl *clients, c common, envKey, channel, dir string, keysWithoutRelease, sealedBundles bool) (baseline, bool, error) {
 	envID, err := environmentID(ctx, cl, c.app, envKey)
 	if err != nil {
-		return baseline{}, err
+		return baseline{}, false, err
 	}
 	seq, err := channelSequence(ctx, cl, envID, channel)
 	if err != nil {
-		return baseline{}, err
+		return baseline{}, false, err
 	}
 	out := baseline{App: c.app, Environment: envKey, Channel: channel, Sequence: seq, Bundles: []baselineEntry{}, Keys: []baselineKey{}}
 	if seq == 0 {
 		if !keysWithoutRelease {
-			return baseline{}, fmt.Errorf("channel %s/%s has no release", envKey, channel)
+			return baseline{}, false, fmt.Errorf("channel %s/%s has no release", envKey, channel)
 		}
 		// Before a first release the environment's keys are all there is: a host app's debug build embeds them and
-		// syncs its first release when one is published. A baseline.json from an earlier pull is removed, so the app
-		// imports none instead of refusing one made for another channel (#274).
-		if out.Keys, err = pullKeys(ctx, cl, c, envKey, dir); err != nil {
-			return baseline{}, err
-		}
-		if err := os.Remove(filepath.Join(dir, "baseline.json")); err != nil && !errors.Is(err, fs.ErrNotExist) {
-			return baseline{}, fmt.Errorf("remove the earlier baseline: %w", err)
-		}
-		return out, nil
+		// syncs its first release when one is published (#274).
+		out, err = keysAlone(ctx, cl, c, envKey, dir, out)
+		return out, false, err
 	}
 	rel, err := cl.release.GetRelease(ctx, connect.NewRequest(&pluxv1.GetReleaseRequest{AppId: c.app, Sequence: seq}))
 	if err != nil {
-		return baseline{}, err //nolint:wrapcheck // reported as is
+		return baseline{}, false, err //nolint:wrapcheck // reported as is
+	}
+	sealed := sealedRelease(rel.Msg)
+	if sealed && !sealedBundles {
+		// Its published bundles would put the confidential content into the app: the keys alone are embedded, and
+		// the app syncs the release instead.
+		out, err = keysAlone(ctx, cl, c, envKey, dir, out)
+		return out, true, err
 	}
 	if err := os.MkdirAll(filepath.Join(dir, "bundles"), 0o755); err != nil { //nolint:gosec // G301: project files.
-		return baseline{}, fmt.Errorf("create %s: %w", dir, err)
+		return baseline{}, false, fmt.Errorf("create %s: %w", dir, err)
 	}
 	var bundles [][]byte
 	if out.Bundles, bundles, err = cl.writeBundles(ctx, dir, rel.Msg.GetVersions()); err != nil {
-		return baseline{}, err
+		return baseline{}, false, err
 	}
 	files, err := baselineAssetFiles(bundles)
 	if err != nil {
-		return baseline{}, err
+		return baseline{}, false, err
 	}
 	if out.Assets, err = cl.writeAssets(ctx, dir, files); err != nil {
-		return baseline{}, err
+		return baseline{}, false, err
 	}
 	if out.Keys, err = pullKeys(ctx, cl, c, envKey, dir); err != nil {
-		return baseline{}, err
+		return baseline{}, false, err
 	}
 	data, _ := json.MarshalIndent(out, "", "  ")
 	if err := writeFile(filepath.Join(dir, "baseline.json"), append(data, '\n')); err != nil {
+		return baseline{}, false, err
+	}
+	return out, sealed, nil
+}
+
+// keysAlone writes the environment's keys into dir as all of out's baseline,
+// and removes a baseline.json an earlier pull wrote, so the app imports none
+// (instead of refusing one made for another channel) and syncs its release.
+func keysAlone(ctx context.Context, cl *clients, c common, envKey, dir string, out baseline) (baseline, error) {
+	keys, err := pullKeys(ctx, cl, c, envKey, dir)
+	if err != nil {
 		return baseline{}, err
 	}
+	out.Keys = keys
+	if err := os.Remove(filepath.Join(dir, "baseline.json")); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return baseline{}, fmt.Errorf("remove the earlier baseline: %w", err)
+	}
 	return out, nil
+}
+
+// sealedRelease reports whether a release is delivered sealed (SEC-053): made
+// confidential, or holding a bundle that requires confidential delivery.
+func sealedRelease(r *pluxv1.GetReleaseResponse) bool {
+	if r.GetRelease().GetConfidential() {
+		return true
+	}
+	return slices.ContainsFunc(r.GetVersions(), func(v *pluxv1.PluginVersion) bool {
+		return slices.Contains(v.GetRequiredFeatures(), bundle.FeatureConfidential)
+	})
 }
 
 // pullKeys writes the environment's public keys (keys.json) and its root, if an operator uploaded one, into dir.

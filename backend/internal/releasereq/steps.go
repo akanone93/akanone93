@@ -308,7 +308,9 @@ func (s *Service) Advance(ctx context.Context, p auth.Principal, appID, id strin
 			r.ChangelogNotes, r.Label = step.Notes, step.Label
 			r.moveOn()
 		case StateTarget:
-			err = r.retarget(ctx, q, app, step)
+			if err = r.retarget(ctx, q, app, step); err == nil {
+				err = s.releasable(ctx, p, *r)
+			}
 		case StateRollout:
 			err = r.plan(step)
 		default:
@@ -316,6 +318,21 @@ func (s *Service) Advance(ctx context.Context, p auth.Principal, appID, id strin
 		}
 		return err
 	})
+}
+
+// releasable asks whether the request's builds can be made a release in its
+// environment, as the release step will, so that what the environment lacks
+// (a gateway upstream, a function) is said at the target step, before
+// approval (build log row 301).
+func (s *Service) releasable(ctx context.Context, p auth.Principal, r Request) error {
+	if s.o.Releaser == nil {
+		return nil
+	}
+	versions := make(map[string]int64, len(r.Builds))
+	for _, b := range r.Builds {
+		versions[b.PluginKey] = b.Version
+	}
+	return s.o.Releaser.Check(ctx, p, r.AppID, r.EnvironmentID, versions) //nolint:wrapcheck // a domain error
 }
 
 // moveOn goes to the next step and clears the hold.

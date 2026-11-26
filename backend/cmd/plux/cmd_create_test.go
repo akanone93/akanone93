@@ -41,6 +41,43 @@ func serveRelease(t *testing.T, f *fake) {
 	}
 }
 
+// A confidential release is delivered sealed: create reads the shell from
+// its bundles but embeds its keys alone, and pull writes its keys alone,
+// never the bundles (SEC-053, build log row 294).
+// Verifies: GEN-001.
+func TestConfidentialReleaseEmbedsKeysOnly(t *testing.T) { //nolint:paralleltest // the environment is process-wide
+	t.Setenv(tokenEnv, "plux_pat_test")
+	t.Setenv(serverEnv, "")
+	t.Setenv(orgEnv, "")
+	f, url := newFake(t)
+	serveRelease(t, f)
+	f.confidential = true
+	out := filepath.Join(t.TempDir(), "app")
+	code, stdout, stderr := cli(t, t.TempDir(), "create", "--server", url, "--application-id", "com.example.demo", "--bundle-id", "com.example.demo", "--out", out, "demo")
+	if code != exitOK {
+		t.Fatalf("create: %d %s %s", code, stdout, stderr)
+	}
+	if _, err := os.Stat(filepath.Join(out, "assets/plux/keys.json")); err != nil {
+		t.Errorf("no keys: %v", err)
+	}
+	for _, p := range []string{"assets/plux/bundles/_app.pxb", "assets/plux/bundles/nav.pxb", "assets/plux/baseline.json"} {
+		if _, err := os.Stat(filepath.Join(out, p)); err == nil {
+			t.Errorf("%s of a confidential release is embedded", p)
+		}
+	}
+	host := t.TempDir()
+	code, stdout, stderr = cli(t, t.TempDir(), "pull", "--server", url, "--app", "a1", "-o", host)
+	if code != exitOK || !strings.Contains(stdout, "confidential release 3") {
+		t.Fatalf("pull: %d %s %s", code, stdout, stderr)
+	}
+	if entries, err := os.ReadDir(filepath.Join(host, "bundles")); err == nil && len(entries) > 0 {
+		t.Errorf("pull wrote %d bundles of a confidential release", len(entries))
+	}
+	if _, err := os.Stat(filepath.Join(host, "baseline.json")); err == nil {
+		t.Error("pull wrote a baseline.json of a confidential release")
+	}
+}
+
 // TestCreate generates a project from a release into a directory, a zip
 // and a Git remote: the shell from the release's app bundle and the
 // flags, the release embedded with the environment's keys.

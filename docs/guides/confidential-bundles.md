@@ -66,11 +66,10 @@ an older runtime refuses the release before it downloads anything.
   the buffer instead of a memory mapping.
 - **Offline.** A device keeps the sealed release and its wrapped key on disk and opens it at
   launch without the network.
-- **The embedded baseline is not sealed.** `plux pull` writes the published bundles. If the
-  content must stay confidential, do not ship a baseline of it in the app (`baseline: null`);
-  the first launch then needs the network. The project Studio generates (**Native shell ›
-  Host project**) embeds the environment's keys alone for a confidential release, never its
-  bundles, so it never ships one.
+- **No baseline is embedded.** An embedded baseline would not be sealed, so a confidential
+  release is never written into the app: `plux pull` and `plux create` write the
+  environment's keys alone, as the project Studio generates (**Native shell › Host project**)
+  does. The first launch then needs the network to sync the release.
 - **Errors.** `PLX-6050` means the device cannot obtain or use the key: its level is below
   `confidentialMinAssurance`, it has no key-agreement key, or the key does not open the
   content (wrapped for another device or release, or altered). Hash failures are `PLX-3041`

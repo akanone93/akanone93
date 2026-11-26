@@ -61,7 +61,9 @@ type fake struct {
 	// release and blobs, when set, are the release GetRelease returns and
 	// its bundles by hash.
 	release []*pluxv1.PluginVersion
-	blobs   map[string][]byte
+	// confidential makes the served release a confidential one (SEC-053).
+	confidential bool
+	blobs        map[string][]byte
 	// extraPlugins are plugins the app has beside loans; deletedPlugins the
 	// IDs DeletePlugin moved to the trash.
 	extraPlugins   []*pluxv1.Plugin
@@ -258,7 +260,7 @@ func (*fake) ListReleases(context.Context, *connect.Request[pluxv1.ListReleasesR
 
 func (f *fake) GetRelease(context.Context, *connect.Request[pluxv1.GetReleaseRequest]) (*connect.Response[pluxv1.GetReleaseResponse], error) {
 	if f.release != nil {
-		return connect.NewResponse(&pluxv1.GetReleaseResponse{Release: &pluxv1.Release{Sequence: 3}, Versions: f.release}), nil
+		return connect.NewResponse(&pluxv1.GetReleaseResponse{Release: &pluxv1.Release{Sequence: 3, Confidential: f.confidential}, Versions: f.release}), nil
 	}
 	return connect.NewResponse(&pluxv1.GetReleaseResponse{Release: &pluxv1.Release{Sequence: 3}, Versions: []*pluxv1.PluginVersion{
 		{PluginKey: "", Version: 1, BundleSha256: f.hash, KeyId: "k1", Algorithm: "ed25519", Signature: []byte{9, 9}},

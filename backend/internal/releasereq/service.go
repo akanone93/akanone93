@@ -51,6 +51,9 @@ type Releaser interface {
 	Create(ctx context.Context, p auth.Principal, appID, environmentID string, versions map[string]int64, notes string) (int64, error)
 	// Promote points a channel at the release.
 	Promote(ctx context.Context, p auth.Principal, appID string, sequence int64, environmentID, channel string) error
+	// Check says why the versions could not be made a release in the
+	// environment (PLX-8050), or nil when they could; it makes nothing.
+	Check(ctx context.Context, p auth.Principal, appID, environmentID string, versions map[string]int64) error
 }
 
 // RenderQueue enqueues render jobs in the caller's transaction, so that a job

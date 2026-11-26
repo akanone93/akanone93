@@ -142,6 +142,33 @@ func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, en
 	return out, diags, err
 }
 
+// CheckRelease runs the checks CreateRelease makes of a set of versions in an
+// environment — the versions exist, the set is consistent, the environment
+// serves what it reaches (its gateway upstreams, its functions) — and makes
+// nothing: the publish flow asks it when a request is targeted, so that a
+// release that cannot be made says so before approval (build log row 301).
+func (s *Service) CheckRelease(ctx context.Context, p auth.Principal, appID, envID string, chosen map[string]int64) (plxerr.Diagnostics, error) {
+	if err := authorize(p, auth.ReleasePublish, appID); err != nil {
+		return nil, err
+	}
+	var diags plxerr.Diagnostics
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		app, env, err := s.environment(ctx, q, appID, envID)
+		if err != nil {
+			return err
+		}
+		versions, missing, err := s.chooseVersions(ctx, q, app, env, chosen)
+		if err != nil || len(missing) > 0 {
+			diags = missing
+			return err
+		}
+		diags, _, _, err = s.validateSet(ctx, tx, p, appID, env.ID, versions)
+		return err
+	})
+	return diags, err
+}
+
 // chooseVersions picks the version of the app bundle and of every active
 // plugin; plugins with none are reported.
 func (s *Service) chooseVersions(ctx context.Context, q *dbgen.Queries, app pgtype.UUID, env dbgen.Environment, chosen map[string]int64) ([]dbgen.PluginVersion, plxerr.Diagnostics, error) {
