@@ -55,12 +55,15 @@ func (s *Service) Create(ctx context.Context, p auth.Principal, in CreateInput) 
 	if err != nil {
 		return Rollout{}, err
 	}
-	channel, err := s.o.Releases.PrepareRollout(ctx, p, in.AppID, in.EnvironmentID, spec.channel, in.Candidate)
-	if err != nil {
-		return Rollout{}, fmt.Errorf("rollout: %w", err)
-	}
 	var out Rollout
-	err = s.inOrg(ctx, p.OrganizationID, func(ctx context.Context, tx pgx.Tx) error {
+	// One transaction, as the signed-in person: the approval the release
+	// service spends on the rollout is spent only if the rollout is created
+	// (build log row 321).
+	err = s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: p.OrganizationID, UserID: p.UserID}, func(ctx context.Context, tx pgx.Tx) error {
+		channel, err := s.o.Releases.PrepareRollout(ctx, tx, p, in.AppID, in.EnvironmentID, spec.channel, in.Candidate)
+		if err != nil {
+			return err //nolint:wrapcheck // a domain error, wrapped below
+		}
 		row, err := s.insert(ctx, tx, p, in, spec, channel)
 		if err != nil {
 			return err

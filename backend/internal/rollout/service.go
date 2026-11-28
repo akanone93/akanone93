@@ -49,8 +49,9 @@ type LimitsFunc func(ctx context.Context, tx pgx.Tx, organizationID, appID strin
 // Releases is what rollouts need of the release service; *release.Service is
 // one.
 type Releases interface {
-	// PrepareRollout authorises the principal and checks the candidate.
-	PrepareRollout(ctx context.Context, p auth.Principal, appID, envID, channelKey string, candidate int64) (release.RolloutChannel, error)
+	// PrepareRollout authorises the principal, checks the candidate and asks
+	// the approval engine, in the caller's transaction.
+	PrepareRollout(ctx context.Context, tx pgx.Tx, p auth.Principal, appID, envID, channelKey string, candidate int64) (release.RolloutChannel, error)
 	// PromoteRelease points a channel at a release.
 	PromoteRelease(ctx context.Context, p auth.Principal, appID string, sequence int64, envID, channelKey string) (release.Release, error)
 	// RollbackRelease creates a release equal to an earlier one and points

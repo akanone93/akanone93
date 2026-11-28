@@ -580,7 +580,7 @@ export const permissions = [
   },
   {
     name: "rollout.manage",
-    description: "Create, pause, resume and roll back rollouts.",
+    description: "Create, pause, resume and roll back rollouts. Creating one also needs release.promote, with its step-up, and the approval a promotion to that channel would need.",
     area: "rollout",
     feature: "rollout",
     action: "manage",

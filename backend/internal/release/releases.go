@@ -599,8 +599,14 @@ func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID st
 		if err := s.gatePromotion(ctx, appID, env, row, vs); err != nil {
 			return err
 		}
-		if err := s.requirePromotion(ctx, tx, p, appID, env, channelKey, row, vs); err != nil {
-			return err
+		// The server promotes only when it completes a rollout, whose creation
+		// asked the approval engine about exactly this release and channel
+		// (PrepareRollout); like its revert of a failing rollout (gateRollback)
+		// it is not asked again.
+		if p.Kind != auth.KindSystem {
+			if err := s.requirePromotion(ctx, tx, p, appID, env, channelKey, row, vs); err != nil {
+				return err
+			}
 		}
 		if err := s.point(ctx, tx, p, env, channelKey, row); err != nil {
 			return err

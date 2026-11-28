@@ -177,45 +177,53 @@ type RolloutChannel struct {
 	Current int64
 }
 
-// PrepareRollout checks that the principal may roll a release out on a
-// channel and that the release may go there: it passes the gates of a
-// promotion, and the channel has a release it is newer than, which is what
-// devices outside the rollout keep (REL-050).
-func (s *Service) PrepareRollout(ctx context.Context, p auth.Principal, appID, envID, channelKey string, candidate int64) (RolloutChannel, error) {
+// PrepareRollout checks, in the caller's transaction, that the principal may
+// roll a release out on a channel and that the release may go there: it
+// passes the gates of a promotion, and the channel has a release it is newer
+// than, which is what devices outside the rollout keep (REL-050). A rollout
+// serves the release to the channel's devices as a promotion does, so it
+// needs what a promotion needs (GOV-020, build log row 321): release.promote
+// with its step-up, and the approval engine's go for exactly this release and
+// channel, spent in the caller's transaction so that it is spent only if the
+// rollout is created there too. The server completing the rollout later is
+// not asked again (PromoteRelease).
+func (s *Service) PrepareRollout(ctx context.Context, tx pgx.Tx, p auth.Principal, appID, envID, channelKey string, candidate int64) (RolloutChannel, error) {
 	if err := authorizeSomeEnvironment(p, auth.RolloutManage, appID); err != nil {
 		return RolloutChannel{}, err
 	}
-	var out RolloutChannel
-	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		_, env, err := s.environment(ctx, q, appID, envID)
-		if err != nil {
-			return err
-		}
-		if err := authorizeEnvironment(p, auth.RolloutManage, appID, env.Key); err != nil {
-			return err
-		}
-		row, vs, err := s.releaseRow(ctx, q, appID, candidate)
-		if err != nil {
-			return err
-		}
-		if err := requirePromoted(ctx, q, env, row.ID); err != nil {
-			return err
-		}
-		if err := s.gatePromotion(ctx, appID, env, row, vs); err != nil {
-			return err
-		}
-		ch, err := q.GetChannel(ctx, dbgen.GetChannelParams{EnvironmentID: env.ID, Key: channelOrDefault(channelKey)})
-		if err != nil {
-			return failure(err, "channel")
-		}
-		if ch.ReleaseSequence == 0 || candidate <= ch.ReleaseSequence {
-			return plxerr.New(plxerr.OutOfRange, "release %d is not newer than release %d, which the channel serves; a rollout replaces a release with a newer one", candidate, ch.ReleaseSequence)
-		}
-		out = RolloutChannel{ChannelID: storage.ID(ch.ID), EnvironmentID: storage.ID(env.ID), EnvironmentKey: env.Key, Current: ch.ReleaseSequence}
-		return nil
-	})
-	return out, err
+	q := dbgen.New(tx)
+	_, env, err := s.environment(ctx, q, appID, envID)
+	if err != nil {
+		return RolloutChannel{}, err
+	}
+	if err := authorizeEnvironment(p, auth.RolloutManage, appID, env.Key); err != nil {
+		return RolloutChannel{}, err
+	}
+	if err := authorizeEnvironment(p, auth.ReleasePromote, appID, env.Key); err != nil {
+		return RolloutChannel{}, err
+	}
+	row, vs, err := s.releaseRow(ctx, q, appID, candidate)
+	if err != nil {
+		return RolloutChannel{}, err
+	}
+	if err := requirePromoted(ctx, q, env, row.ID); err != nil {
+		return RolloutChannel{}, err
+	}
+	if err := s.gatePromotion(ctx, appID, env, row, vs); err != nil {
+		return RolloutChannel{}, err
+	}
+	channelKey = channelOrDefault(channelKey)
+	ch, err := q.GetChannel(ctx, dbgen.GetChannelParams{EnvironmentID: env.ID, Key: channelKey})
+	if err != nil {
+		return RolloutChannel{}, failure(err, "channel")
+	}
+	if ch.ReleaseSequence == 0 || candidate <= ch.ReleaseSequence {
+		return RolloutChannel{}, plxerr.New(plxerr.OutOfRange, "release %d is not newer than release %d, which the channel serves; a rollout replaces a release with a newer one", candidate, ch.ReleaseSequence)
+	}
+	if err := s.requirePromotion(ctx, tx, p, appID, env, channelKey, row, vs); err != nil {
+		return RolloutChannel{}, err
+	}
+	return RolloutChannel{ChannelID: storage.ID(ch.ID), EnvironmentID: storage.ID(env.ID), EnvironmentKey: env.Key, Current: ch.ReleaseSequence}, nil
 }
 
 // EnqueueChannelManifest asks the worker to sign the manifests of one channel,

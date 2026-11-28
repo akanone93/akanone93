@@ -299,7 +299,7 @@ The catalogue is grouped as area, feature, action (`GOV-002`). A restriction pol
 
 | Permission | Action | Description | Risk | Step-up | Scope | Read-only |
 |---|---|---|---|---|---|---|
-| `rollout.manage` | `manage` | Create, pause, resume and roll back rollouts. | high |  | environment |  |
+| `rollout.manage` | `manage` | Create, pause, resume and roll back rollouts. Creating one also needs release.promote, with its step-up, and the approval a promotion to that channel would need. | high |  | environment |  |
 
 ### Area `search`
 

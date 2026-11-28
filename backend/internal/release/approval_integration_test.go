@@ -68,12 +68,12 @@ func (f *fixture) reviewer(t *testing.T, email string) auth.Principal {
 	return p
 }
 
-// requestNamed returns the request a refusal names.
-func requestNamed(t *testing.T, err error, want plxerr.Code) string {
+// requestNamed returns the approval request a PLX-8001 refusal names.
+func requestNamed(t *testing.T, err error) string {
 	t.Helper()
 	var e *plxerr.Error
-	if !errors.As(err, &e) || e.Code != want || e.Details["request"] == "" {
-		t.Fatalf("want code %d with a request, got %v", want, err)
+	if !errors.As(err, &e) || e.Code != plxerr.ApprovalRequired || e.Details["request"] == "" {
+		t.Fatalf("want PLX-8001 with a request, got %v", err)
 	}
 	return e.Details["request"]
 }
@@ -111,7 +111,7 @@ func TestPromotionNeedsApproval_GOV_020(t *testing.T) {
 		t.Fatalf("a promotion to a non-production environment asks nothing: %v", err)
 	}
 	_, err := g.rel.PromoteRelease(ctx, g.owner, g.app, rel.Sequence, prod, "")
-	id := requestNamed(t, err, plxerr.ApprovalRequired)
+	id := requestNamed(t, err)
 	if _, err := g.engine.Decide(ctx, g.owner, g.app, id, approval.DecisionApprove, ""); code(err) != plxerr.ApproverNotEligible {
 		t.Fatalf("the author approved their own release: %v", err)
 	}
@@ -142,7 +142,7 @@ func TestPromotionNeedsApproval_GOV_020(t *testing.T) {
 		t.Fatalf("the approved promotion: %v", err)
 	}
 	_, err = g.rel.PromoteRelease(ctx, g.owner, g.app, rel.Sequence, prod, "")
-	requestNamed(t, err, plxerr.ApprovalRequired)
+	requestNamed(t, err)
 }
 
 // editResult changes the loans plugin's result page and publishes the plugin.
@@ -258,7 +258,7 @@ func TestGoldenApprovalNeedsApproval_GOV_020(t *testing.T) {
 	}
 
 	_, err = svc.Approve(ctx, g.owner, g.app, runID, nil)
-	id := requestNamed(t, err, plxerr.ApprovalRequired)
+	id := requestNamed(t, err)
 	for _, p := range []auth.Principal{first, second} {
 		if _, err := g.engine.Decide(ctx, p, g.app, id, approval.DecisionApprove, ""); err != nil {
 			t.Fatal(err)
