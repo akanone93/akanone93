@@ -283,6 +283,15 @@ describe("[ABT-003] experiment results and decision (A8, D48)", () => {
     await screen.findByText(/Sample ratio mismatch/);
   });
 
+  test("a start held for approval says so, with the server's words (ABT-007)", async () => {
+    const calls: string[] = [];
+    open("/e6", { experiments: { experiments: [{ id: "e6", key: "moneyFlow", state: DRAFT, definition }], calls } });
+    click(await screen.findByRole("button", { name: "Start experiment" }).then((b) => b.textContent ?? ""));
+    await screen.findByText(/The start needs approval\. A request was opened in Approvals/);
+    expect(screen.getByText(/needs approval \(policy money-experiments\); request r1 was opened/)).toBeTruthy();
+    expect(calls).toEqual([]);
+  });
+
   test("stopping needs the step-up and sends nothing before it verifies", async () => {
     stubAssertion();
     const calls: string[] = [];

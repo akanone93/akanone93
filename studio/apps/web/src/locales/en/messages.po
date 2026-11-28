@@ -20049,6 +20049,12 @@ msgstr "The source text replaces the messages of {locale} that are empty, and th
 msgid "designers.dataImportReady"
 msgstr "The source was read. Review it, then add it to the plugin."
 
+#. Shown when an approval policy holds the start of an experiment (for example one on a money flow).
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.startAwaitsApproval"
+msgstr "The start needs approval. A request was opened in Approvals; start again once it is approved."
+
 #. A publish step the server refused; reason is the server's own code and message, such as 'PLX-8052: …'.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts

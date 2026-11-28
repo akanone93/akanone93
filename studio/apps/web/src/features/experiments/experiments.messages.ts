@@ -61,6 +61,11 @@ export function experimentsMessages(i18n: I18n) {
       message: "The action failed. Nothing was changed.",
       comment: "Shown when an action fails.",
     }),
+    startAwaitsApproval: i18n._({
+      id: "experiments.startAwaitsApproval",
+      message: "The start needs approval. A request was opened in Approvals; start again once it is approved.",
+      comment: "Shown when an approval policy holds the start of an experiment (for example one on a money flow).",
+    }),
     authorFailed: i18n._({
       id: "experiments.authorFailed",
       message: "The experiment is registered, but its document and variants could not be written to the draft.",

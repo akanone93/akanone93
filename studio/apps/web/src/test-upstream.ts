@@ -1907,6 +1907,12 @@ function experimentsServices(
       return { experiment: view({ id: "exp-new", key: doc.key, state: 1 }) };
     },
     startExperiment: (req) => {
+      if (find(req.id)?.key === "moneyFlow") {
+        throw new ConnectError(
+          `PLX-8001: experiment:${req.id} needs approval (policy money-experiments); request r1 was opened`,
+          Code.FailedPrecondition,
+        );
+      }
       data.calls?.push(`start:${req.id}`);
       return { experiment: view({ id: req.id, key: "", state: 2 }) };
     },

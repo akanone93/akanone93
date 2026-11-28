@@ -6,7 +6,7 @@ import { Button, Field, Input, StatusPill } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { PageEmpty } from "../../components/page.tsx";
-import { withReason } from "../../components/refusal.tsx";
+import { plxCode, reasonOf, withReason } from "../../components/refusal.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { useGuarded } from "../releases/guarded.tsx";
 import { Table } from "../security/parts.tsx";
@@ -72,17 +72,28 @@ interface DecisionProps {
   readonly allowed: boolean;
   readonly actions: ReturnType<typeof useExperimentActions>;
   readonly guard: (action: () => Promise<unknown>) => void;
+  readonly onStart: () => void;
   readonly onShipped: () => void;
 }
 
 /** D48: start a draft; stop a running experiment or ship a variant, both behind the step-up. */
-function DecisionPanel({ m, id, state, variants, allowed, actions, guard, onShipped }: DecisionProps): ReactElement {
+function DecisionPanel({
+  m,
+  id,
+  state,
+  variants,
+  allowed,
+  actions,
+  guard,
+  onStart,
+  onShipped,
+}: DecisionProps): ReactElement {
   const [label, setLabel] = useState("");
   return (
     <>
       <h2 className="text-heading">{m.decision}</h2>
       {state === 1 && (
-        <Button disabled={!allowed} onClick={() => void actions.start(id)}>
+        <Button disabled={!allowed} onClick={onStart}>
           {m.start}
         </Button>
       )}
@@ -166,7 +177,9 @@ export function ExperimentPage(): ReactElement {
   const experiment = useExperiment(id);
   const results = useResults(id);
   const actions = useExperimentActions(app, environment.environment?.id ?? "");
-  const { guard, dialog, failed } = useGuarded();
+  const { guard, dialog, failed, error } = useGuarded();
+  // A start is refused or held (ABT-007: an experiment on a secure page or a money flow may need approval first).
+  const [startError, setStartError] = useState<{ readonly error: unknown }>();
   const allowed = usePermissions().has("experiments.manage");
   const [shipped, setShipped] = useState(false);
   const x = experiment.data?.experiment;
@@ -201,8 +214,22 @@ export function ExperimentPage(): ReactElement {
         allowed={allowed}
         actions={actions}
         guard={guard}
+        onStart={() => {
+          setStartError(undefined);
+          actions.start(id).catch((e: unknown) => setStartError({ error: e }));
+        }}
         onShipped={() => setShipped(true)}
       />
+      {startError !== undefined &&
+        (plxCode(startError.error) === "PLX-8001" ? (
+          <p role="alert" className="text-body text-danger">
+            {m.startAwaitsApproval} <span className="text-muted-foreground">{reasonOf(startError.error)}</span>
+          </p>
+        ) : (
+          <p role="alert" className="text-body text-danger">
+            {withReason(m.actionFailed, startError.error)}
+          </p>
+        ))}
       {shipped && (
         <p role="status" className="text-body">
           {m.shipped}
@@ -210,7 +237,7 @@ export function ExperimentPage(): ReactElement {
       )}
       {failed && (
         <p role="alert" className="text-body text-danger">
-          {m.actionFailed}
+          {withReason(m.actionFailed, error)}
         </p>
       )}
       {dialog}
