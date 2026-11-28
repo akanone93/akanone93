@@ -89,6 +89,22 @@ export type DraftProblem = "key" | "weights" | "control" | "event" | "targeting"
 const eventName = /^[a-z][a-zA-Z0-9_]*$/;
 const segmentKey = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const attributeName = /^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)?$/;
+/**
+ * The attributes a condition may name (schema/json/segment.schema.json, REL-051): one every device has, or
+ * `user.<name>` from the user context. Any other name is refused where the rule is used (PLX-1704, PLX-3152), so a
+ * segment saved with it could never target anything (build log row 320).
+ */
+const deviceAttributes = new Set([
+  "build",
+  "runtimeVersion",
+  "os",
+  "osVersion",
+  "deviceClass",
+  "locale",
+  "region",
+  "channel",
+]);
+const knownAttribute = (name: string) => deviceAttributes.has(name) || /^user\.[a-z][a-zA-Z0-9]*$/.test(name);
 const operators = ["eq", "neq", "in", "notIn", "lt", "lte", "gt", "gte"] as const;
 const ordering = new Set(["lt", "lte", "gt", "gte"]);
 const versions = new Set(["runtimeVersion", "osVersion"]);
@@ -129,7 +145,7 @@ export function parseAttributes(text: string): AttributeCondition[] | undefined 
     const attribute = m?.[1] ?? "";
     const operator = operators.find((o) => o === m?.[2]);
     const raw = m?.[3] ?? "";
-    if (operator === undefined || !attributeName.test(attribute)) {
+    if (operator === undefined || !attributeName.test(attribute) || !knownAttribute(attribute)) {
       return undefined;
     }
     const list = operator === "in" || operator === "notIn";

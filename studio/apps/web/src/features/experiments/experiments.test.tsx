@@ -182,6 +182,9 @@ describe("[ABT-001] targeting and metrics of a draft", () => {
     expect(parseAttributes("os ios")).toBeUndefined();
     expect(parseAttributes("os like ios")).toBeUndefined();
     expect(parseAttributes("locale in de,")).toBeUndefined();
+    // Only a device's attributes or the user context's (user.<name>): the server refuses any other (row 320).
+    expect(parseAttributes("beta eq true")).toBeUndefined();
+    expect(parseAttributes("user.beta eq true")).toEqual([{ attribute: "user.beta", operator: "eq", value: true }]);
   });
 
   test("writes several segments, attributes, primary metrics and guardrails", () => {

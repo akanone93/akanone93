@@ -6624,11 +6624,11 @@ msgstr "Each editor opens over the canvas; Close or Escape returns here."
 msgid "newApp.environments.hint"
 msgstr "Each environment has its own variables, secrets, signing keys and devices."
 
-#. Shown when a line of the conditions is not a condition. Do not translate the operators.
+#. Shown when a line of the conditions is not a condition. Do not translate the attributes or the operators.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.badSegmentConditions"
-msgstr "Each line must be an attribute, one of eq, neq, in, notIn, lt, lte, gt, gte, and a value."
+msgstr "Each line must be an attribute (build, runtimeVersion, os, osVersion, deviceClass, locale, region, channel or user.<name>), one of eq, neq, in, notIn, lt, lte, gt, gte, and a value."
 
 #. Error under the per-segment values of a flag.
 #. js-lingui-explicit-id

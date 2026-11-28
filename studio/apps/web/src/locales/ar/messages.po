@@ -6624,11 +6624,11 @@ msgstr "يُفتح كل محرر فوق اللوحة؛ يعيدك الإغلاق
 msgid "newApp.environments.hint"
 msgstr "لكل بيئة متغيراتها وأسرارها ومفاتيح التوقيع وأجهزتها."
 
-#. Shown when a line of the conditions is not a condition. Do not translate the operators.
+#. Shown when a line of the conditions is not a condition. Do not translate the attributes or the operators.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.badSegmentConditions"
-msgstr "يجب أن يحتوي كل سطر على سمة وأحد العوامل eq وneq وin وnotIn وlt وlte وgt وgte وقيمة."
+msgstr "يجب أن يحتوي كل سطر على سمة (build أو runtimeVersion أو os أو osVersion أو deviceClass أو locale أو region أو channel أو user.<name>) وأحد العوامل eq وneq وin وnotIn وlt وlte وgt وgte وقيمة."
 
 #. Error under the per-segment values of a flag.
 #. js-lingui-explicit-id

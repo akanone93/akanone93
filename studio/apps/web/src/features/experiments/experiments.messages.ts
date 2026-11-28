@@ -438,8 +438,10 @@ export function experimentsMessages(i18n: I18n) {
     }),
     badSegmentConditions: i18n._({
       id: "experiments.badSegmentConditions",
-      message: "Each line must be an attribute, one of eq, neq, in, notIn, lt, lte, gt, gte, and a value.",
-      comment: "Shown when a line of the conditions is not a condition. Do not translate the operators.",
+      message:
+        "Each line must be an attribute (build, runtimeVersion, os, osVersion, deviceClass, locale, region, channel or user.<name>), one of eq, neq, in, notIn, lt, lte, gt, gte, and a value.",
+      comment:
+        "Shown when a line of the conditions is not a condition. Do not translate the attributes or the operators.",
     }),
     segmentRuleHead: i18n._({
       id: "experiments.segmentRuleHead",

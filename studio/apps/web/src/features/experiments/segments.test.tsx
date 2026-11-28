@@ -91,6 +91,9 @@ describe("[STU-103] segments page", () => {
     await screen.findByText("A segment key is lower case letters, digits and hyphens, and starts with a letter.");
     fireEvent.change(screen.getByLabelText("Conditions"), { target: { value: "region is DE" } });
     await screen.findByText(/Each line must be an attribute/);
+    // An attribute neither a device nor the user context has is refused here, not only by the server (row 320).
+    fireEvent.change(screen.getByLabelText("Conditions"), { target: { value: "beta eq true" } });
+    await screen.findByText(/Each line must be an attribute/);
     expect(screen.getByRole("button", { name: "Save segment" }).getAttribute("aria-disabled")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: "Delete beta" }));
     await waitFor(() => expect(deletedDocuments).toEqual(["segments/beta.segment.json"]));
