@@ -27,8 +27,10 @@ import (
 const formsFeature = "forms"
 
 // formsRuntimes lists the runtime each revision of formsFeature first
-// shipped in.
-var formsRuntimes = []string{"0.3.0"}
+// shipped in. Revision 2 lets setState write a form's values whole
+// (`<form>.values`), as when a page fills a form from saved answers
+// (build log row 137).
+var formsRuntimes = []string{"0.3.0", "0.6.0"}
 
 // formSensitiveFeature is required by a bundle that tags a form field
 // sensitive (SCH-012, SEC-092): a runtime that does not know the tag would
@@ -214,7 +216,8 @@ func formNamed(forms []schema.Form, name string) *schema.Form {
 
 // formStatePath checks a state path that names a form's state; isForm is
 // false for any other path. Only setState may write, and only a field's
-// value or touched flag (PLX-1167).
+// value or touched flag, or the form's values whole, which needs
+// forms.v2 (PLX-1167).
 func (u *unit) formStatePath(g *graph, path string, c vctx) (v *value, isForm bool) {
 	root, rest, _ := strings.Cut(path, ".")
 	owner, forms := u.graphForms(g)
@@ -226,9 +229,13 @@ func (u *unit) formStatePath(g *graph, path string, c vctx) (v *value, isForm bo
 	action := g.steps[stepIndex(c.ptr)].Action
 	part, field, _ := strings.Cut(sub, ".")
 	known := slices.ContainsFunc(f.Fields, func(fd schema.FormField) bool { return fd.Name == field })
-	if action != "setState" || (part != formValues && part != formTouched) || !known {
-		u.report(plxerr.FormWriteInvalid, c.file, c.ptr, "%s cannot write %s: only setState writes a form field's value or touched flag", action, path)
+	whole := part == formValues && field == ""
+	if action != "setState" || (!whole && ((part != formValues && part != formTouched) || !known)) {
+		u.report(plxerr.FormWriteInvalid, c.file, c.ptr, "%s cannot write %s: only setState writes a form field's value or touched flag, or the form's values whole", action, path)
 		return nil, true
+	}
+	if whole {
+		u.useRevision(formsFeature, formsRuntimes, 2, c)
 	}
 	return &value{kind: fbs.ValueKindString, s: path}, true
 }

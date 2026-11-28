@@ -15,8 +15,9 @@
 /// - `valid`: whether every field passes its validators;
 /// - `validating`: whether an asynchronous check is pending.
 ///
-/// `setState` writes a field's value (`<form>.values.<field>`) or touched
-/// flag (`<form>.touched.<field>`); everything else follows from the
+/// `setState` writes a field's value (`<form>.values.<field>`), its touched
+/// flag (`<form>.touched.<field>`) or the form's values whole
+/// (`<form>.values`, `forms.v2`); everything else follows from the
 /// validators. Asynchronous validators run their graph after the field has
 /// been quiet for its debounce time, with restart semantics: a newer value
 /// replaces a pending check, and a stale result is discarded.
@@ -446,6 +447,31 @@ final class FormController {
       dirty: {..._part('dirty'), field: !sameValue(v, f.initial)},
     );
     _schedule(f, v, immediately: false);
+  }
+
+  /// Writes the fields of [written] at once (`<form>.values`, `forms.v2`),
+  /// as when a page fills the form from saved answers: each value is
+  /// converted to its field's type, each field's dirty flag follows its
+  /// initial value, and each field's asynchronous validators are scheduled;
+  /// fields [written] does not name keep their values. Throws
+  /// [FormatException] for a field the form does not declare or a value
+  /// that does not have its field's type, before anything is written.
+  void writeValues(Map<String, Object?> written) {
+    final next = {...values};
+    final dirty = {..._part('dirty')};
+    final fields = <(FormFieldDecl, Object?)>[];
+    for (final MapEntry(:key, :value) in written.entries) {
+      final f = decl.field(key);
+      if (f == null) throw FormatException('the form has no field $key');
+      final v = f.type == null ? value : fromJson(f.type!, toJson(value));
+      next[key] = v;
+      dirty[key] = !sameValue(v, f.initial);
+      fields.add((f, v));
+    }
+    _commit(values: next, dirty: dirty);
+    for (final (f, v) in fields) {
+      _schedule(f, v, immediately: false);
+    }
   }
 
   /// Sets [field]'s touched flag (`<form>.touched.<field>`), which shows

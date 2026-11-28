@@ -544,8 +544,9 @@ mixin ScopeValues on Notifier<Map<String, Object?>> {
     return null;
   }
 
-  /// Writes a form field's value (`<form>.values.<field>`) or touched
-  /// flag (`<form>.touched.<field>`) at [path] (setState, STA-020); false
+  /// Writes a form field's value (`<form>.values.<field>`), touched flag
+  /// (`<form>.touched.<field>`) or the form's values whole
+  /// (`<form>.values`, `forms.v2`) at [path] (setState, STA-020); false
   /// when [path] names no form of the scope. Throws
   /// [StateWriteException] for any other part of a form, or a value of
   /// the wrong type.
@@ -553,6 +554,23 @@ mixin ScopeValues on Notifier<Map<String, Object?>> {
     final parts = path.split('.');
     final form = this.form(parts.first);
     if (form == null) return false;
+    if (parts.length == 2 && parts[1] == 'values') {
+      if (value is! Map) {
+        throw StateWriteException(
+          PluxErrorCode.stateWriteTypeMismatch,
+          'form state $path is an object of the form\'s fields',
+        );
+      }
+      try {
+        form.writeValues(value.map((k, v) => MapEntry('$k', v)));
+      } on FormatException catch (e) {
+        throw StateWriteException(
+          PluxErrorCode.stateWriteTypeMismatch,
+          'form state $path: ${e.message}',
+        );
+      }
+      return true;
+    }
     final field = parts.length == 3 ? form.decl.field(parts[2]) : null;
     if (field == null || (parts[1] != 'values' && parts[1] != 'touched')) {
       throw StateWriteException(

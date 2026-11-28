@@ -306,8 +306,8 @@ var registry = []Definition{
 	},
 	{
 		FormWriteInvalid, "FORM_WRITE_INVALID", SeverityError, "Form state written that cannot be",
-		"A state action writes form state other than a field's value (`<form>.values.<field>`, with setState) or touched flag (`<form>.touched.<field>`, with setState): errors, dirty flags and the status follow from the validators, and the whole form changes only through resetForm (STA-020).",
-		"Write the field's value or touched flag with setState, or use validateForm, submitForm or resetForm.", false,
+		"A state action writes form state other than a field's value (`<form>.values.<field>`, with setState), its touched flag (`<form>.touched.<field>`, with setState) or the form's values whole (`<form>.values`, with setState, from runtime 0.6.0): errors, dirty flags and the status follow from the validators, and the whole form resets only through resetForm (STA-020).",
+		"Write a field's value or touched flag, or the form's values, with setState, or use validateForm, submitForm or resetForm.", false,
 	},
 	{
 		DataSourceConfigInvalid, "DATA_SOURCE_CONFIG_INVALID", SeverityError, "Invalid data source configuration",

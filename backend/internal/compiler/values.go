@@ -116,6 +116,13 @@ func (u *unit) check(c vctx, v any, t *texpr) *value {
 		}
 		return u.checkObject(c, v, t.name, spec.Fields)
 	}
+	// A type the compiler synthesised for the scope, such as a form's values
+	// (build log row 137), is checked field by field like a declared one.
+	if c.scope != nil {
+		if spec, ok := c.scope.synth[t.name]; ok && spec.Fields != nil {
+			return u.checkObject(c, v, t.name, spec.Fields)
+		}
+	}
 	u.report(plxerr.UnknownType, c.file, c.ptr, "type %q is not declared", t.name)
 	return nil
 }

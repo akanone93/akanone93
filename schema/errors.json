@@ -524,8 +524,8 @@
       "reason": "FORM_WRITE_INVALID",
       "severity": "error",
       "title": "Form state written that cannot be",
-      "cause": "A state action writes form state other than a field's value (`\u003cform\u003e.values.\u003cfield\u003e`, with setState) or touched flag (`\u003cform\u003e.touched.\u003cfield\u003e`, with setState): errors, dirty flags and the status follow from the validators, and the whole form changes only through resetForm (STA-020).",
-      "fix": "Write the field's value or touched flag with setState, or use validateForm, submitForm or resetForm."
+      "cause": "A state action writes form state other than a field's value (`\u003cform\u003e.values.\u003cfield\u003e`, with setState), its touched flag (`\u003cform\u003e.touched.\u003cfield\u003e`, with setState) or the form's values whole (`\u003cform\u003e.values`, with setState, from runtime 0.6.0): errors, dirty flags and the status follow from the validators, and the whole form resets only through resetForm (STA-020).",
+      "fix": "Write a field's value or touched flag, or the form's values, with setState, or use validateForm, submitForm or resetForm."
     },
     {
       "code": "PLX-1170",

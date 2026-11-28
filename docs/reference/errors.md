@@ -484,9 +484,9 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 `FORM_WRITE_INVALID` · error · Form state written that cannot be
 
-**Cause.** A state action writes form state other than a field's value (`<form>.values.<field>`, with setState) or touched flag (`<form>.touched.<field>`, with setState): errors, dirty flags and the status follow from the validators, and the whole form changes only through resetForm (STA-020).
+**Cause.** A state action writes form state other than a field's value (`<form>.values.<field>`, with setState), its touched flag (`<form>.touched.<field>`, with setState) or the form's values whole (`<form>.values`, with setState, from runtime 0.6.0): errors, dirty flags and the status follow from the validators, and the whole form resets only through resetForm (STA-020).
 
-**Fix.** Write the field's value or touched flag with setState, or use validateForm, submitForm or resetForm.
+**Fix.** Write a field's value or touched flag, or the form's values, with setState, or use validateForm, submitForm or resetForm.
 
 ### PLX-1170
 

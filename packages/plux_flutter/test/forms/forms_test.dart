@@ -367,6 +367,41 @@ void main() {
       expect((form()['errors']! as Map)['code'], 'Required');
     });
 
+    test('setState fills the form\'s values whole, typed, in one write (forms.v2, build log row 137)', () async {
+      final s = access();
+      s.write('page.f.values', {'code': 'saved', 'count': 7});
+      final values = form()['values']! as Map;
+      expect(values['code'], 'saved');
+      expect(values['count'], 7);
+      expect((form()['dirty']! as Map)['code'], isTrue);
+      // A field the object leaves out keeps its value.
+      s.write('page.f.values', {'count': 1});
+      expect((form()['values']! as Map)['code'], 'saved');
+      expect((form()['values']! as Map)['count'], 1);
+      // Its asynchronous validator is scheduled as for a field's own write.
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(runs.map((r) => r.$1), contains('saved'));
+      // A value of the wrong type, an unknown field or no object writes nothing.
+      for (final bad in <Object?>[
+        {'count': 'seven'},
+        {'height': 3},
+        'saved',
+      ]) {
+        expect(
+          () => s.write('page.f.values', bad),
+          throwsA(
+            isA<StateWriteException>().having(
+              (e) => e.code,
+              'code',
+              PluxErrorCode.stateWriteTypeMismatch,
+            ),
+          ),
+          reason: '$bad',
+        );
+      }
+      expect((form()['values']! as Map)['count'], 1);
+    });
+
     test('a false result of an asynchronous check is the validator\'s failure; validate runs pending checks at once', () async {
       final s = access();
       s.write('page.f.values.code', 'bad');

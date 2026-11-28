@@ -269,6 +269,66 @@ func TestInvalidForms(t *testing.T) {
 	}
 }
 
+// fillWhole makes the page's first form step write the form's values whole,
+// with value.
+func fillWhole(t *testing.T, m fstest.MapFS, value any) {
+	t.Helper()
+	edit(t, m, formsPage, func(doc map[string]any) {
+		formSteps(doc, 6)[0].(map[string]any)["input"] = map[string]any{"path": "page.signup.values", "value": value}
+	})
+}
+
+// TestSetStateFillsAFormWhole checks that setState may write a form's
+// values whole (build log row 137): typed as the form's values, refused
+// under a minRuntimeVersion before 0.6.0 or raised as forms.v2, while its
+// touched flags, errors and the like stay out of reach (STA-020, BND-008).
+// Verifies: STA-020, BND-008.
+func TestSetStateFillsAFormWhole(t *testing.T) {
+	t.Parallel()
+	const ageButton = "/root/slots/body/children/6/events/onPressed/steps/0"
+	own := map[string]any{"$expr": "page.signup.values"}
+	m := project(t, formsDir)
+	fillWhole(t, m, own)
+	wantDiag(t, compileFS(m), plxerr.RuntimeTooOld, formsPage, ageButton+"/input/path")
+
+	m = project(t, formsDir)
+	fillWhole(t, m, own)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["requiredFeatures"] = "raise" })
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	if !slices.Contains(res.Plugins[0].Features, "forms.v2") {
+		t.Errorf("plugin features %v lack forms.v2", res.Plugins[0].Features)
+	}
+
+	// An object literal is checked field by field against the form's fields.
+	saved := map[string]any{
+		"name": "Ada", "email": "ada@example.org", "phone": "", "iban": "", "age": 36,
+		"amount": "", "start": nil, "confirm": "",
+	}
+	m = project(t, formsDir)
+	fillWhole(t, m, saved)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["requiredFeatures"] = "raise" })
+	if res := compileFS(m); res.Diagnostics.HasErrors() {
+		t.Fatalf("an object literal of the form's fields: %s", list(res.Diagnostics))
+	}
+	for _, bad := range []any{"old", map[string]any{"name": "Ada", "age": "old"}} {
+		m = project(t, formsDir)
+		fillWhole(t, m, bad)
+		edit(t, m, formsApp, func(doc map[string]any) { doc["requiredFeatures"] = "raise" })
+		if res := compileFS(m); !res.Diagnostics.HasErrors() {
+			t.Errorf("the form's values set to %v compiled", bad)
+		}
+	}
+
+	m = project(t, formsDir)
+	edit(t, m, formsPage, func(doc map[string]any) {
+		formSteps(doc, 6)[0].(map[string]any)["input"] = map[string]any{"path": "page.signup.touched", "value": map[string]any{}}
+	})
+	wantDiag(t, compileFS(m), plxerr.FormWriteInvalid, formsPage, ageButton+"/input/path")
+}
+
 // sensitiveForm tags the first field of the page's form sensitive.
 func sensitiveForm(t *testing.T, m fstest.MapFS) {
 	t.Helper()

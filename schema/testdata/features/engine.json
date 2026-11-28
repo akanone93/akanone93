@@ -85,6 +85,10 @@
       "runtime": "0.3.0"
     },
     {
+      "name": "forms.v2",
+      "runtime": "0.6.0"
+    },
+    {
       "name": "navigation.guards.v1",
       "runtime": "0.2.0"
     },

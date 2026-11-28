@@ -75,8 +75,12 @@ A form's state lives in its owner's scope under the form's name (`STA-001`): `va
 `errors`, `dirty`, `touched`, `status` (`idle`, `submitting`, `succeeded`, `failed`),
 `valid` and `validating`. Bindings read it like any state, with fine-grained rebuilds
 (`STA-010`). An input writes its field with `setState` on `<form>.values.<field>` and marks
-it touched on `<form>.touched.<field>`; the compiler refuses writes to any other form path
-(`PLX-1167`).
+it touched on `<form>.touched.<field>`. To fill a form at once — from saved answers when a
+page opens — `setState` writes `<form>.values` whole: an expression of the form's values type
+or an object literal of its fields, each checked against its field's type; fields the object
+leaves out keep their values, and each written field's dirty flag and asynchronous validators
+follow as for its own write. It needs runtime 0.6.0 (`forms.v2`). The compiler refuses writes
+to any other form path (`PLX-1167`).
 
 ## Actions
 
