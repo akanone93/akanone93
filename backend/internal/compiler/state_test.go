@@ -61,6 +61,49 @@ func TestStateGoldenBundles(t *testing.T) {
 	}
 }
 
+// TestStoredPageStateReadsBack checks that the stored state a page declares
+// reads back from the bundle as the compiler recorded it: a page section
+// indexes its own string table, not the strings section, and reading it
+// against the latter named another state and type, so publishing refused
+// an unchanged plugin with PLX-1143 (build log row 319).
+// Verifies: STA-040.
+func TestStoredPageStateReadsBack(t *testing.T) {
+	t.Parallel()
+	m := project(t, stateDir)
+	edit(t, m, statePage, func(doc map[string]any) {
+		state := doc["state"].([]any)
+		for _, e := range state {
+			if e.(map[string]any)["name"] == "label" {
+				e.(map[string]any)["persistence"] = "persisted"
+			}
+		}
+	})
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	recorded := map[string]StoredEntry{}
+	for _, e := range res.StoredState["notes"] {
+		recorded[e.ID] = e
+	}
+	if !slices.ContainsFunc(res.StoredState["notes"], func(e StoredEntry) bool { return e.Name == "label" }) {
+		t.Fatalf("the page's persisted entry is not recorded: %+v", res.StoredState["notes"])
+	}
+	read, err := StoredState(res.Plugins[0].Data)
+	if err != nil || len(read) != len(recorded) {
+		t.Fatalf("read back %+v, %v; want %d entries", read, err, len(recorded))
+	}
+	for _, e := range read {
+		want := recorded[e.ID]
+		if e.Name != want.Name || e.Type != want.Type || e.Fingerprint != want.Fingerprint {
+			t.Errorf("entry %s read back as %q %q %.8s, recorded as %q %q %.8s", e.ID, e.Name, e.Type, e.Fingerprint, want.Name, want.Type, want.Fingerprint)
+		}
+	}
+	if diags := CheckStoredState(read, res.StoredState["notes"]); len(diags) != 0 {
+		t.Errorf("an unchanged plugin needs a migration: %s", list(diags))
+	}
+}
+
 // TestStateFeaturesAreRaised checks that a bundle writing, storing or
 // computing state needs runtime 0.3.0: rejected under an older
 // minRuntimeVersion, or raised as required features (BND-008).

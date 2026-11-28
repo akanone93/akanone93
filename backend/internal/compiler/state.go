@@ -373,32 +373,44 @@ type storedReader struct {
 	entries []StoredEntry
 }
 
-// str resolves a string-table index; "" when it is out of range.
-func (r *storedReader) str(i uint32) string {
-	if int(i) < len(r.strs) {
-		return r.strs[i]
+// strIn resolves an index of string table strs; "" when it is out of range.
+func strIn(strs []string, i uint32) string {
+	if int(i) < len(strs) {
+		return strs[i]
 	}
 	return ""
 }
 
+// sectionStrings reads the string table of a page or component section.
+func sectionStrings(n int, at func(int) []byte) []string {
+	strs := make([]string, n)
+	for i := range n {
+		strs[i] = string(at(i))
+	}
+	return strs
+}
+
 // section collects the stored entries of a schemas, page or component
-// section; any other section has none.
+// section; any other section has none. The schemas section indexes the
+// bundle's strings section, which the plugin-wide sections share; a page
+// or component indexes its own table (build log row 319).
 func (r *storedReader) section(s bundle.Section) {
 	switch s.Kind {
 	case bundle.SectionSchemas:
 		sc := fbs.GetRootAsSchemas(s.Data, 0)
-		r.add(sc.StateLength(), sc.State)
+		r.add(r.strs, sc.StateLength(), sc.State)
 	case bundle.SectionPage:
 		pg := fbs.GetRootAsPage(s.Data, 0)
-		r.add(pg.StateLength(), pg.State)
+		r.add(sectionStrings(pg.StringsLength(), pg.Strings), pg.StateLength(), pg.State)
 	case bundle.SectionComponent:
 		c := fbs.GetRootAsComponent(s.Data, 0)
-		r.add(c.StateLength(), c.State)
+		r.add(sectionStrings(c.StringsLength(), c.Strings), c.StateLength(), c.State)
 	}
 }
 
-// add collects the n entries that at reads and that are not memory-only.
-func (r *storedReader) add(n int, at func(*fbs.StateEntry, int) bool) {
+// add collects the n entries that at reads and that are not memory-only,
+// resolving their strings in strs.
+func (r *storedReader) add(strs []string, n int, at func(*fbs.StateEntry, int) bool) {
 	var e fbs.StateEntry
 	for i := range n {
 		if !at(&e, i) || e.Persistence() == fbs.PersistenceMemory {
@@ -409,8 +421,8 @@ func (r *storedReader) add(n int, at func(*fbs.StateEntry, int) bool) {
 			id = uuidOfHalves(u.Hi(), u.Lo())
 		}
 		r.entries = append(r.entries, StoredEntry{
-			ID: uuidString(id), Name: r.str(e.Name()), Type: r.str(e.Type()), Fingerprint: r.str(e.Fingerprint()),
-			MigrationFrom: r.str(e.MigrationFrom()), Reset: e.MigrationReset(),
+			ID: uuidString(id), Name: strIn(strs, e.Name()), Type: strIn(strs, e.Type()), Fingerprint: strIn(strs, e.Fingerprint()),
+			MigrationFrom: strIn(strs, e.MigrationFrom()), Reset: e.MigrationReset(),
 		})
 	}
 }

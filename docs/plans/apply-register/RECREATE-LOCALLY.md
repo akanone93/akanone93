@@ -117,7 +117,7 @@ Functions read their `secrets` (`AR_PARTNER_KEY`, `PASS_SIGNING_KEY`) from these
 
 **Gateway upstreams, environment variables and the user identity provider** have neither a page nor a command
 (build log #199). Paste this into the browser console of a Studio tab inside the organisation (any page under
-`/o/…`); it asks for your security key once, then creates the 25 upstreams in each environment, the three
+`/o/…`); it asks for your security key once, then creates the 34 upstreams in each environment (one per gateway data source of the project), the three
 development variables and the identity provider of staging and production, and prints a summary:
 
 ```js
@@ -142,22 +142,25 @@ development variables and the identity provider of staging and production, and p
   const app = (await call("AppService/ListApps", { organizationId: org })).apps.find((a) => a.key === "apply-register");
   const envs = Object.fromEntries((await call("AppService/ListEnvironments", { appId: app.id })).environments.map((e) => [e.key, e.id]));
   const all = ["GET", "POST", "PATCH", "DELETE"];
-  const rest = ["accounts", "api", "cacheFirst", "cacheNF", "cacheNet", "cacheSWR", "campaign", "donations", "eligibility",
-    "featured", "listings", "me", "orgs", "partner", "products", "remote", "stats", "subs", "verify"];
+  const rest = ["accounts", "api", "cacheFirst", "cacheNF", "cacheNet", "cacheSWR", "campaign", "catOrgs", "donations",
+    "eligibility", "featured", "listings", "me", "org", "orgs", "partner", "products", "remote", "stats", "status", "sub",
+    "subs", "verify"];
   const ops = {
     payments: [{ name: "charge", methods: ["POST"], pathPrefix: "/payments", transaction: { payee: "/payee", amount: "/amount", currency: "/currency" } }],
     transfers: [{ name: "deposit", methods: ["POST"], pathPrefix: "/transfers", transaction: { payee: "/to/iban", amount: "/amount", summary: "/reference", currency: "/currency" } }],
     reliefTransfer: [{ name: "donate", methods: ["POST"], pathPrefix: "/transfers/relief", transaction: { payee: "/payee", amount: "/amount", summary: "/reference", currency: "/currency" },
       bindings: [{ key: "payeeIbanRelief", jsonPointer: "/payee", display: true, label: "Recipient" }] }],
   };
-  const upstreams = [...rest.map((n) => [n, "/v1", all, "AL0"]), ["payments", "/v1", all, "AL2"], ["transfers", "/v1", all, "AL2"],
-    ["reliefTransfer", "/v1", all, "AL2"], ["agenda", "", ["POST"], "AL0"], ["speakers", "", ["POST"], "AL0"], ["workshops", "", ["POST"], "AL0"]];
+  const upstreams = [...rest.map((n) => [n, "/v1", all, n === "accounts" ? "AL2" : "AL0"]), ["payments", "/v1", all, "AL2"],
+    ["transfers", "/v1", all, "AL2"], ["reliefTransfer", "/v1", all, "AL2"], ["agenda", "", ["POST"], "AL0"],
+    ["speakers", "", ["POST"], "AL0"], ["workshops", "", ["POST"], "AL0"], ["programmes", "", ["POST"], "AL0"],
+    ["programme", "", ["POST"], "AL0"], ["queue", "", ["GET"], "AL0"], ["regLive", "", ["GET"], "AL0"], ["runner", "", ["GET"], "AL0"]];
   await stepUp();
   let n = 0;
   for (const [env, base, priv] of [["development", "http://host.docker.internal:8090", true],
     ["staging", "https://api.apply-register.example", false], ["production", "https://api.apply-register.example", false]]) {
     for (const [name, path, methods, assurance] of upstreams) {
-      if (++n % 25 === 0) await stepUp();
+      if (++n % 20 === 0) await stepUp();
       await call("SecurityAdminService/CreateUpstream", { upstream: { appId: app.id, environmentId: envs[env], name, baseUrl: base + path,
         apiKey: { header: "X-AR-Gateway", secretRef: "AR_GATEWAY_KEY" }, allowPrivateAddresses: priv, allowedMethods: methods,
         requiresAssurance: assurance, operations: ops[name] ?? [] } });
