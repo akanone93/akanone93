@@ -1522,6 +1522,12 @@ msgstr "Ein Dokument muss ein JSON-Objekt sein."
 msgid "l10n.problem.taken"
 msgstr "Ein Schlüssel mit diesem Namen existiert bereits."
 
+#. Shown when the layer is not a valid name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidLayer"
+msgstr "Ein Ebenenname beginnt mit einem Kleinbuchstaben und enthält nur Buchstaben und Ziffern."
+
 #. Shown when an upload chunk was sent at the wrong offset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -6648,6 +6654,12 @@ msgstr "Jede Zeile braucht ein Attribut (build, runtimeVersion, os, osVersion, d
 msgid "experiments.badSegmentValue"
 msgstr "Jedes Segment braucht einen Schlüssel, und sein Wert muss gültiges JSON sein."
 
+#. Shown when a prop experiment's variant has no valid value. {type} is the property's type, such as int.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidValues"
+msgstr "Jede Variante braucht einen Wert vom Typ der Eigenschaft ({type})."
+
 #. How elliptical a circle shape may become, from 0 (a circle) to 1.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -7511,6 +7523,12 @@ msgstr "Experiment {key}"
 msgid "experiments.keyLabel"
 msgstr "Experiment-Schlüssel"
 
+#. Accessible name and tooltip of the button beside a property that opens the experiment wizard to vary its value (STU-103).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.experimentOnProp"
+msgstr "Experiment mit {name}"
+
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -7522,6 +7540,12 @@ msgstr "Experimente"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.listTitle"
 msgstr "Experimente"
+
+#. Help under the layer field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.layerHelp"
+msgstr "Experimente in einer Ebene schließen sich gegenseitig aus: Ein Gerät nimmt an höchstens einem von ihnen teil. Leer lassen für keine."
 
 #. Caption under the experiments heading.
 #. js-lingui-explicit-id
@@ -9995,6 +10019,12 @@ msgstr "Neueste Version"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.scriptLatin"
 msgstr "Lateinisch"
+
+#. Label of the field naming the layer an experiment shares with others (ABT-004).
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.layerLabel"
+msgstr "Ebene"
 
 #. Label of the field that renames a layer in the layer tree.
 #. js-lingui-explicit-id
@@ -21717,6 +21747,12 @@ msgstr "Wert im dunklen Modus"
 #: apps/web/src/features/panels/locale-tools.messages.ts
 msgid "localeTools.value"
 msgstr "Wert in dieser Sprache"
+
+#. Label of the field that gives a variant's value of the property a prop experiment varies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.variantValue"
+msgstr "Wert von {prop}"
 
 #. Field that edits the token's value in the theme.
 #. js-lingui-explicit-id

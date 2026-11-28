@@ -723,6 +723,11 @@ interface DockProps {
   readonly decide?: ((id: string, expr: string) => boolean | undefined) | undefined;
   /** What the canvas draws for a widget's bound expression (PC-23), from page mocks, state defaults and data mocks. */
   readonly drawnValue?: ((id: string, expr: string) => string | undefined) | undefined;
+  /**
+   * Opens the experiment wizard to vary one property of one widget (STU-103, build log row 329): the widget, the
+   * property and its type. Without it no property offers an experiment.
+   */
+  readonly onPropExperiment?: ((nodeId: string, prop: string, type: string) => void) | undefined;
   /** Opens the full-screen JSON editor (STU-064); the button shows only when given. */
   readonly onOpenJson?: (() => void) | undefined;
   /** Opens the localisation table (STU-063) and the state designer (STU-063); each button shows only when given. */
@@ -832,6 +837,8 @@ function PropertyField(p: {
   readonly onApply: (value: unknown) => void;
   readonly onEnd: () => void;
   readonly onExtract: (text: string) => void;
+  /** Opens the experiment wizard on this property; offered only for a plain value of a type an experiment can vary. */
+  readonly onExperiment?: (() => void) | undefined;
   /** A composite property opens at first: the first of its section (MR-3). */
   readonly openAtFirst?: boolean;
 }) {
@@ -839,6 +846,22 @@ function PropertyField(p: {
   const value = sv.mixed ? undefined : sv.value;
   const overridden = !sv.mixed && sv.overridden;
   const literal = typeof value === "string" && value !== "" ? value : undefined;
+  const extract =
+    p.extractable && isTranslatable(prop) && literal !== undefined ? (
+      <Tooltip content={p.extractLabel}>
+        <button type="button" className="prop-mode" aria-label={p.extractLabel} onClick={() => p.onExtract(literal)}>
+          <Icon name="globe" size="pill" />
+        </button>
+      </Tooltip>
+    ) : null;
+  const experiment =
+    p.onExperiment !== undefined && experimentPropType(prop.type) && plainValue(value) ? (
+      <Tooltip content={m.experimentOnProp(prop.name)}>
+        <button type="button" className="prop-mode" aria-label={m.experimentOnProp(prop.name)} onClick={p.onExperiment}>
+          <Icon name="flask" size="pill" />
+        </button>
+      </Tooltip>
+    ) : null;
   return (
     <PropRow
       name={prop.name}
@@ -857,18 +880,12 @@ function PropertyField(p: {
           : undefined
       }
       extra={
-        p.extractable && isTranslatable(prop) && literal !== undefined ? (
-          <Tooltip content={p.extractLabel}>
-            <button
-              type="button"
-              className="prop-mode"
-              aria-label={p.extractLabel}
-              onClick={() => p.onExtract(literal)}
-            >
-              <Icon name="globe" size="pill" />
-            </button>
-          </Tooltip>
-        ) : undefined
+        extract === null && experiment === null ? undefined : (
+          <>
+            {extract}
+            {experiment}
+          </>
+        )
       }
     >
       <ValueEditor
@@ -886,6 +903,16 @@ function PropertyField(p: {
     </PropRow>
   );
 }
+
+/** The property types an experiment can vary (`experiment.<key>.<prop>`, ABT-001): text, numbers and switches. */
+const EXPERIMENT_TYPES: ReadonlySet<string> = new Set(["string", "string?", "int", "double", "bool"]);
+
+/** Whether an experiment can vary a property of this type. */
+export const experimentPropType = (type: string): boolean => EXPERIMENT_TYPES.has(type);
+
+/** Whether `value` is a plain value — not unset, bound, keyed or composite — that a variant can replace. */
+const plainValue = (value: unknown): boolean =>
+  typeof value === "number" || typeof value === "boolean" || (typeof value === "string" && value !== "");
 
 /** The mark of a size class whose override a property shows. */
 const overrideMark: Record<Breakpoint, string | undefined> = { compact: undefined, medium: "M", expanded: "E" };
@@ -1354,6 +1381,11 @@ function PropertiesTab(p: DockProps & { ids: readonly string[]; m: Messages }) {
               burst.current += 1;
             }}
             onExtract={(text) => setExtracting({ name: prop.name, text })}
+            onExperiment={
+              canEdit && ids.length === 1 && p.onPropExperiment !== undefined
+                ? () => p.onPropExperiment?.(first, prop.name, prop.type)
+                : undefined
+            }
           />
         )}
       />

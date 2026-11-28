@@ -138,6 +138,37 @@ export function experimentsMessages(i18n: I18n) {
       message: "Remove variant",
       comment: "Button that removes a variant.",
     }),
+    variantValue: (prop: string) =>
+      i18n._({
+        id: "experiments.variantValue",
+        message: "Value of {prop}",
+        comment: "Label of the field that gives a variant's value of the property a prop experiment varies.",
+        values: { prop },
+      }),
+    layerLabel: i18n._({
+      id: "experiments.layerLabel",
+      message: "Layer",
+      comment: "Label of the field naming the layer an experiment shares with others (ABT-004).",
+    }),
+    layerHelp: i18n._({
+      id: "experiments.layerHelp",
+      message:
+        "Experiments in one layer are mutually exclusive: a device takes part in at most one of them. Leave empty for none.",
+      comment: "Help under the layer field.",
+    }),
+    invalidValues: (type: string) =>
+      i18n._({
+        id: "experiments.invalidValues",
+        message: "Each variant needs a value of the property's type ({type}).",
+        comment:
+          "Shown when a prop experiment's variant has no valid value. {type} is the property's type, such as int.",
+        values: { type },
+      }),
+    invalidLayer: i18n._({
+      id: "experiments.invalidLayer",
+      message: "A layer name starts with a lower-case letter and has only letters and digits.",
+      comment: "Shown when the layer is not a valid name.",
+    }),
     weightLabel: i18n._({
       id: "experiments.weightLabel",
       message: "Share in percent",

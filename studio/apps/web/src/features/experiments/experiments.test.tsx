@@ -4,13 +4,15 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
-import { variantNames, wrapInVariants } from "./author.ts";
+import { bindProp, propIn, variantNames, wrapInVariants } from "./author.ts";
 import {
   buildDocument,
   declaredUserAttributes,
   initialDraft,
   parseAttributes,
   problems,
+  propTarget,
+  propValue,
 } from "./experiments.schema.ts";
 import { declaredFlags, flagTypeOf } from "./flags-page.tsx";
 
@@ -142,6 +144,113 @@ describe("[ABT-001] new experiment wizard (A7)", () => {
     });
     expect(variant.variants.variant.id).not.toBe(TEXT);
     expect(calls[0]).toContain("create:heroLayout:");
+  });
+
+  test("writes a prop experiment and binds the selected prop to it (STU-103, build log row 329)", async () => {
+    const TEXT = "01a2a77e-9422-7878-b6a8-bb99d7548201";
+    const putDocuments: { path: string; content: string; ifRevision: bigint }[] = [];
+    const home = {
+      kind: "page",
+      id: "pg",
+      root: { id: "col", type: "Column", children: [{ id: TEXT, type: "Text", props: { data: "Welcome" } }] },
+    };
+    open(`/new?target=prop:${TEXT}/data&plugin=shop&propType=string`, {
+      experiments: { experiments: [] },
+      security: { putDocuments },
+      pluginDocuments: { shop: [{ kind: "page", path: "plugins/shop/pages/home.page.json", json: home }] },
+    });
+    type(await screen.findByLabelText("Experiment key").then(() => "Experiment key"), "heroCopy");
+    click("Next");
+    await screen.findByRole("heading", { name: "Variants" });
+    // The variants start from the prop's value on the page; the control keeps it.
+    await waitFor(() =>
+      expect(screen.getAllByLabelText("Value of data").map((i) => (i as HTMLInputElement).value)).toEqual([
+        "Welcome",
+        "Welcome",
+      ]),
+    );
+    fireEvent.change(screen.getAllByLabelText("Value of data")[1] as HTMLElement, {
+      target: { value: "Find your place" },
+    });
+    for (const step of ["Allocation", "Targeting"]) {
+      click("Next");
+      await screen.findByRole("heading", { name: step });
+    }
+    type("Layer", "homeHero");
+    click("Next");
+    await screen.findByRole("heading", { name: "Metrics" });
+    type("Primary metric event", "purchase");
+    click("Next");
+    await screen.findByLabelText("Start");
+    click("Create experiment");
+    await waitFor(() => expect(putDocuments.map((d) => d.path)).toHaveLength(2));
+    const [experiment, page] = putDocuments;
+    expect(JSON.parse(experiment?.content ?? "{}")).toMatchObject({
+      scope: "prop",
+      layer: "homeHero",
+      props: [{ name: "data", type: "string" }],
+      variants: [
+        { name: "control", control: true, props: { data: "Welcome" } },
+        { name: "variant", props: { data: "Find your place" } },
+      ],
+    });
+    expect(page?.path).toBe("plugins/shop/pages/home.page.json");
+    expect(JSON.parse(page?.content ?? "{}").root.children[0].props.data).toEqual({
+      $expr: "experiment.heroCopy.data",
+    });
+  });
+
+  test("reads a prop target, types each variant's value, and checks the values and the layer (row 329)", () => {
+    expect(propTarget("prop:n1/label")).toEqual({ node: "n1", prop: "label" });
+    expect(propTarget("prop:n1/Label")).toBeUndefined();
+    expect(propTarget("n1,n2")).toBeUndefined();
+    expect([
+      propValue("int", " 3 "),
+      propValue("int", "3.5"),
+      propValue("double", "3.5"),
+      propValue("double", ""),
+    ]).toEqual([3, undefined, 3.5, undefined]);
+    expect([
+      propValue("bool", "true"),
+      propValue("bool", "yes"),
+      propValue("string", " a "),
+      propValue("color", "x"),
+    ]).toEqual([true, undefined, " a ", undefined]);
+    const draft = {
+      ...initialDraft("prop:n1/count", "int"),
+      key: "cta",
+      event: "purchase",
+      variants: [
+        { id: "a", name: "control", control: true, weight: 50, value: "2" },
+        { id: "b", name: "more", control: false, weight: 50, value: "3" },
+      ],
+    };
+    expect(problems(draft)).toEqual([]);
+    expect(
+      problems({ ...draft, variants: [{ id: "a", name: "control", control: true, weight: 100, value: "two" }] }),
+    ).toContain("values");
+    expect(problems({ ...draft, propType: "color" })).toContain("values");
+    expect(problems({ ...draft, layer: "Home Hero" })).toContain("layer");
+    const doc = JSON.parse(new TextDecoder().decode(buildDocument({ ...draft, layer: "cta" }, "id1")));
+    expect(doc).toMatchObject({ layer: "cta", props: [{ name: "count", type: "int" }] });
+    expect(doc.variants.map((v: { props: unknown }) => v.props)).toEqual([{ count: 2 }, { count: 3 }]);
+    // Not a prop experiment: no props, no layer.
+    const plain = JSON.parse(
+      new TextDecoder().decode(buildDocument({ ...initialDraft(undefined), key: "x", event: "e" }, "id2")),
+    );
+    expect(plain.props).toBeUndefined();
+    expect(plain.layer).toBeUndefined();
+  });
+
+  test("binds a widget's prop to the experiment and reads its value from the page (row 329)", () => {
+    const page = {
+      root: { id: "r", type: "Column", children: [{ id: "n1", type: "Text", props: { data: "Hi", maxLines: 2 } }] },
+    };
+    expect(propIn(page, "n1", "data")).toEqual({ found: true, value: "Hi" });
+    expect(propIn(page, "missing", "data")).toEqual({ found: false });
+    expect(bindProp(page, "missing", "data", "cta")).toBe(false);
+    expect(bindProp(page, "n1", "data", "cta")).toBe(true);
+    expect(page.root.children[0]?.props as unknown).toEqual({ data: { $expr: "experiment.cta.data" }, maxLines: 2 });
   });
 
   test("a Variant replaces a widget among its parent's children or in its slot, never a page's root", () => {

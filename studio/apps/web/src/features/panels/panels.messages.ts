@@ -356,6 +356,14 @@ export function panelMessages(i18n: I18n) {
           "Accessible name of the button beside a text property that switches it between a literal value, a translation key and a PXL expression; mode is the current one.",
         values: { name, mode },
       }),
+    experimentOnProp: (name: string) =>
+      i18n._({
+        id: "panels.experimentOnProp",
+        message: "Experiment on {name}",
+        comment:
+          "Accessible name and tooltip of the button beside a property that opens the experiment wizard to vary its value (STU-103).",
+        values: { name },
+      }),
     clearProp: (name: string) =>
       i18n._({
         id: "panels.clearProp",

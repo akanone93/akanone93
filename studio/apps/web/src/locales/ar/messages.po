@@ -1522,6 +1522,12 @@ msgstr "يجب أن يكون المستند كائن JSON."
 msgid "l10n.problem.taken"
 msgstr "يوجد مفتاح بهذا الاسم بالفعل."
 
+#. Shown when the layer is not a valid name.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidLayer"
+msgstr "يبدأ اسم الطبقة بحرف صغير ولا يحتوي إلا على حروف وأرقام."
+
 #. Shown when an upload chunk was sent at the wrong offset.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/assets.messages.ts
@@ -6648,6 +6654,12 @@ msgstr "يجب أن يحتوي كل سطر على سمة (build أو runtimeVers
 msgid "experiments.badSegmentValue"
 msgstr "تحتاج كل شريحة إلى مفتاح، ويجب أن تكون قيمتها JSON صالحًا."
 
+#. Shown when a prop experiment's variant has no valid value. {type} is the property's type, such as int.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.invalidValues"
+msgstr "يحتاج كل متغير إلى قيمة من نوع الخاصية ({type})."
+
 #. How elliptical a circle shape may become, from 0 (a circle) to 1.
 #. js-lingui-explicit-id
 #: apps/web/src/features/panels/style.messages.ts
@@ -7511,6 +7523,12 @@ msgstr "التجربة {key}"
 msgid "experiments.keyLabel"
 msgstr "مفتاح التجربة"
 
+#. Accessible name and tooltip of the button beside a property that opens the experiment wizard to vary its value (STU-103).
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/panels.messages.ts
+msgid "panels.experimentOnProp"
+msgstr "تجربة على {name}"
+
 #. Entry of the app-area navigation; names one area of an app.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell/app-nav.messages.ts
@@ -7522,6 +7540,12 @@ msgstr "التجارب"
 #: apps/web/src/features/experiments/experiments.messages.ts
 msgid "experiments.listTitle"
 msgstr "التجارب"
+
+#. Help under the layer field.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.layerHelp"
+msgstr "التجارب في طبقة واحدة متنافية: يشارك الجهاز في واحدة منها على الأكثر. اتركه فارغًا لعدم وجود طبقة."
 
 #. Caption under the experiments heading.
 #. js-lingui-explicit-id
@@ -9995,6 +10019,12 @@ msgstr "أحدث إصدار"
 #: apps/web/src/features/design/design.messages.ts
 msgid "design.scriptLatin"
 msgstr "اللاتينية"
+
+#. Label of the field naming the layer an experiment shares with others (ABT-004).
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.layerLabel"
+msgstr "الطبقة"
 
 #. Label of the field that renames a layer in the layer tree.
 #. js-lingui-explicit-id
@@ -21717,6 +21747,12 @@ msgstr "القيمة في الوضع الداكن"
 #: apps/web/src/features/panels/locale-tools.messages.ts
 msgid "localeTools.value"
 msgstr "القيمة في هذه اللغة"
+
+#. Label of the field that gives a variant's value of the property a prop experiment varies.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.variantValue"
+msgstr "قيمة {prop}"
 
 #. Field that edits the token's value in the theme.
 #. js-lingui-explicit-id

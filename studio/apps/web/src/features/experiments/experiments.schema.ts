@@ -17,6 +17,10 @@ export const experimentsSearchSchema = z.object({
 export const newExperimentSearchSchema = z.object({
   env: z.string().optional().catch(undefined),
   target: z.string().optional().catch(undefined),
+  /** The plugin whose canvas the target was selected on (subtree and prop experiments). */
+  plugin: z.string().optional().catch(undefined),
+  /** The type of the property a `prop:` target varies, as its widget declares it (build log row 329). */
+  propType: z.string().optional().catch(undefined),
   step: z.enum(wizardSteps).optional().catch(undefined),
 });
 
@@ -28,6 +32,8 @@ export interface DraftVariant {
   readonly name: string;
   readonly control: boolean;
   readonly weight: number;
+  /** A prop experiment's value of the prop for this variant, as typed (build log row 329). */
+  readonly value?: string;
 }
 
 export interface Draft {
@@ -51,6 +57,36 @@ export interface Draft {
   readonly minimumSample: number;
   readonly start: string;
   readonly end: string;
+  /** The layer the experiment is mutually exclusive with others in (ABT-004); empty for none. */
+  readonly layer: string;
+  /** A prop experiment's prop type, as its widget declares it (`string`, `int`, `double`, `bool`). */
+  readonly propType: string;
+}
+
+/** The widget and property of a `prop:<node>/<prop>` target, or undefined for any other target. */
+export function propTarget(target: string): { readonly node: string; readonly prop: string } | undefined {
+  const m = /^prop:([^/]+)\/([a-z][a-zA-Z0-9]*)$/.exec(target);
+  return m === null ? undefined : { node: m[1] ?? "", prop: m[2] ?? "" };
+}
+
+/** The prop types a prop experiment varies, as the inspector offers them. */
+const propTypes: ReadonlySet<string> = new Set(["string", "string?", "int", "double", "bool"]);
+
+/** A variant's typed value of a prop of `type`, or undefined when the text is not one. */
+export function propValue(type: string, text: string): string | number | boolean | undefined {
+  const t = text.trim();
+  switch (type) {
+    case "string":
+    case "string?":
+      return text;
+    case "int":
+      return /^-?\d+$/.test(t) ? Number(t) : undefined;
+    case "double":
+      return t !== "" && Number.isFinite(Number(t)) ? Number(t) : undefined;
+    case "bool":
+      return t === "true" ? true : t === "false" ? false : undefined;
+  }
+  return undefined;
 }
 
 /** The scope a target string implies: `page:` and `prop:` prefixes, otherwise a component subtree. */
@@ -61,7 +97,7 @@ export function scopeOfTarget(target: string | undefined): Scope {
   return target?.startsWith("prop:") === true ? "prop" : "subtree";
 }
 
-export function initialDraft(target: string | undefined): Draft {
+export function initialDraft(target: string | undefined, propType = ""): Draft {
   return {
     key: "",
     scope: scopeOfTarget(target),
@@ -81,10 +117,21 @@ export function initialDraft(target: string | undefined): Draft {
     minimumSample: 1000,
     start: "",
     end: "",
+    layer: "",
+    propType,
   };
 }
 
-export type DraftProblem = "key" | "weights" | "control" | "event" | "targeting" | "metrics" | "limits";
+export type DraftProblem =
+  | "key"
+  | "weights"
+  | "control"
+  | "event"
+  | "targeting"
+  | "metrics"
+  | "limits"
+  | "values"
+  | "layer";
 
 const eventName = /^[a-z][a-zA-Z0-9_]*$/;
 const segmentKey = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -218,6 +265,17 @@ export function problems(d: Draft, declared?: ReadonlySet<string>): readonly Dra
     found.push("metrics");
   }
   if (
+    d.scope === "prop" &&
+    (propTarget(d.target) === undefined ||
+      !propTypes.has(d.propType) ||
+      d.variants.some((v) => propValue(d.propType, v.value ?? "") === undefined))
+  ) {
+    found.push("values");
+  }
+  if (d.layer !== "" && !/^[a-z][a-zA-Z0-9]*$/.test(d.layer)) {
+    found.push("layer");
+  }
+  if (
     keys.length > limitDefault("experiments.segmentsPerTargeting") ||
     (attributes?.length ?? 0) > limitDefault("experiments.attributesPerTargeting") ||
     1 + lines(d.primaries).length > limitDefault("experiments.primaryMetrics") ||
@@ -236,13 +294,21 @@ export function buildDocument(d: Draft, id: string): Uint8Array {
   const attributes = parseAttributes(d.attributes) ?? [];
   const primaries = lines(d.primaries);
   const guardrails = lines(d.guardrails);
+  const prop = d.scope === "prop" ? propTarget(d.target) : undefined;
   const doc = {
     schemaVersion: "1.0.0",
     kind: "experiment",
     id,
     key: d.key,
     scope: d.scope,
-    variants: d.variants.map((v) => ({ name: v.name, weight: v.weight, ...(v.control && { control: true }) })),
+    variants: d.variants.map((v) => ({
+      name: v.name,
+      weight: v.weight,
+      ...(v.control && { control: true }),
+      ...(prop !== undefined && { props: { [prop.prop]: propValue(d.propType, v.value ?? "") } }),
+    })),
+    ...(prop !== undefined && { props: [{ name: prop.prop, type: d.propType }] }),
+    ...(d.layer !== "" && { layer: d.layer }),
     holdout: d.holdout,
     ...(segment !== undefined && { segment }),
     ...(moreSegments.length > 0 && { segments: moreSegments }),

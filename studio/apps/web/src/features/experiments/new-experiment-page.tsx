@@ -4,12 +4,12 @@
 import { useLingui } from "@lingui/react";
 import { Button, Field, Input, Select, Textarea } from "@plux/ui";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useEffect, useState } from "react";
 import { withReason } from "../../components/refusal.tsx";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { Frame } from "../releases/frame.tsx";
 import { useAppDocument, useEnvironment, useScope } from "../security/use-security.ts";
-import { type ExperimentTarget, useAuthorExperiment } from "./author.ts";
+import { type ExperimentTarget, useAuthorExperiment, usePropValue } from "./author.ts";
 import { type ExperimentsMessages, experimentsMessages } from "./experiments.messages.ts";
 import {
   buildDocument,
@@ -18,6 +18,7 @@ import {
   declaredUserAttributes,
   initialDraft,
   problems,
+  propTarget,
   type Scope,
   scopes,
   undeclaredUserAttributes,
@@ -70,6 +71,7 @@ function VariantRow({
   m,
   v,
   index,
+  prop,
   change,
   remove,
   weight,
@@ -77,6 +79,8 @@ function VariantRow({
   readonly m: ExperimentsMessages;
   readonly v: DraftVariant;
   readonly index: number;
+  /** The prop a prop experiment varies: each variant gives its value. */
+  readonly prop: string | undefined;
   readonly change: (patch: Partial<DraftVariant>) => void;
   readonly remove: () => void;
   readonly weight: boolean;
@@ -93,6 +97,11 @@ function VariantRow({
             value={String(v.weight)}
             onChange={(e) => change({ weight: numberOf(e.target.value) })}
           />
+        </Field>
+      )}
+      {!weight && prop !== undefined && (
+        <Field label={m.variantValue(prop)}>
+          <Input value={v.value ?? ""} onChange={(e) => change({ value: e.target.value })} />
         </Field>
       )}
       {!weight && (
@@ -127,6 +136,7 @@ function VariantsPanel({ m, draft, set, weight }: PanelProps & { readonly weight
             m={m}
             v={v}
             index={i}
+            prop={draft.scope === "prop" ? propTarget(draft.target)?.prop : undefined}
             weight={weight}
             change={(patch) => edit(i, patch)}
             remove={() => set({ variants: draft.variants.filter((_, j) => j !== i) })}
@@ -219,6 +229,10 @@ function Panel({ step, ...p }: PanelProps & { readonly step: WizardStep }): Reac
             <Textarea rows={3} value={p.draft.attributes} onChange={(e) => p.set({ attributes: e.target.value })} />
             <span className="text-caption text-muted-foreground">{p.m.attributesHelp}</span>
           </Field>
+          <Field label={p.m.layerLabel}>
+            <Input value={p.draft.layer} onChange={(e) => p.set({ layer: e.target.value })} />
+            <span className="text-caption text-muted-foreground">{p.m.layerHelp}</span>
+          </Field>
         </>
       );
     case "metrics":
@@ -237,8 +251,10 @@ function Panel({ step, ...p }: PanelProps & { readonly step: WizardStep }): Reac
   }
 }
 
-function problemText(m: ExperimentsMessages, found: readonly string[]): string[] {
+function problemText(m: ExperimentsMessages, found: readonly string[], propType: string): string[] {
   const text: Record<string, string> = {
+    values: m.invalidValues(propType),
+    layer: m.invalidLayer,
     weights: m.weightsSum,
     control: m.needControl,
     key: m.invalidForm,
@@ -250,16 +266,33 @@ function problemText(m: ExperimentsMessages, found: readonly string[]): string[]
   return [...new Set(found.map((p) => text[p] ?? ""))];
 }
 
-/** The canvas selection a subtree experiment wraps in Variant nodes: `?plugin` and the node IDs of `?target`. */
+/**
+ * The canvas selection an experiment changes: for a subtree the node IDs of `?target`, wrapped in Variant nodes; for a
+ * prop the widget and prop of a `prop:` target, bound to the experiment; both on the pages of `?plugin`.
+ */
 function targetOf(
   search: { readonly target?: string; readonly plugin?: string },
   scope: Scope,
 ): ExperimentTarget | undefined {
+  const prop = propTarget(search.target ?? "");
+  if (scope === "prop") {
+    return search.plugin === undefined || prop === undefined
+      ? undefined
+      : { pluginId: search.plugin, ids: [], prop: { node: prop.node, name: prop.prop } };
+  }
   const ids = (search.target ?? "").split(",").filter((id) => id !== "");
   return search.plugin === undefined || scope !== "subtree" || ids.length === 0
     ? undefined
     : { pluginId: search.plugin, ids };
 }
+
+/** Whether a prop's value on the page is a plain value a variant can replace. */
+const plainProp = (v: unknown): v is string | number | boolean =>
+  typeof v === "number" || typeof v === "boolean" || (typeof v === "string" && v !== "");
+
+/** The prop type of a plain value, when the canvas did not say: text, a whole number, a number or a switch. */
+const typeOfValue = (v: string | number | boolean): string =>
+  typeof v === "boolean" ? "bool" : typeof v === "number" ? (Number.isInteger(v) ? "int" : "double") : "string";
 
 /**
  * A7: the wizard that creates an experiment; `?target` is the canvas selection that is the variant subject and
@@ -269,13 +302,36 @@ function targetOf(
 export function NewExperimentPage(): ReactElement {
   const m = experimentsMessages(useLingui().i18n);
   const { app, env } = useScope();
-  const search = useSearch({ strict: false }) as { target?: string; plugin?: string; step?: WizardStep };
+  const search = useSearch({ strict: false }) as {
+    target?: string;
+    plugin?: string;
+    propType?: string;
+    step?: WizardStep;
+  };
   const org = (useParams({ strict: false }) as { org?: string }).org ?? "";
   const navigate = useNavigate();
   const environment = useEnvironment(app, env);
   const actions = useExperimentActions(app, environment.environment?.id ?? "");
   const author = useAuthorExperiment(app);
-  const [draft, setDraft] = useState(() => initialDraft(search.target));
+  const [draft, setDraft] = useState(() => initialDraft(search.target, search.propType));
+  // A prop experiment's variants start from the prop's value on the page: the control keeps it (build log row 329).
+  const target = propTarget(draft.target);
+  const current = usePropValue(app, search.plugin, target?.node ?? "", target?.prop ?? "");
+  const shown = current.data?.value;
+  useEffect(() => {
+    if (draft.scope !== "prop" || !plainProp(shown)) {
+      return;
+    }
+    setDraft((d) =>
+      d.variants.every((v) => v.value === undefined)
+        ? {
+            ...d,
+            propType: d.propType === "" ? typeOfValue(shown) : d.propType,
+            variants: d.variants.map((v) => ({ ...v, value: String(shown) })),
+          }
+        : d,
+    );
+  }, [draft.scope, shown]);
   const [failed, setFailed] = useState(false);
   const [authorError, setAuthorError] = useState<{ readonly error: unknown }>();
   const step = search.step ?? "target";
@@ -332,7 +388,7 @@ export function NewExperimentPage(): ReactElement {
       )}
       {step === "schedule" && found.length > 0 && (
         <div role="alert" className="text-body text-danger">
-          {problemText(m, found).map((t) => (
+          {problemText(m, found, draft.propType).map((t) => (
             <p key={t}>{t}</p>
           ))}
         </div>

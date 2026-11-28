@@ -73,6 +73,14 @@ describe("S2.6 right dock on the plugin canvas", () => {
     );
   });
 
+  test("a widget's plain property opens the experiment wizard on it (STU-103, build log row 329)", async () => {
+    const hits = { current: ["t1"] };
+    renderApp(path, { documents, surface: surface(hits), permissions: ["app.read", "plugin.read", "plugin.edit"] });
+    pick(await screen.findByLabelText("Plugin canvas"), false);
+    fireEvent.click(await screen.findByRole("button", { name: "Experiment on data" }));
+    expect(await screen.findByDisplayValue("prop:t1/data")).toBeTruthy();
+  });
+
   test("the Docs tab documents the widget", async () => {
     const hits = { current: ["t1"] };
     renderApp(path, { documents, surface: surface(hits) });

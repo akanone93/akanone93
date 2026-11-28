@@ -2234,6 +2234,13 @@ function PluginCanvasView({
                               validatePage={checked?.validatePage}
                               language={checked?.language}
                               drawnValue={(id, expr) => boundMarks.get(id)?.find((b) => b.expr === expr)?.shown}
+                              onPropExperiment={(nodeId, prop, type) =>
+                                void navigate({
+                                  to: "/o/$org/apps/$app/experiments/new",
+                                  params: { org: params.org ?? "", app: params.app ?? "" },
+                                  search: { target: `prop:${nodeId}/${prop}`, plugin: params.plugin, propType: type },
+                                } as never)
+                              }
                               decide={decide}
                               heroCount={(id) => heroesOf(id).length}
                               onOpenJson={() => overlays.show("json")}
