@@ -37,7 +37,7 @@ export function GrantsSection({
       </h2>
       <Table
         caption={m.grantsHeading}
-        heads={[m.colRole, m.grantScope, m.grantApp, m.colAdded, ""]}
+        heads={[m.colRole, m.grantScope, m.colApp, m.colAdded, ""]}
         empty={m.nothing}
         rows={(grants.data?.grants ?? []).map((g) => ({
           key: g.id,

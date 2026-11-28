@@ -39,7 +39,7 @@ function ReviewDialog({
       size="sm"
       title={m.review}
       description={`${invocation.action}: ${invocation.subject}`}
-      labels={{ close: m.review }}
+      labels={{ close: m.reviewClose }}
     >
       <Field label={m.reviewComment}>
         <Textarea value={comment} onChange={(e) => setComment(e.target.value)} />

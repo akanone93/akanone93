@@ -243,6 +243,11 @@ export function approvalsMessages(i18n: I18n) {
     reviewReviewed: i18n._({ id: "approvals.reviewReviewed", message: "Reviewed", comment: "Review state." }),
     overdue: i18n._({ id: "approvals.overdue", message: "Overdue", comment: "Flag on a review past its due time." }),
     review: i18n._({ id: "approvals.review", message: "Review", comment: "Button that starts a review." }),
+    reviewClose: i18n._({
+      id: "approvals.reviewClose",
+      message: "Close",
+      comment: "Accessible name of the button that closes the break-glass review dialog without reviewing.",
+    }),
     reviewComment: i18n._({
       id: "approvals.reviewComment",
       message: "Review comment",

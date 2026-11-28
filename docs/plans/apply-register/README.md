@@ -1141,7 +1141,7 @@ Plugin: capabilities = all 10 device APIs, every function of §E, native routes 
 
 ### J2. Approvals
 
-- [ ] Policy `prod-four-eyes`: resource release, environment production, approvers 1 Release Manager **distinct from the author**; policy `bank-strict`: pages marked `secure` or flows with money (Bank, Pay) need 2 approvers from different teams; **simulate** the policy on a sample change first
+- [ ] Policy `prod-four-eyes`: resource release, environment production, approvers 1 Release Manager **distinct from the author**; policy `bank-strict`: pages marked `secure` or flows with money (Bank, Pay) need 2 approvers from different teams — a policy's risk attributes must all hold, so this is one policy per attribute (`touchesSecurePage`, `touchesMoneyFlow`), and different teams need the enterprise licence (without one the simulator says so and saving is refused with PLX-8600); **simulate** the policy on a sample change first
 - [ ] Inbox › open request (visual diff, JSON diff, reports, risk, install base) › **Approve** with WebAuthn step-up; 🧪 changing the release after approval invalidates it (hash-bound); a change freeze blocks a production publish; **break-glass** kill switch with justification, then review it
 
 ### J3. Rollouts, kill switch, rollback, mandatory

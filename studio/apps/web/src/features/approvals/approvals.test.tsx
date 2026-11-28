@@ -234,7 +234,11 @@ describe("[GOV-024] break-glass reviews", () => {
     fireEvent.change(await screen.findByRole("textbox", { name: "Review comment" }), {
       target: { value: "Justified" },
     });
-    fireEvent.click(screen.getAllByRole("button", { name: "Review" }).at(-1) as HTMLElement);
+    // The dialog's close button is not a second "Review": only the submit goes by that name.
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getAllByRole("button", { name: "Review" })).toHaveLength(1);
+    expect(within(dialog).getByRole("button", { name: "Close" })).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Review" }));
     fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
     await waitFor(() => expect(reviewed).toEqual([{ id: "b1", comment: "Justified" }]));
   });

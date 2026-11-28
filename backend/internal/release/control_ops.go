@@ -28,7 +28,7 @@ func (s *Service) SetKillSwitch(ctx context.Context, p auth.Principal, ref Chann
 		return ControlState{}, err
 	}
 	return s.change(ctx, p, ref, controlChange{
-		emergency: emergencyOf(opts, breakglass.ActionKillSwitch, switchSubject(ref, k, "on"), emergencyHash(string(k.Scope), k.Target, "on")),
+		emergency: emergencyOf(opts, breakglass.ActionKillSwitch, switchSubject(ref, k, "set"), emergencyHash(string(k.Scope), k.Target, "on")),
 		detail:    fmt.Sprintf("kill switch %s %s on", k.Scope, k.Target),
 		apply: func(_ context.Context, _ *dbgen.Queries, _ controlTarget, c *controlContent) error {
 			if !slices.Contains(c.Switches, k) {
@@ -47,7 +47,7 @@ func (s *Service) ClearKillSwitch(ctx context.Context, p auth.Principal, ref Cha
 		return ControlState{}, err
 	}
 	return s.change(ctx, p, ref, controlChange{
-		emergency: emergencyOf(opts, breakglass.ActionKillSwitch, switchSubject(ref, k, "off"), emergencyHash(string(k.Scope), k.Target, "off")),
+		emergency: emergencyOf(opts, breakglass.ActionKillSwitch, switchSubject(ref, k, "cleared"), emergencyHash(string(k.Scope), k.Target, "off")),
 		detail:    fmt.Sprintf("kill switch %s %s off", k.Scope, k.Target),
 		apply: func(_ context.Context, _ *dbgen.Queries, _ controlTarget, c *controlContent) error {
 			c.Switches = slices.DeleteFunc(c.Switches, func(o controldoc.KillSwitch) bool { return o == k })
@@ -153,9 +153,12 @@ func (*Service) channelRelease(ctx context.Context, q *dbgen.Queries, t controlT
 	return rel, nil
 }
 
-// switchSubject names a kill-switch change for an emergency record.
-func switchSubject(ref ChannelRef, k controldoc.KillSwitch, state string) string {
-	return fmt.Sprintf("kill switch %s %s %s on %s", k.Scope, k.Target, state, channelName(ref))
+// switchSubject names a kill-switch change for an emergency record, as the
+// break-glass review shows it: "kill switch function pay.simulate set on
+// production". The verb is "set" or "cleared", so it never reads as the
+// switch's state next to the channel's "on".
+func switchSubject(ref ChannelRef, k controldoc.KillSwitch, verb string) string {
+	return fmt.Sprintf("kill switch %s %s %s on %s", k.Scope, k.Target, verb, channelName(ref))
 }
 
 // channelName is the channel a change is made to, as an emergency record

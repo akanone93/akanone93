@@ -223,6 +223,11 @@ export function adminMessages(i18n: I18n) {
     }),
     colRole: i18n._({ id: "admin.colRole", message: "Role", comment: "Text in the organisation administration area." }),
     colUser: i18n._({ id: "admin.colUser", message: "User", comment: "Text in the organisation administration area." }),
+    colApp: i18n._({
+      id: "admin.colApp",
+      message: "App",
+      comment: "Column heading: the app a grant is limited to, empty for the whole organisation.",
+    }),
     colAdded: i18n._({
       id: "admin.colAdded",
       message: "Added",

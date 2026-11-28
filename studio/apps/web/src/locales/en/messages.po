@@ -2661,6 +2661,12 @@ msgstr "App"
 msgid "admin.environmentsApp"
 msgstr "App"
 
+#. Column heading: the app a grant is limited to, empty for the whole organisation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/admin/admin.messages.ts
+msgid "admin.colApp"
+msgstr "App"
+
 #. Name of the app bundle in the publish steps: the app-level documents a release carries beside its plugins.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/publish.messages.ts
@@ -4540,6 +4546,12 @@ msgstr "Close"
 #. js-lingui-explicit-id
 #: apps/web/src/features/apps/apps.messages.ts
 msgid "apps.close"
+msgstr "Close"
+
+#. Accessible name of the button that closes the break-glass review dialog without reviewing.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.reviewClose"
 msgstr "Close"
 
 #. Accessible name of the dialog close button.
