@@ -7,6 +7,8 @@
  * arm in Layers, edits each arm in place, draws the arm picked in the inspector and wraps a selection in a new Variant.
  */
 
+import { type PageDoc, remapIds } from "./screens.ts";
+
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 
@@ -46,22 +48,12 @@ export function variantArms(node: unknown): readonly VariantArm[] {
 export const armLabel = (arm: VariantArm) => arm.name ?? "control";
 
 /**
- * A copy of `node` with a fresh ID on every node in it, so a variant arm made from the control shares no ID with it
- * (node IDs are unique in a page, SCH-005).
+ * A copy of `node` with a fresh ID for every identifier defined in it and its references to them following, so a
+ * variant arm made from the control shares no ID with it (node IDs are unique in a page, SCH-005). References to what
+ * is defined elsewhere — a component, a translation — stay, as Duplicate and Paste keep them.
  */
-export function freshCopy(node: unknown, fresh: () => string): unknown {
-  if (Array.isArray(node)) {
-    return node.map((n) => freshCopy(n, fresh));
-  }
-  if (!isObj(node)) {
-    return node;
-  }
-  const out: Obj = {};
-  for (const [k, v] of Object.entries(node)) {
-    out[k] = k === "id" && typeof v === "string" ? fresh() : freshCopy(v, fresh);
-  }
-  return out;
-}
+const freshCopy = (node: unknown, fresh: () => string): unknown =>
+  (remapIds({ root: node } as unknown as PageDoc, fresh) as unknown as { root: unknown }).root;
 
 /**
  * The Variant that wraps `node` for experiment `experiment`: `node` is the control, unchanged, and each variant starts

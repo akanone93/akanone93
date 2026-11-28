@@ -78,8 +78,9 @@ describe("[STU-103] Variant nodes on the canvas (build log row 304)", () => {
 
   test("wrapping a node makes it the control and copies it with fresh IDs for each variant", () => {
     let n = 0;
-    const fresh = () => `n${++n}`;
-    const node = { id: "card", type: "Card", slots: { child: text("t", "Hi") } };
+    const fresh = () => `01e0c450-6c00-7000-8000-${String(++n).padStart(12, "0")}`;
+    const card = "01a2a77e-9422-7878-b6a8-bb99d7548201";
+    const node = { id: card, type: "Card", slots: { child: text("01a2a77e-9422-7878-b6a8-bb99d7548202", "Hi") } };
     const v = variantOf(node, "heroLayout", ["wide", "tall"], fresh);
     expect(v).toMatchObject({ type: "Variant", experiment: "heroLayout", control: node });
     const arms = variantArms(v);
@@ -87,5 +88,19 @@ describe("[STU-103] Variant nodes on the canvas (build log row 304)", () => {
     const ids = JSON.stringify(v).match(/"id":"[^"]+"/g) ?? [];
     expect(new Set(ids).size).toBe(ids.length);
     expect(arms[2]?.node).toMatchObject({ type: "Card", slots: { child: { type: "Text", props: { data: "Hi" } } } });
+  });
+
+  test("a variant of a component instance points at the same component (PLX-1102)", () => {
+    let n = 0;
+    const fresh = () => `01e0c450-6c00-7000-8000-${String(++n).padStart(12, "0")}`;
+    const component = { id: "01a218d7-cb2d-7c04-90ba-72fc7a72c1ca", version: 1 };
+    const hero = {
+      id: "01a2a77e-9422-7878-b6a8-bb99d7548201",
+      component,
+      props: { title: { $t: "01a2c051-c2af-75f3-85eb-a696ea755a34" } },
+    };
+    const arm = variantArms(variantOf(hero, "homeHero", ["copy"], fresh))[1]?.node;
+    expect(arm).toMatchObject({ component, props: hero.props });
+    expect(arm?.["id"]).not.toBe(hero.id);
   });
 });

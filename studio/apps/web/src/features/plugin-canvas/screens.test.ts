@@ -78,6 +78,22 @@ describe("[SCH-002] duplicate with ID remapping", () => {
     expect(copy.root.props).toEqual({ label: { $t: "01a14cd1-caec-7130-999e-81fbfc99a49a" } });
   });
 
+  test("a component instance keeps its component reference while its own id is fresh (PLX-1102)", () => {
+    n = 0;
+    const component = { id: "01a218d7-cb2d-7c04-90ba-72fc7a72c1ca", version: 1 };
+    const page: PageDoc = {
+      ...source,
+      root: {
+        id: "01e0c450-6c00-7000-8000-00000000000b",
+        type: "Scaffold",
+        children: [{ id: "01e0c450-6c00-7000-8000-00000000000d", component }],
+      },
+    };
+    const copy = remapIds(page, seq) as unknown as { root: { children: { id: string; component: unknown }[] } };
+    expect(copy.root.children[0]?.component).toEqual(component);
+    expect(copy.root.children[0]?.id).not.toBe("01e0c450-6c00-7000-8000-00000000000d");
+  });
+
   test("the source is untouched and the copy's key, route and title are made distinct", () => {
     const before = JSON.stringify(source);
     const copy = duplicatePage(source, takenNames([{ json: source }]), "(copy)");

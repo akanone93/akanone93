@@ -97,13 +97,14 @@ describe("[ABT-001] new experiment wizard (A7)", () => {
 
   test("writes the experiment and wraps the selected widget in a Variant of its page (STU-103, build log row 304)", async () => {
     const calls: string[] = [];
+    const TEXT = "01a2a77e-9422-7878-b6a8-bb99d7548201";
     const putDocuments: { path: string; content: string; ifRevision: bigint }[] = [];
     const home = {
       kind: "page",
       id: "pg",
-      root: { id: "col", type: "Column", children: [{ id: "n1", type: "Text", props: { data: "Welcome" } }] },
+      root: { id: "col", type: "Column", children: [{ id: TEXT, type: "Text", props: { data: "Welcome" } }] },
     };
-    open("/new?target=n1&plugin=shop", {
+    open(`/new?target=${TEXT}&plugin=shop`, {
       experiments: { experiments: [], calls },
       security: { putDocuments },
       pluginDocuments: { shop: [{ kind: "page", path: "plugins/shop/pages/home.page.json", json: home }] },
@@ -130,10 +131,10 @@ describe("[ABT-001] new experiment wizard (A7)", () => {
     expect(variant).toMatchObject({
       type: "Variant",
       experiment: "heroLayout",
-      control: { id: "n1", type: "Text", props: { data: "Welcome" } },
+      control: { id: TEXT, type: "Text", props: { data: "Welcome" } },
       variants: { variant: { type: "Text", props: { data: "Welcome" } } },
     });
-    expect(variant.variants.variant.id).not.toBe("n1");
+    expect(variant.variants.variant.id).not.toBe(TEXT);
     expect(calls[0]).toContain("create:heroLayout:");
   });
 

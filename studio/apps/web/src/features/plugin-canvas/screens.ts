@@ -160,21 +160,30 @@ export function blankPage(
   };
 }
 
-function collectNodeIds(value: JsonValue | undefined, out: Set<string>): void {
+/** The fields that hold component references (`{id, version}`, SCH-030): their `id` names a component document. */
+const COMPONENT_REFS: ReadonlySet<string> = new Set(["component", "components"]);
+
+/**
+ * Collects the identifiers `value` defines. An object under a component-reference field names a component defined
+ * elsewhere, so its `id` is a reference, not a definition: an instance copied with its component's ID changed points at
+ * no component (PLX-1102).
+ */
+function collectNodeIds(value: JsonValue | undefined, out: Set<string>, reference = false): void {
   if (Array.isArray(value)) {
     for (const v of value) {
-      collectNodeIds(v, out);
+      collectNodeIds(v, out, reference);
     }
   } else if (value !== null && typeof value === "object") {
     const o = value as { [key: string]: JsonValue | undefined };
     if (
+      !reference &&
       typeof o["id"] === "string" &&
       /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(o["id"])
     ) {
       out.add(o["id"]);
     }
-    for (const v of Object.values(o)) {
-      collectNodeIds(v, out);
+    for (const [k, v] of Object.entries(o)) {
+      collectNodeIds(v, out, COMPONENT_REFS.has(k));
     }
   }
 }
