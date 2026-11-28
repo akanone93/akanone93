@@ -106,7 +106,10 @@ services:
       # PLUX_BFF_DOCS_URL: https://docs.example.org
       NODE_EXTRA_CA_CERTS: /etc/plux/ca.crt
     volumes:
-      - ./.secrets/ca/ca.crt:/etc/plux/ca.crt:ro
+      # The readable copy of the development CA: .secrets/ca/ holds the CA's
+      # key and stays private to its owner, so on Linux the BFF (uid 65532)
+      # could not read the original and answered 502 (build log row 317).
+      - ./.secrets/tls/ca.crt:/etc/plux/ca.crt:ro
     tmpfs: [/tmp]
     networks:
       default:

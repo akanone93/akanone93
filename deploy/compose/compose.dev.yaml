@@ -7,6 +7,10 @@
 # (`make dev`, `make dev-app`); Studio joins with its own watcher in P11.
 services:
   plux-server:
+    # Lets the server reach a service on the developer's machine, such as a
+    # test API behind the gateway, as host.docker.internal: Docker Desktop
+    # provides the name, Docker on Linux needs it mapped (build log row 318).
+    extra_hosts: ["host.docker.internal:host-gateway"]
     environment:
       PLUX_OBSERVABILITY_LOG_LEVEL: debug
     develop:

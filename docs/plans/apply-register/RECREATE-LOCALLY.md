@@ -47,9 +47,8 @@ Time: about an hour, most of it waiting for the first stack start and the functi
 
    A phone or emulator then reaches the server as `localhost` through `adb reverse` (which `make dev` keeps on),
    not as `10.0.2.2`.
-3. **Let the server reach `ar-api` on your machine.** On Docker Desktop (macOS, Windows) `host.docker.internal`
-   works as is. On Linux add, under the `plux-server` service of `deploy/compose/compose.dev.yaml`,
-   `extra_hosts: ["host.docker.internal:host-gateway"]`, and run `make dev` again.
+3. **Let the server reach `ar-api` on your machine.** The server reaches it as `host.docker.internal`: Docker
+   Desktop provides the name, and on Linux `deploy/compose/compose.dev.yaml` maps it (`extra_hosts`).
 4. Start the test service in a second terminal: `cd KIT/ar-api && go run .` (listens on `:8090`; demo sign-in
    `+15555550100`, code `000000`; staff `+15555550101`). Keep the kit outside the checkout, as §1 does: inside it,
    the repository's `go.work` takes over and `go run .` fails (run `GOWORK=off go run .` there).
