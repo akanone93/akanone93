@@ -399,7 +399,7 @@ Appendix L/M, and each component's own props, slots, events, versions and overri
 - [ ] **`EmptyHint`** — props `icon:IconData`, `title:string`, `message:string?`, `cta:string?`; event `cta`; `EmptyState` › action `If cta` › `FilledButton.tonal` ⚡ `emitEvent cta`
 - [ ] **`ErrorBlock`** — props `title:string`, `message:string?`, `retryLabel:string?`, `icon:IconData=cloud_off`; event `retry`; `ErrorState` icon `{{ props.icon }}` · retryLabel `{{ props.retryLabel ?? t("common.retry") }}` · ⚡onRetry `emitEvent retry`
 - [ ] **`ArWhySignIn`** (exported; the host's native sign-in screen shows it with `PluxView('ac-why-sign-in')`) — `Carousel` of 3 `◇BaseCard` variant flat with icon + text
-- [ ] Versioning and reuse checks: publish `OrgCard` v2 (adds a `closesAt` chip in `badge`): Explore adopts v2, Launch stays on v1 (amber diamond); **Detach** one instance in `mt-components`; **Isolate**; **Open component** (versions, instances across apps); editing `BaseCard` lists every instance that will change before saving
+- [ ] Versioning and reuse checks: publish `OrgCard` v2 (adds a `closesAt` chip in `badge`): Explore adopts v2 while Launch, still on v1, shows the amber diamond until it is updated (a release needs every instance on the component's current version, SCH-030, so Launch adopts v2 before §J5 is published); **Detach** one instance in `mt-components`; **Isolate**; **Open component** (versions, instances across apps); editing `BaseCard` lists every instance that will change before saving
 - [ ] Library page: search, filters (visibility, owner, category, tag), previews, usage counts; **Export** `BaseCard` and `OrgCard` to files and **Import** them into a scratch app
 
 ### D2. Templates (select › **Save as template**, two steps; inserted as independent copies)
@@ -1161,7 +1161,7 @@ Plugin: capabilities = all 10 device APIs, every function of §E, native routes 
 
 ### J5. Release 2 (migrations)
 
-- [ ] `app.interests` → `list<Interest>` with `migration`; collection `registrations` v2 rename `note`→`memo` (acknowledge the warning); `OrgCard` v2 adopted by Explore only
+- [ ] `app.interests` → `list<Interest>` with `migration`; collection `registrations` v2 rename `note`→`memo` (a rename keeps every value, so no warning: DB-005 warns only for a drop or a narrowed type); `OrgCard` v2 adopted by every plugin that uses it (Explore and Launch)
 - [ ] 🧪 a device on release 1 with data upgrades cleanly; a device two releases behind resets and reports
 
 ### J6. Analytics and limits
