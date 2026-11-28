@@ -42,6 +42,7 @@ function fixture(state: string, extra: Partial<ReleaseFixture["request"]> = {}, 
     keys: [],
     jobReads: [],
     acknowledgeWarnings: [],
+    companions: [],
     ...rest,
   } satisfies ReleaseFixture;
 }
@@ -76,6 +77,8 @@ describe("[STU-100] publish flow", () => {
     expect(release.jobReads?.every((r) => r === "list")).toBe(true);
     // Warnings do not stop the builds; the Reports step is where they are acknowledged (SRV-051).
     expect(release.acknowledgeWarnings).toEqual([true, true]);
+    // Each part names the others, so a change spanning them builds against their frozen drafts (build log row 309).
+    expect(release.companions).toEqual(["p1:p2", "p2:p1"]);
     expect(release.request.recorded?.map((b) => b.pluginKey)).toEqual(["home", "shared"]);
     release.jobState = "succeeded";
     await waitFor(() => expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy(), { timeout: 5000 });
@@ -291,6 +294,29 @@ describe("[STU-100] publish flow", () => {
     await step("Select plugins");
     press("Continue");
     await screen.findByText("The step failed: PLX-8052: the project to render is incomplete");
+  });
+
+  test("A1 resumes the open request wherever its target step sent it, instead of opening a second (build log row 310)", async () => {
+    const release = fixture("select", { open: true, environmentId: "env-prod" });
+    const { router } = open("/publish", release, {
+      summaries: [{ id: "p1", key: "home", name: "Home", unpublishedChanges: true }],
+    });
+    await step("Select plugins");
+    expect(router.state.location.pathname).toBe(`${base}/publish/r1`);
+    expect(release.calls).toEqual([]);
+  });
+
+  test("A1 with ?env resumes that environment's request and opens one where none is open (build log row 310)", async () => {
+    const changed = [{ id: "p1", key: "home", name: "Home", unpublishedChanges: true }];
+    const production = fixture("select", { open: true, environmentId: "env-prod" });
+    open("/publish?env=production", production, { summaries: changed });
+    await step("Select plugins");
+    expect(production.calls).toEqual([]);
+    cleanup();
+    const development = fixture("select", { open: true, environmentId: "env-prod" });
+    open("/publish?env=development", development, { summaries: changed });
+    await step("Select plugins");
+    expect(development.calls).toEqual(["create:home"]);
   });
 
   test("A1 says so when nothing changed and nothing is open", async () => {

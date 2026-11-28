@@ -13997,6 +13997,12 @@ msgstr "Plux Test"
 msgid "functions.promoteAlias"
 msgstr "Point alias at this version"
 
+#. Explains the promote panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteHint"
+msgstr "Points the channel of another environment at this release, unchanged: the same bundles and signatures. A security check is required, and the environment's approval policy may hold the promotion until it is approved."
+
 #. Link to the approval policies.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -14290,6 +14296,18 @@ msgstr "Progress of generating the project"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.project"
 msgstr "Project"
+
+#. Heading of the panel that sends this release to another environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteTitle"
+msgstr "Promote"
+
+#. Button: send this release to the chosen environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promote"
+msgstr "Promote release"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -14787,6 +14805,12 @@ msgstr "Release {sequence}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.releases.release"
 msgstr "Release {sequence} · {date}"
+
+#. Shown after a promotion went through.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoted"
+msgstr "Release {sequence} is now on {environment}."
 
 #. Label of the label field of a shipped variant.
 #. js-lingui-explicit-id
@@ -18399,6 +18423,12 @@ msgstr "Target"
 msgid "experiments.stepTarget"
 msgstr "Target"
 
+#. Label of the environment a release is promoted to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteTarget"
+msgstr "Target environment"
+
 #. Label of the choice of the plugin a screen moves to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -18656,6 +18686,12 @@ msgstr "The app does not have this component: the canvas cannot draw it"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.bulk.productionNote"
 msgstr "The app has a production release. Type the app's key to confirm."
+
+#. Shown when the app has a single environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteNoTarget"
+msgstr "The app has no other environment to promote to."
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id
@@ -19616,6 +19652,12 @@ msgstr "The project could not be generated."
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.generated-at"
 msgstr "The project was generated on {when}."
+
+#. Shown when the target's approval policy holds a promotion.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteAwaitsApproval"
+msgstr "The promotion needs approval. A request was opened in Approvals; promote again once it is approved."
 
 #. Heading of the public scan result.
 #. js-lingui-explicit-id

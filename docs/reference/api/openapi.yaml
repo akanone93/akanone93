@@ -31980,6 +31980,17 @@ components:
           description: |-
             acknowledge_warnings publishes despite warnings; without it a warning
              that policy does not allow stops the publish (SRV-051).
+        companionPluginIds:
+          type: array
+          items:
+            type: string
+          title: companion_plugin_ids
+          description: |-
+            companion_plugin_ids names the other parts built with this one for the
+             same release request: plugins by ID, an empty entry naming the app
+             bundle. The publish compiles them at their current drafts, frozen with
+             its own, instead of at their newest versions, so a change that spans
+             the app and its plugins builds (REL-003).
       title: PublishRequest
       additionalProperties: false
     plux.v1.PublishResponse:

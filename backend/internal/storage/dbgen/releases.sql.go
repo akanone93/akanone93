@@ -14,7 +14,7 @@ import (
 const cancelPublishJob = `-- name: CancelPublishJob :one
 UPDATE publish_jobs SET state = 'cancelled', finished_at = now()
  WHERE id = $1 AND state IN ('queued', 'running')
-RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at
+RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at, companions
 `
 
 func (q *Queries) CancelPublishJob(ctx context.Context, id pgtype.UUID) (PublishJob, error) {
@@ -41,6 +41,7 @@ func (q *Queries) CancelPublishJob(ctx context.Context, id pgtype.UUID) (Publish
 		&i.ActorDisplay,
 		&i.CreatedAt,
 		&i.FinishedAt,
+		&i.Companions,
 	)
 	return i, err
 }
@@ -64,9 +65,9 @@ func (q *Queries) CountPages(ctx context.Context, arg CountPagesParams) (int64, 
 
 const createPublishJob = `-- name: CreatePublishJob :one
 INSERT INTO publish_jobs (id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state,
-                          label, notes, acknowledge_warnings, actor_kind, actor_id, actor_display)
-VALUES ($1, $2, $3, $4, $5, $6, $7, 'queued', $8, $9, $10, $11, $12, $13)
-RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at
+                          label, notes, acknowledge_warnings, actor_kind, actor_id, actor_display, companions)
+VALUES ($1, $2, $3, $4, $5, $6, $7, 'queued', $8, $9, $10, $11, $12, $13, $14)
+RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at, companions
 `
 
 type CreatePublishJobParams struct {
@@ -83,6 +84,7 @@ type CreatePublishJobParams struct {
 	ActorKind           string
 	ActorID             string
 	ActorDisplay        string
+	Companions          []byte
 }
 
 func (q *Queries) CreatePublishJob(ctx context.Context, arg CreatePublishJobParams) (PublishJob, error) {
@@ -100,6 +102,7 @@ func (q *Queries) CreatePublishJob(ctx context.Context, arg CreatePublishJobPara
 		arg.ActorKind,
 		arg.ActorID,
 		arg.ActorDisplay,
+		arg.Companions,
 	)
 	var i PublishJob
 	err := row.Scan(
@@ -123,6 +126,7 @@ func (q *Queries) CreatePublishJob(ctx context.Context, arg CreatePublishJobPara
 		&i.ActorDisplay,
 		&i.CreatedAt,
 		&i.FinishedAt,
+		&i.Companions,
 	)
 	return i, err
 }
@@ -172,7 +176,7 @@ const finishPublishJob = `-- name: FinishPublishJob :one
 UPDATE publish_jobs
    SET state = $2, stage = $3, percent = $4, diagnostics = $5, version = $6, finished_at = now()
  WHERE id = $1 AND state IN ('queued', 'running')
-RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at
+RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at, companions
 `
 
 type FinishPublishJobParams struct {
@@ -215,6 +219,7 @@ func (q *Queries) FinishPublishJob(ctx context.Context, arg FinishPublishJobPara
 		&i.ActorDisplay,
 		&i.CreatedAt,
 		&i.FinishedAt,
+		&i.Companions,
 	)
 	return i, err
 }
@@ -243,7 +248,7 @@ func (q *Queries) GetChannelForUpdate(ctx context.Context, arg GetChannelForUpda
 }
 
 const getPublishJob = `-- name: GetPublishJob :one
-SELECT id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at FROM publish_jobs WHERE id = $1
+SELECT id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at, companions FROM publish_jobs WHERE id = $1
 `
 
 func (q *Queries) GetPublishJob(ctx context.Context, id pgtype.UUID) (PublishJob, error) {
@@ -270,12 +275,13 @@ func (q *Queries) GetPublishJob(ctx context.Context, id pgtype.UUID) (PublishJob
 		&i.ActorDisplay,
 		&i.CreatedAt,
 		&i.FinishedAt,
+		&i.Companions,
 	)
 	return i, err
 }
 
 const getPublishJobForUpdate = `-- name: GetPublishJobForUpdate :one
-SELECT id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at FROM publish_jobs WHERE id = $1 FOR UPDATE
+SELECT id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at, companions FROM publish_jobs WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetPublishJobForUpdate(ctx context.Context, id pgtype.UUID) (PublishJob, error) {
@@ -302,6 +308,7 @@ func (q *Queries) GetPublishJobForUpdate(ctx context.Context, id pgtype.UUID) (P
 		&i.ActorDisplay,
 		&i.CreatedAt,
 		&i.FinishedAt,
+		&i.Companions,
 	)
 	return i, err
 }
@@ -824,7 +831,7 @@ func (q *Queries) ListAllReleases(ctx context.Context, appID pgtype.UUID) ([]Rel
 }
 
 const listPublishJobs = `-- name: ListPublishJobs :many
-SELECT id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at FROM publish_jobs
+SELECT id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at, companions FROM publish_jobs
  WHERE app_id = $1
    AND ($2::uuid IS NULL OR plugin_id = $2::uuid)
    AND (created_at, id) < ($3::timestamptz, $4::uuid)
@@ -876,6 +883,7 @@ func (q *Queries) ListPublishJobs(ctx context.Context, arg ListPublishJobsParams
 			&i.ActorDisplay,
 			&i.CreatedAt,
 			&i.FinishedAt,
+			&i.Companions,
 		); err != nil {
 			return nil, err
 		}
@@ -1271,7 +1279,7 @@ func (q *Queries) PointChannel(ctx context.Context, arg PointChannelParams) (Cha
 const progressPublishJob = `-- name: ProgressPublishJob :one
 UPDATE publish_jobs SET state = 'running', stage = $2, percent = $3
  WHERE id = $1 AND state IN ('queued', 'running')
-RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at
+RETURNING id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state, stage, percent, label, notes, acknowledge_warnings, version, diagnostics, actor_kind, actor_id, actor_display, created_at, finished_at, companions
 `
 
 type ProgressPublishJobParams struct {
@@ -1304,6 +1312,7 @@ func (q *Queries) ProgressPublishJob(ctx context.Context, arg ProgressPublishJob
 		&i.ActorDisplay,
 		&i.CreatedAt,
 		&i.FinishedAt,
+		&i.Companions,
 	)
 	return i, err
 }

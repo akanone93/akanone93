@@ -133,6 +133,8 @@ export interface ApprovalsData {
     approvalsRequired?: number;
     diff?: string;
     risk?: string;
+    /** When the request was opened, in milliseconds; the server lists newest first. */
+    createdAt?: number;
     decisions?: { id: string; decider: string; decision: string; comment: string; auditSequence?: number }[];
   }[];
   breakGlass?: {
@@ -196,6 +198,10 @@ export interface ReleaseFixture {
   request: {
     id: string;
     state: string;
+    /** The environment the request targets (default `env-dev`). */
+    environmentId?: string;
+    /** The request is open before Studio starts; otherwise it is listed only once Studio has created it. */
+    open?: boolean;
     hold?: string;
     createdBy?: string;
     createdByName?: string;
@@ -218,6 +224,8 @@ export interface ReleaseFixture {
   calls: string[];
   /** The acknowledge_warnings flag of each publish Studio started. */
   acknowledgeWarnings?: boolean[];
+  /** Each publish Studio started, as `<plugin id>:<companion plugin ids>` (an empty id is the app bundle). */
+  companions?: string[];
   /** AdvanceReleaseRequest is refused with this message (a server refusal, its code first). */
   refuseAdvance?: string;
   /** An error code RequestReleaseApproval refuses with, such as PLX-8062 from a server that requires the visual diff. */
@@ -267,6 +275,8 @@ export interface ReleasesFixture {
   killed?: string[];
   calls?: string[];
   failing?: boolean;
+  /** The server's refusal of a promotion, as its message (e.g. a PLX-8001 approval hold). */
+  refusePromote?: string;
 }
 
 /** The Experiments and flags area (STU-103): experiments with results, flags, and every mutation received as \`rpc:detail\`. */
@@ -982,6 +992,7 @@ export function createUpstream(state: UpstreamData) {
         publish: (req, ctx) => {
           state.release?.keys?.push(ctx.requestHeader.get("Idempotency-Key") ?? "");
           state.release?.acknowledgeWarnings?.push(req.acknowledgeWarnings);
+          state.release?.companions?.push(`${req.pluginId}:${req.companionPluginIds.join(",")}`);
           startedJobs.unshift(`job-${req.pluginId}`);
           return { job: { id: `job-${req.pluginId}`, state: "running", percent: 40 } };
         },
@@ -1617,12 +1628,14 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
   const r = fx.request;
   // The revision a refreeze raises, as the server does: it always starts a new one (#192).
   let revision = 1;
+  // As the server lists it: an open request exists once it was created (or the test says it was open already).
+  let exists = r.open === true;
   const view = () => {
     const built = releaseOrder.indexOf(r.state) > 1 || ["released", "rejected"].includes(r.state);
     return {
       id: r.id,
       appId: "app1",
-      environmentId: "env-dev",
+      environmentId: r.environmentId ?? "env-dev",
       channel: "production",
       state: r.state,
       hold: r.hold ?? "",
@@ -1664,9 +1677,10 @@ function releaseRequestHandlers(fx: ReleaseFixture): Partial<ServiceImpl<typeof 
         );
       }
       fx.calls.push(`create:${req.plugins.map((p) => p.pluginKey).join(",")}`);
+      exists = true;
       return { request: view(), existing: false };
     },
-    listReleaseRequests: () => ({ requests: r.state === "released" ? [] : [view()] }),
+    listReleaseRequests: () => ({ requests: exists && r.state !== "released" ? [view()] : [] }),
     getReleaseRequest: () => ({
       request: view(),
       visualDiff: fx.diff && {
@@ -1768,6 +1782,14 @@ function releaseHandlers(data: ReleasesFixture | undefined) {
     rollbackRelease: (req: { toSequence: bigint; channelKey: string }) => {
       data?.calls?.push(`rollback:${req.toSequence}:${req.channelKey}`);
       return {};
+    },
+    promoteRelease: (req: { sequence: bigint; environmentId: string; channelKey: string }) => {
+      data?.calls?.push(`promote:${req.sequence}:${req.environmentId}:${req.channelKey}`);
+      if (data?.refusePromote !== undefined) {
+        throw new ConnectError(data.refusePromote, Code.FailedPrecondition);
+      }
+      const found = data?.releases.find((r) => BigInt(r.sequence) === req.sequence);
+      return { release: found === undefined ? undefined : releaseOf(found) };
     },
   };
 }
@@ -1971,6 +1993,7 @@ function approvalsServices(
       approvalsRequired: r.approvalsRequired ?? 2,
       policyKeys: ["default-standard-production-release"],
       decisions: (r.decisions ?? []).map((d) => ({ ...d, auditSequence: BigInt(d.auditSequence ?? 0) })),
+      ...(r.createdAt !== undefined && { createdAt: timestampFromMs(r.createdAt) }),
     });
   const refuse = () => {
     if (data.refusal !== undefined) {
@@ -1980,7 +2003,8 @@ function approvalsServices(
   service(ApprovalService, {
     listApprovals: (req) => {
       fail();
-      const all = (data.requests ?? []).filter((r) => req.appId === "" || r.appId === req.appId);
+      // As the server: an empty app lists the organisation's own requests only, never an app's.
+      const all = (data.requests ?? []).filter((r) => r.appId === req.appId);
       return { approvals: all.filter((r) => req.status === "" || r.status === req.status).map(request) };
     },
     getApprovalReview: (req) => {

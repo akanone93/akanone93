@@ -169,6 +169,13 @@ type reqKit struct {
 
 func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
 	t.Helper()
+	return f.requestsWith(t, limit, nil)
+}
+
+// requestsWith is requests with the approval engine the service asks; nil
+// keeps the stub gate.
+func (f *fixture) requestsWith(t *testing.T, limit int64, engine approval.Gate) *reqKit {
+	t.Helper()
 	gen := ids{g: uuid7.NewGenerator(time.Now, rand.Reader)}
 	approvalID, err := gen.New()
 	if err != nil {
@@ -179,8 +186,12 @@ func (f *fixture) requests(t *testing.T, limit int64) *reqKit {
 	if err != nil {
 		t.Fatal(err)
 	}
+	var gate approval.Gate = k.gate
+	if engine != nil {
+		gate = engine
+	}
 	k.svc = releasereq.New(releasereq.Options{
-		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: k.gate, Renderer: k.renderer, Sources: k.sources, Functions: k.functions,
+		DB: f.db, IDs: gen, Builds: k.builds, Jobs: k.queue, Objects: f.store, Releaser: k.releaser, Approvals: gate, Renderer: k.renderer, Sources: k.sources, Functions: k.functions,
 		Limits: func(context.Context, pgx.Tx, string) (limits.Set, error) { return set, nil },
 	})
 	// The app was released before and only its plugins changed: a release holds

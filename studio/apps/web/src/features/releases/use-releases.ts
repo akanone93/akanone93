@@ -79,6 +79,8 @@ export function useReleaseActions(app: string) {
           ...(endAt !== undefined && { endAt: { seconds: BigInt(Math.floor(endAt.getTime() / 1000)), nanos: 0 } }),
         }),
       ),
+    promote: (environmentId: string, channelKey: string, sequence: bigint) =>
+      done(releases.promoteRelease({ appId: app, environmentId, channelKey, sequence })),
     rollback: (environmentId: string, channelKey: string, toSequence: bigint) =>
       done(releases.rollbackRelease({ appId: app, environmentId, channelKey, toSequence })),
     setKillSwitch: (environmentId: string, channelKey: string, target: string) =>

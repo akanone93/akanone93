@@ -168,6 +168,44 @@ export function releasesMessages(i18n: I18n) {
       message: "Creates a new release with this content on the channel. A security check is required.",
       comment: "Explains the rollback button.",
     }),
+    promoteTitle: i18n._({
+      id: "releases.promoteTitle",
+      message: "Promote",
+      comment: "Heading of the panel that sends this release to another environment.",
+    }),
+    promoteHint: i18n._({
+      id: "releases.promoteHint",
+      message:
+        "Points the channel of another environment at this release, unchanged: the same bundles and signatures. A security check is required, and the environment's approval policy may hold the promotion until it is approved.",
+      comment: "Explains the promote panel.",
+    }),
+    promoteTarget: i18n._({
+      id: "releases.promoteTarget",
+      message: "Target environment",
+      comment: "Label of the environment a release is promoted to.",
+    }),
+    promote: i18n._({
+      id: "releases.promote",
+      message: "Promote release",
+      comment: "Button: send this release to the chosen environment.",
+    }),
+    promoteNoTarget: i18n._({
+      id: "releases.promoteNoTarget",
+      message: "The app has no other environment to promote to.",
+      comment: "Shown when the app has a single environment.",
+    }),
+    promoted: (sequence: string, environment: string) =>
+      i18n._({
+        id: "releases.promoted",
+        message: "Release {sequence} is now on {environment}.",
+        comment: "Shown after a promotion went through.",
+        values: { sequence, environment },
+      }),
+    promoteAwaitsApproval: i18n._({
+      id: "releases.promoteAwaitsApproval",
+      message: "The promotion needs approval. A request was opened in Approvals; promote again once it is approved.",
+      comment: "Shown when the target's approval policy holds a promotion.",
+    }),
     abortHint: i18n._({
       id: "releases.abortHint",
       message: "Ends the rollout and returns the channel to its previous release. A security check is required.",

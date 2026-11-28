@@ -39,6 +39,7 @@ func (s Publish) Publish(ctx context.Context, req *connect.Request[pluxv1.Publis
 		j, err := s.h.Releases.Publish(ctx, p, release.PublishRequest{
 			AppID: m.GetAppId(), PluginID: m.GetPluginId(), EnvironmentID: m.GetEnvironmentId(), Revision: m.GetRevision(),
 			Label: m.GetLabel(), Notes: m.GetNotes(), AcknowledgeWarnings: m.GetAcknowledgeWarnings(),
+			Companions: m.GetCompanionPluginIds(),
 		})
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error

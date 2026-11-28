@@ -99,6 +99,8 @@ export function useReleaseApi(
     /**
      * Starts, or re-attaches to, one publish job per plugin; the same key returns the original job. The key names the
      * request's revision, or the one given: a refreeze starts a new revision, so its builds are new attempts (#192).
+     * Each part names the others as its companions (the app bundle by an empty id), so the server compiles them at their
+     * drafts, frozen with its own, and a change that spans the app and its plugins builds (build log row 309).
      */
     startBuilds: async (
       plugins: readonly SelectedPlugin[],
@@ -106,17 +108,19 @@ export function useReleaseApi(
       revision: bigint = request.revision,
     ) => {
       const publish = createClient(PublishService, session.transport);
+      const ids = plugins.map((p) => pluginIds.get(p.pluginKey) ?? "");
       return Promise.all(
-        plugins.map(async (p) => {
+        plugins.map(async (p, i) => {
           // Warnings do not stop a build of the release flow: the Reports step lists each build's warnings and the
           // server moves the request on only once the publisher has acknowledged every one of them, before anything
           // is released (SRV-051). Errors still fail the build.
           const { job } = await publish.publish(
             {
               appId: app,
-              pluginId: pluginIds.get(p.pluginKey) ?? "",
+              pluginId: ids[i] ?? "",
               environmentId: request.environmentId,
               acknowledgeWarnings: true,
+              companionPluginIds: ids.filter((_, j) => j !== i),
             },
             { headers: { "Idempotency-Key": `${request.id}:${p.pluginKey}:${revision}` } },
           );
@@ -130,9 +134,12 @@ export function useReleaseApi(
 export type ReleaseApi = ReturnType<typeof useReleaseApi>;
 
 /**
- * A1: resumes the open release request of the app or opens one with the changed plugins (one open request per app and
- * channel). The server adds the app bundle when the app's own documents changed or it was never published, so a
- * request also opens when only the app changed (`appChanged`, STU-100).
+ * A1: resumes an open release request of the app or opens one with the changed plugins. With an environment in the
+ * address (`scoped`) it resumes that environment's open request; without one, the newest open request wherever its
+ * target step sent it, since the server resumes only a request of the same environment and a retargeted request would
+ * otherwise be left behind by a second one (build log row 310). A request is opened only when none is to be resumed.
+ * The server adds the app bundle when the app's own documents changed or it was never published, so a request also
+ * opens when only the app changed (`appChanged`, STU-100).
  */
 export function useStartRequest() {
   const { session } = useApp();
@@ -141,13 +148,16 @@ export function useStartRequest() {
     environmentId: string,
     plugins: MessageInitShape<typeof SelectedPluginSchema>[],
     appChanged = false,
+    scoped = false,
   ): Promise<string | undefined> => {
     const client = createClient(ReleaseRequestService, session.transport);
-    if (plugins.length === 0) {
-      const { requests } = await client.listReleaseRequests({ appId, openOnly: true });
-      if (requests[0] !== undefined || !appChanged) {
-        return requests[0]?.id;
-      }
+    const { requests } = await client.listReleaseRequests({ appId, openOnly: true });
+    const open = scoped ? requests.find((r) => r.environmentId === environmentId) : requests[0];
+    if (open !== undefined) {
+      return open.id;
+    }
+    if (plugins.length === 0 && !appChanged) {
+      return undefined;
     }
     return (await client.createReleaseRequest({ appId, environmentId, plugins })).request?.id;
   };

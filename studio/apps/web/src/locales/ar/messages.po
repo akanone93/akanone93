@@ -13997,6 +13997,12 @@ msgstr "اختبار Plux"
 msgid "functions.promoteAlias"
 msgstr "توجيه الاسم المستعار إلى هذا الإصدار"
 
+#. Explains the promote panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteHint"
+msgstr "يوجّه قناة بيئة أخرى إلى هذا الإصدار دون تغيير: الحزم والتوقيعات نفسها. يلزم فحص أمني، وقد تُبقي سياسة الموافقة في البيئة الترقية معلّقة حتى تتم الموافقة عليها."
+
 #. Link to the approval policies.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -14290,6 +14296,18 @@ msgstr "تقدم توليد المشروع"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.project"
 msgstr "المشروع"
+
+#. Heading of the panel that sends this release to another environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteTitle"
+msgstr "ترقية"
+
+#. Button: send this release to the chosen environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promote"
+msgstr "ترقية الإصدار"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -14787,6 +14805,12 @@ msgstr "الإصدار {sequence}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.releases.release"
 msgstr "الإصدار {sequence} · {date}"
+
+#. Shown after a promotion went through.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoted"
+msgstr "الإصدار {sequence} موجود الآن في {environment}."
 
 #. Label of the label field of a shipped variant.
 #. js-lingui-explicit-id
@@ -18399,6 +18423,12 @@ msgstr "الوجهة"
 msgid "experiments.stepTarget"
 msgstr "الهدف"
 
+#. Label of the environment a release is promoted to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteTarget"
+msgstr "البيئة المستهدفة"
+
 #. Label of the choice of the plugin a screen moves to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -18656,6 +18686,12 @@ msgstr "لا يملك التطبيق هذا المكوّن: لا يمكن للو
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.bulk.productionNote"
 msgstr "للتطبيق إصدار إنتاج. اكتب مفتاح التطبيق للتأكيد."
+
+#. Shown when the app has a single environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteNoTarget"
+msgstr "لا توجد لدى التطبيق بيئة أخرى للترقية إليها."
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id
@@ -19616,6 +19652,12 @@ msgstr "تعذّر توليد المشروع."
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.generated-at"
 msgstr "وُلِّد المشروع في {when}."
+
+#. Shown when the target's approval policy holds a promotion.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteAwaitsApproval"
+msgstr "تحتاج الترقية إلى موافقة. فُتح طلب في الموافقات؛ أعد الترقية بعد الموافقة عليه."
 
 #. Heading of the public scan result.
 #. js-lingui-explicit-id

@@ -14,6 +14,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/approval"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -110,7 +111,7 @@ func (s *Service) askEngine(ctx context.Context, tx pgx.Tx, p auth.Principal, r 
 	err = approval.Require(ctx, s.o.Approvals, tx, approval.Artifact{
 		Resource: schema.PolicyResourceRelease, OrganizationID: p.OrganizationID, AppID: r.AppID,
 		Environment: approval.Environment{ID: r.EnvironmentID, Key: e.Key, Production: e.Production},
-		Action:      ActionRelease, Subject: "releaseRequest:" + r.ID, Hash: approvalHash(*r),
+		Action:      ActionRelease, Subject: release.RequestSubjectPrefix + r.ID, Hash: approvalHash(*r),
 		Summary: fmt.Sprintf("Release %d plugin(s) to %s/%s", len(r.Plugins), e.Key, r.Channel),
 		Author:  r.CreatedBy, Requester: p.Actor(), RequesterUser: p.UserID,
 	})

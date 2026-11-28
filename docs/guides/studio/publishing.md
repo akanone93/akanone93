@@ -12,8 +12,10 @@ guide covers Studio's screens.
 
 ## Publish
 
-1. Choose **Publish** on the plugin canvas or in the app's navigation. Studio opens a release
-   request. If neither a plugin nor the app's own documents have unpublished changes it says so.
+1. Choose **Publish** on the plugin canvas or in the app's navigation. Studio resumes the app's open
+   release request, wherever its target step sent it (opened from a page with an environment, that
+   environment's request), and opens a new one only when none is open. If none is open and neither a
+   plugin nor the app's own documents have unpublished changes, it says so.
    Publishing needs your security key confirmed in the last five minutes (step-up, `SEC-103`): when it has
    not been, Studio asks you to confirm it is you (**Use security key or passkey**) and then carries on, at the
    start and at any later step.
@@ -23,7 +25,9 @@ guide covers Studio's screens.
    settings, theme or translations) changed since its last release, or it was never released, the
    **App (theme, translations, settings)** bundle is added as well: the plugins may read its new
    keys and tokens, so it is released with them.
-3. **Freeze and build.** Editing may continue; the builds freeze the draft as it is now. Each plugin
+3. **Freeze and build.** Editing may continue; the builds freeze the draft as it is now. The app and
+   the plugins of the request are built against each other's frozen drafts, so a change that spans
+   them (a type renamed in the app and in the plugins that use it) builds in one request. Each plugin
    shows *Queued*, *Running*, *Built* or *Failed* with its progress; a failed build lists the findings
    that stopped it (code, message and file). Errors fail a build; warnings do not, they wait for the next
    step. **Freeze again** takes the current draft and builds it again, in one press: use it after editing,
@@ -57,6 +61,12 @@ server refuses a step, Studio shows its reason ("The step failed: …") under th
 - **Rollout controls:** **Pause**, **Resume**, **Advance to next stage**, **Change end** and **Abort
   rollout**. A stuck or paused rollout: [Stuck rollout](../../runbooks/stuck-rollout.md) and
   [Health-gate false positives](../../runbooks/health-gate-false-positives.md).
+- **Promote** sends the release, unchanged (the same bundles and signatures), to another
+  environment: choose the **Target environment** and **Promote release**; it asks for a security
+  check (step-up) and needs `release.promote`. Every function version the release pins must be in
+  that environment first (`plux fn promote`). When the environment's approval policy holds the
+  promotion, the panel says so with the server's reason and an approval request opens in
+  **Approvals**; promote again once it is approved.
 - **Roll back to this release** creates a new release with this content on the channel; it asks for
   a security check (step-up).
 - **Kill switch** switches a plugin off for every device of the environment without a new release.

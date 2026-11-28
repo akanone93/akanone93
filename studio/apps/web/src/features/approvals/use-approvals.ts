@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { ConnectError, createClient } from "@connectrpc/connect";
-import { ApprovalService, AppService, BreakGlassService } from "@plux/api";
+import { timestampMs } from "@bufbuild/protobuf/wkt";
+import { Code, ConnectError, createClient } from "@connectrpc/connect";
+import { type ApprovalRequest, ApprovalService, AppService, BreakGlassService } from "@plux/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearch } from "@tanstack/react-router";
 import { useApp } from "../../lib/use-app.tsx";
@@ -29,11 +30,36 @@ export function useApps() {
   });
 }
 
+const createdMs = (r: ApprovalRequest) => (r.createdAt === undefined ? 0 : timestampMs(r.createdAt));
+
+/**
+ * The requests of `?app`, newest first. The server lists one scope per call, an empty app being the organisation's own
+ * requests only, so "All apps" asks for the organisation's and for each app's the person can read, and merges them;
+ * an app whose requests the person may not read is left out.
+ */
 export function useApprovals(app: string, status: string) {
   const { session } = useApp();
   return useQuery({
     queryKey: ["approvals", app, status],
-    queryFn: () => createClient(ApprovalService, session.transport).listApprovals({ appId: app, status }),
+    queryFn: async (): Promise<{ approvals: ApprovalRequest[] }> => {
+      const client = createClient(ApprovalService, session.transport);
+      if (app !== "") {
+        return { approvals: (await client.listApprovals({ appId: app, status })).approvals };
+      }
+      const apps = await createClient(AppService, session.transport).listApps({});
+      const scopes = ["", ...apps.apps.map((a) => a.id)];
+      const lists = await Promise.allSettled(scopes.map((appId) => client.listApprovals({ appId, status })));
+      const approvals = lists.flatMap((l) => {
+        if (l.status === "fulfilled") {
+          return l.value.approvals;
+        }
+        if (l.reason instanceof ConnectError && l.reason.code === Code.PermissionDenied) {
+          return [];
+        }
+        throw l.reason;
+      });
+      return { approvals: approvals.sort((a, b) => createdMs(b) - createdMs(a)) };
+    },
   });
 }
 

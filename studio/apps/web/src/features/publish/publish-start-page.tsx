@@ -3,17 +3,21 @@
 
 import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useEffect } from "react";
 import { PageEmpty, PageHeader, PageStatus } from "../../components/page.tsx";
 import { useEnvironment, useScope } from "../security/use-security.ts";
 import { publishMessages } from "./publish.messages.ts";
 import { useAppChanges, useStartRequest, useSummaries } from "./use-publish.ts";
 
-/** A1: resumes the open release request or creates one with the plugins that have unpublished changes (STU-100). */
+/**
+ * A1: resumes an open release request, that of `?env` when the address names one, or creates one with the plugins that
+ * have unpublished changes (STU-100).
+ */
 export function PublishStartPage(): ReactElement {
   const m = publishMessages(useLingui().i18n);
   const { app, env } = useScope();
+  const scoped = (useSearch({ strict: false }) as { env?: string }).env !== undefined;
   const org = (useParams({ strict: false }) as { org?: string }).org ?? "";
   const navigate = useNavigate();
   const environment = useEnvironment(app, env);
@@ -25,15 +29,15 @@ export function PublishStartPage(): ReactElement {
   const appChanged = appChanges.data;
   // A query, not an effect, so that a refusal reaches the page with its reason: publishing needs a fresh
   // security-key confirmation (SEC-103), and the refusal's "confirm" runs the active queries again, this one
-  // included. The server resumes the open request rather than opening a second one.
+  // included. An open request is resumed rather than a second one opened.
   const started = useQuery({
-    queryKey: ["publish-start", app, environmentId],
+    queryKey: ["publish-start", app, environmentId, scoped],
     enabled: environmentId !== undefined && loaded !== undefined && appChanged !== undefined,
     queryFn: async () => {
       const changed = (loaded ?? [])
         .filter((s) => s.unpublishedChanges)
         .map((s) => ({ pluginKey: s.plugin?.key ?? "", reason: "changed" }));
-      return { id: await start(app, environmentId ?? "", changed, appChanged === true) };
+      return { id: await start(app, environmentId ?? "", changed, appChanged === true, scoped) };
     },
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,

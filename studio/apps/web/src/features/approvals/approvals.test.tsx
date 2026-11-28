@@ -63,6 +63,38 @@ describe("[STU-102] inbox and history", () => {
     expect(screen.queryByRole("link", { name: "Promote release 12" })).toBeNull();
   });
 
+  test("O7's All apps lists the organisation's requests and every app's, newest first (build log row 308)", async () => {
+    open("", {
+      approvals: {
+        requests: [
+          { id: "o1", appId: "", status: "open", requestedBy: "u2", summary: "Change the policy", createdAt: 3_000 },
+          {
+            id: "a1",
+            appId: "app1",
+            status: "open",
+            requestedBy: "u2",
+            summary: "Promote release 2",
+            createdAt: 4_000,
+          },
+          {
+            id: "a2",
+            appId: "app1",
+            status: "open",
+            requestedBy: "u2",
+            summary: "Promote release 1",
+            createdAt: 2_000,
+          },
+        ],
+      },
+    });
+    await screen.findByRole("link", { name: "Promote release 2" });
+    const names = screen
+      .getAllByRole("link")
+      .map((l) => l.textContent ?? "")
+      .filter((t) => ["Change the policy", "Promote release 2", "Promote release 1"].includes(t));
+    expect(names).toEqual(["Promote release 2", "Change the policy", "Promote release 1"]);
+  });
+
   test("O7 limits the list to the requests I made with ?mine", async () => {
     open("?mine=true", { approvals: { requests } });
     await screen.findByRole("link", { name: "Promote release 13" });

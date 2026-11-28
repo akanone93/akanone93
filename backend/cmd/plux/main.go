@@ -37,7 +37,7 @@ Commands:
   mock        Serve an OpenAPI document as a mock API
   keys        List an environment's public keys
   native      scan | sync the host app's native catalogue
-  fn          new | build | test | invoke | deploy | alias | versions | logs of Plux Functions
+  fn          new | build | test | invoke | deploy | promote | alias | versions | logs | triggers of Plux Functions
   dev         pair a device, push saved changes to it, drive it and watch its logs and traces
   security    config show | set | diff an environment's security configuration
   l10n        pull | push | export | import | status | extract | pseudo of an app's translations

@@ -25,6 +25,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
+	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/signing"
@@ -80,6 +81,19 @@ type PublishRequest struct {
 	Revision            int64
 	Label, Notes        string
 	AcknowledgeWarnings bool
+	// Companions are the other parts built with this one for the same
+	// release request: plugin IDs, an empty one naming the app-level draft.
+	// They are compiled at their current drafts, frozen with this one, not
+	// at their newest versions (REL-003).
+	Companions []string
+}
+
+// companion is another part of a release request frozen with a publish: its
+// plugin ID, empty for the app-level draft, and the snapshot it is compiled
+// at.
+type companion struct {
+	PluginID   string `json:"plugin_id"`
+	SnapshotID string `json:"snapshot_id"`
 }
 
 // Publish freezes a draft and starts a durable publish job (SRV-050).
@@ -116,9 +130,13 @@ func (s *Service) enqueuePublish(ctx context.Context, tx pgx.Tx, p auth.Principa
 	if err := authorizeEnvironment(p, auth.ReleasePublish, r.AppID, env.Key); err != nil {
 		return PublishJob{}, err
 	}
-	frozen, err := s.o.Documents.FreezeDraft(ctx, tx, r.AppID, r.PluginID, r.Revision)
+	frozen, companions, err := s.freezeParts(ctx, tx, r)
 	if err != nil {
-		return PublishJob{}, err //nolint:wrapcheck // a domain error
+		return PublishJob{}, err
+	}
+	companionsJSON, err := json.Marshal(companions)
+	if err != nil {
+		return PublishJob{}, fmt.Errorf("release: encode the companions: %w", err)
 	}
 	snapshot := ""
 	if r.PluginID == "" {
@@ -143,7 +161,7 @@ func (s *Service) enqueuePublish(ctx context.Context, tx pgx.Tx, p auth.Principa
 		ID: storage.MustUUID(id), OrganizationID: storage.MustUUID(p.OrganizationID), AppID: app, PluginID: plugin,
 		EnvironmentID: env.ID, Revision: frozen.Revision, SnapshotID: storage.MustUUID(frozen.SnapshotID),
 		Label: r.Label, Notes: r.Notes, AcknowledgeWarnings: r.AcknowledgeWarnings,
-		ActorKind: p.Kind, ActorID: p.ID, ActorDisplay: p.Display,
+		ActorKind: p.Kind, ActorID: p.ID, ActorDisplay: p.Display, Companions: companionsJSON,
 	})
 	if err != nil {
 		return PublishJob{}, failure(err, "publish job")
@@ -152,6 +170,38 @@ func (s *Service) enqueuePublish(ctx context.Context, tx pgx.Tx, p auth.Principa
 		return PublishJob{}, fmt.Errorf("release: enqueue the publish: %w", err)
 	}
 	return jobOf(row), nil
+}
+
+// freezeParts freezes the draft being published, at its revision, and the
+// current drafts of its companions. Every part is frozen in one order, the
+// app-level draft first and then the plugins by ID, so the publishes of one
+// release request, started at once, never keep each other's snapshots in
+// opposite orders (a deadlock). A companion's empty draft contributes
+// nothing, as in sourcesFor.
+func (s *Service) freezeParts(ctx context.Context, tx pgx.Tx, r PublishRequest) (document.Frozen, []companion, error) {
+	parts := append([]string{r.PluginID}, r.Companions...)
+	slices.Sort(parts)
+	var own document.Frozen
+	companions := []companion{}
+	for _, id := range slices.Compact(parts) {
+		if id == r.PluginID {
+			f, err := s.o.Documents.FreezeDraft(ctx, tx, r.AppID, id, r.Revision)
+			if err != nil {
+				return document.Frozen{}, nil, err //nolint:wrapcheck // a domain error
+			}
+			own = f
+			continue
+		}
+		f, err := s.o.Documents.FreezeDraft(ctx, tx, r.AppID, id, 0)
+		if code, ok := plxerr.CodeOf(err); ok && code == plxerr.PreconditionFailed {
+			continue
+		}
+		if err != nil {
+			return document.Frozen{}, nil, err //nolint:wrapcheck // a domain error
+		}
+		companions = append(companions, companion{PluginID: id, SnapshotID: f.SnapshotID})
+	}
+	return own, companions, nil
 }
 
 // environment resolves an app and one of its environments.
@@ -525,10 +575,11 @@ func (s *Service) awaitAssets(ctx context.Context, p auth.Principal, row dbgen.P
 var errCancelled = errors.New("release: the publish was cancelled")
 
 // compileJob gathers a publish's sources and compiles them. The draft
-// being published is at its frozen snapshot; the app-level documents and
-// every other plugin are at their newest published versions, or their
-// current drafts if they have none, so the version is compiled against
-// what a release would hold (REL-003).
+// being published is at its frozen snapshot, and so is each companion (the
+// other parts of its release request); the app-level documents and every
+// other plugin are at their newest published versions, or their current
+// drafts if they have none, so the version is compiled against what a
+// release would hold (REL-003).
 func (s *Service) compileJob(ctx context.Context, p auth.Principal, row dbgen.PublishJob) (compiled, error) {
 	var (
 		out  compiled
@@ -571,10 +622,18 @@ func (s *Service) compileJob(ctx context.Context, p auth.Principal, row dbgen.Pu
 func (s *Service) sourcesFor(ctx context.Context, tx pgx.Tx, row dbgen.PublishJob) ([]string, error) {
 	q := dbgen.New(tx)
 	appID := storage.ID(row.AppID)
+	companions, err := companionsOf(row)
+	if err != nil {
+		return nil, err
+	}
 	sources := []string{}
 	pick := func(pluginID string, plugin pgtype.UUID) error {
 		if plugin == row.PluginID {
 			sources = append(sources, storage.ID(row.SnapshotID))
+			return nil
+		}
+		if snapshot, ok := companions[pluginID]; ok {
+			sources = append(sources, snapshot)
 			return nil
 		}
 		v, err := q.LatestVersion(ctx, dbgen.LatestVersionParams{AppID: row.AppID, PluginID: plugin})
@@ -608,6 +667,20 @@ func (s *Service) sourcesFor(ctx context.Context, tx pgx.Tx, row dbgen.PublishJo
 		}
 	}
 	return sources, nil
+}
+
+// companionsOf reads the snapshots a job's companions are compiled at, by
+// plugin ID (empty for the app-level draft).
+func companionsOf(row dbgen.PublishJob) (map[string]string, error) {
+	var list []companion
+	if err := json.Unmarshal(row.Companions, &list); err != nil {
+		return nil, fmt.Errorf("release: read the companions of publish %s: %w", storage.ID(row.ID), err)
+	}
+	out := make(map[string]string, len(list))
+	for _, c := range list {
+		out[c.PluginID] = c.SnapshotID
+	}
+	return out, nil
 }
 
 // compileOptions are the options of a publish or release: release mode,

@@ -234,8 +234,14 @@ type PublishRequest struct {
 	// acknowledge_warnings publishes despite warnings; without it a warning
 	// that policy does not allow stops the publish (SRV-051).
 	AcknowledgeWarnings bool `protobuf:"varint,7,opt,name=acknowledge_warnings,json=acknowledgeWarnings,proto3" json:"acknowledge_warnings,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// companion_plugin_ids names the other parts built with this one for the
+	// same release request: plugins by ID, an empty entry naming the app
+	// bundle. The publish compiles them at their current drafts, frozen with
+	// its own, instead of at their newest versions, so a change that spans
+	// the app and its plugins builds (REL-003).
+	CompanionPluginIds []string `protobuf:"bytes,8,rep,name=companion_plugin_ids,json=companionPluginIds,proto3" json:"companion_plugin_ids,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *PublishRequest) Reset() {
@@ -315,6 +321,13 @@ func (x *PublishRequest) GetAcknowledgeWarnings() bool {
 		return x.AcknowledgeWarnings
 	}
 	return false
+}
+
+func (x *PublishRequest) GetCompanionPluginIds() []string {
+	if x != nil {
+		return x.CompanionPluginIds
+	}
+	return nil
 }
 
 type PublishResponse struct {
@@ -718,7 +731,7 @@ const file_plux_v1_publish_proto_rawDesc = "" +
 	"finishedAt\"{\n" +
 	"\x14WatchPublishResponse\x12%\n" +
 	"\x03job\x18\x01 \x01(\v2\x13.plux.v1.PublishJobR\x03job\x12<\n" +
-	"\x0fnew_diagnostics\x18\x02 \x03(\v2\x13.plux.v1.DiagnosticR\x0enewDiagnostics\"\xe6\x01\n" +
+	"\x0fnew_diagnostics\x18\x02 \x03(\v2\x13.plux.v1.DiagnosticR\x0enewDiagnostics\"\x98\x02\n" +
 	"\x0ePublishRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12%\n" +
@@ -726,7 +739,8 @@ const file_plux_v1_publish_proto_rawDesc = "" +
 	"\brevision\x18\x04 \x01(\x03R\brevision\x12\x14\n" +
 	"\x05label\x18\x05 \x01(\tR\x05label\x12\x14\n" +
 	"\x05notes\x18\x06 \x01(\tR\x05notes\x121\n" +
-	"\x14acknowledge_warnings\x18\a \x01(\bR\x13acknowledgeWarnings\"8\n" +
+	"\x14acknowledge_warnings\x18\a \x01(\bR\x13acknowledgeWarnings\x120\n" +
+	"\x14companion_plugin_ids\x18\b \x03(\tR\x12companionPluginIds\"8\n" +
 	"\x0fPublishResponse\x12%\n" +
 	"\x03job\x18\x01 \x01(\v2\x13.plux.v1.PublishJobR\x03job\",\n" +
 	"\x13WatchPublishRequest\x12\x15\n" +

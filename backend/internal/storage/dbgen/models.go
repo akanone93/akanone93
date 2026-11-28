@@ -1508,6 +1508,7 @@ type PublishJob struct {
 	ActorDisplay        string
 	CreatedAt           pgtype.Timestamptz
 	FinishedAt          pgtype.Timestamptz
+	Companions          []byte
 }
 
 type Reconstruction struct {

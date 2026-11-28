@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"testing"
 	"testing/fstest"
 
@@ -78,7 +79,7 @@ func TestPromoteWritesWinnerAndPublishes_ABT_005(t *testing.T) {
 	if got.Experiment.State != experiment.StateConcluded || got.Experiment.Winner != "wide" || got.Experiment.PromoteJobID != pub.job || got.Job.ID != pub.job {
 		t.Fatalf("promotion = %+v", got)
 	}
-	if len(pub.asked) != 1 || pub.asked[0] != (release.PublishRequest{AppID: w.a.app, EnvironmentID: w.a.prod, Label: "hero wins", Notes: "A/B result"}) {
+	if len(pub.asked) != 1 || !reflect.DeepEqual(pub.asked[0], release.PublishRequest{AppID: w.a.app, EnvironmentID: w.a.prod, Label: "hero wins", Notes: "A/B result"}) {
 		t.Fatalf("publish requests = %+v", pub.asked)
 	}
 	if _, ok := w.allocation("heroLayout"); ok {

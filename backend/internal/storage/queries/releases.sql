@@ -3,8 +3,8 @@ SELECT id FROM apps WHERE id = $1 AND deleted_at IS NULL FOR UPDATE;
 
 -- name: CreatePublishJob :one
 INSERT INTO publish_jobs (id, organization_id, app_id, plugin_id, environment_id, revision, snapshot_id, state,
-                          label, notes, acknowledge_warnings, actor_kind, actor_id, actor_display)
-VALUES ($1, $2, $3, $4, $5, $6, $7, 'queued', $8, $9, $10, $11, $12, $13)
+                          label, notes, acknowledge_warnings, actor_kind, actor_id, actor_display, companions)
+VALUES ($1, $2, $3, $4, $5, $6, $7, 'queued', $8, $9, $10, $11, $12, $13, $14)
 RETURNING *;
 
 -- name: GetPublishJob :one

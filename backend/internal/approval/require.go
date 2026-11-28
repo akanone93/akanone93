@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -227,7 +228,7 @@ func (s *Service) settle(ctx context.Context, tx pgx.Tx, a Artifact, matched []P
 	}
 	out := Evaluate(matched, facts(req.Decisions), excluded(a, req)...)
 	if !out.Satisfied {
-		return nil, refusal(plxerr.ApprovalRequired, req.ID, "%s still needs approval (request %s): %v", a.Subject, req.ID, out.Missing)
+		return nil, refusal(plxerr.ApprovalRequired, req.ID, "%s still needs approval (request %s): %s", a.Subject, req.ID, strings.Join(out.Missing, "; "))
 	}
 	return &spendable{art: a, req: req}, nil
 }
@@ -270,7 +271,18 @@ func policyList(matched []Policy) string {
 	for i, p := range matched {
 		keys[i] = p.Doc.Key
 	}
-	return "policy " + fmt.Sprint(keys)
+	if len(keys) == 1 {
+		return "policy " + keys[0]
+	}
+	return "policies " + joinAnd(keys)
+}
+
+// joinAnd lists words as a sentence does: "a", "a and b", "a, b and c".
+func joinAnd(words []string) string {
+	if len(words) < 2 {
+		return strings.Join(words, "")
+	}
+	return strings.Join(words[:len(words)-1], ", ") + " and " + words[len(words)-1]
 }
 
 // expiryOf is when a request opened now stops counting: the shortest expiry

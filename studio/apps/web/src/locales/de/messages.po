@@ -13997,6 +13997,12 @@ msgstr "Plux Test"
 msgid "functions.promoteAlias"
 msgstr "Alias auf diese Version setzen"
 
+#. Explains the promote panel.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteHint"
+msgstr "Richtet den Kanal einer anderen Umgebung auf dieses Release aus, unverändert: dieselben Bundles und Signaturen. Eine Sicherheitsprüfung ist erforderlich, und die Freigaberichtlinie der Umgebung kann die Übertragung bis zur Freigabe zurückhalten."
+
 #. Link to the approval policies.
 #. js-lingui-explicit-id
 #: apps/web/src/features/approvals/approvals.messages.ts
@@ -14290,6 +14296,18 @@ msgstr "Fortschritt beim Erzeugen des Projekts"
 #: apps/web/src/features/problems/problems.messages.ts
 msgid "problems.project"
 msgstr "Projekt"
+
+#. Heading of the panel that sends this release to another environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteTitle"
+msgstr "Übertragen"
+
+#. Button: send this release to the chosen environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promote"
+msgstr "Release übertragen"
 
 #. Scope option.
 #. js-lingui-explicit-id
@@ -14787,6 +14805,12 @@ msgstr "Release {sequence}"
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.releases.release"
 msgstr "Release {sequence} · {date}"
+
+#. Shown after a promotion went through.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoted"
+msgstr "Release {sequence} ist jetzt in {environment}."
 
 #. Label of the label field of a shipped variant.
 #. js-lingui-explicit-id
@@ -18399,6 +18423,12 @@ msgstr "Ziel"
 msgid "experiments.stepTarget"
 msgstr "Ziel"
 
+#. Label of the environment a release is promoted to.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteTarget"
+msgstr "Zielumgebung"
+
 #. Label of the choice of the plugin a screen moves to.
 #. js-lingui-explicit-id
 #: apps/web/src/features/plugin-canvas/plugin-canvas.messages.ts
@@ -18656,6 +18686,12 @@ msgstr "Die App hat diese Komponente nicht: Die Arbeitsfläche kann sie nicht ze
 #: apps/web/src/features/app-canvas/app-canvas.messages.ts
 msgid "appCanvas.bulk.productionNote"
 msgstr "Die App hat ein Produktions-Release. Gib zur Bestätigung den Schlüssel der App ein."
+
+#. Shown when the app has a single environment.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteNoTarget"
+msgstr "Die App hat keine andere Umgebung, in die übertragen werden kann."
 
 #. Shown in the plugin usage section when the app has no plugin.
 #. js-lingui-explicit-id
@@ -19616,6 +19652,12 @@ msgstr "Das Projekt konnte nicht erzeugt werden."
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
 msgid "shell.generated-at"
 msgstr "Das Projekt wurde am {when} erzeugt."
+
+#. Shown when the target's approval policy holds a promotion.
+#. js-lingui-explicit-id
+#: apps/web/src/features/releases/releases.messages.ts
+msgid "releases.promoteAwaitsApproval"
+msgstr "Die Übertragung muss freigegeben werden. Unter Freigaben wurde eine Anfrage geöffnet; übertragen Sie erneut, sobald sie freigegeben ist."
 
 #. Heading of the public scan result.
 #. js-lingui-explicit-id

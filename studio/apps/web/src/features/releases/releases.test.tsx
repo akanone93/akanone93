@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, mock, test } from "bun:test";
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 
 afterEach(cleanup);
@@ -136,6 +136,39 @@ describe("[STU-101] release detail (A4) and rollout controls (D44)", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Roll back to this release" }));
     fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
     await waitFor(() => expect(calls).toEqual(["rollback:1:production"]));
+  });
+});
+
+describe("[REL-004] promote a release to another environment", () => {
+  test("promotes the release unchanged after the step-up and says where it went", async () => {
+    stubAssertion();
+    const calls: string[] = [];
+    open("/2", { releases: { releases, calls }, security: { stepUps: [] } });
+    const panel = await screen.findByRole("region", { name: "Promote" });
+    expect(within(panel).getByRole("combobox", { name: "Target environment" }).textContent).toContain("production");
+    fireEvent.click(within(panel).getByRole("button", { name: "Promote release" }));
+    expect(calls).toEqual([]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
+    await waitFor(() => expect(calls).toEqual(["promote:2:env-prod:production"]));
+    await within(panel).findByText("Release 2 is now on production.");
+  });
+
+  test("a promotion the approval policy holds says so, with the server's reason", async () => {
+    stubAssertion();
+    const reason = "PLX-8001 release:2@production needs approval (policy prod-four-eyes); request r1 was opened";
+    open("/2", { releases: { releases, refusePromote: reason }, security: { stepUps: [] } });
+    const panel = await screen.findByRole("region", { name: "Promote" });
+    fireEvent.click(within(panel).getByRole("button", { name: "Promote release" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Use security key or passkey" }));
+    await within(panel).findByText(/The promotion needs approval/);
+    expect(within(panel).getByText(reason)).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  test("a person without release.promote cannot promote", async () => {
+    open("/2", { releases: { releases } }, ["app.read"]);
+    const panel = await screen.findByRole("region", { name: "Promote" });
+    expect(within(panel).getByRole("button", { name: "Promote release" }).getAttribute("aria-disabled")).toBe("true");
   });
 });
 

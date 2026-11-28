@@ -259,11 +259,21 @@ func grantsChangedFunction(project *schema.Project, money map[string]bool, chang
 	return false
 }
 
-// Evidence supplies the review bundle's evidence for a promotion (GOV-023):
+// RequestSubjectPrefix starts the approval subject of a release request,
+// followed by the request's ID; both kinds of release approval share the
+// resource "release".
+const RequestSubjectPrefix = "releaseRequest:"
+
+// Evidence supplies the review bundle's evidence (GOV-023). For a promotion:
 // the changes against the channel's current release, the validation and
 // accessibility reports, the golden-image differences against the baselines
-// the server holds, and the release notes. It implements approval.Reviewer.
+// the server holds, and the release notes. For a release request, whose
+// release does not exist yet: what its builds produced (requestEvidence). It
+// implements approval.Reviewer.
 func (s *Service) Evidence(ctx context.Context, tx pgx.Tx, r approval.Request) (approval.Evidence, error) {
+	if id, ok := strings.CutPrefix(r.Subject, RequestSubjectPrefix); ok {
+		return requestEvidence(ctx, dbgen.New(tx), r, id)
+	}
 	sequence, channel, err := parsePromotionSubject(r.Subject)
 	if err != nil {
 		return approval.Evidence{}, plxerr.Wrap(plxerr.PreconditionFailed, err, "this request is not about a release")
@@ -297,6 +307,58 @@ func (s *Service) Evidence(ctx context.Context, tx pgx.Tx, r approval.Request) (
 		return approval.Evidence{}, err
 	}
 	return ev, nil
+}
+
+// requestBuild is a release request's record of one part's build, as the
+// request stores it.
+type requestBuild struct {
+	PluginKey    string   `json:"pluginKey"`
+	Version      int64    `json:"version"`
+	BundleSHA256 string   `json:"bundleSha256"`
+	Warnings     []string `json:"warnings"`
+}
+
+// requestPart is one part of a release request as its review shows it.
+type requestPart struct {
+	PluginKey    string   `json:"pluginKey"`
+	Version      int64    `json:"version"`
+	BundleSHA256 string   `json:"bundleSha256"`
+	Warnings     []string `json:"warnings,omitempty"`
+}
+
+// requestEvidence is the evidence of a release request's approval: the parts
+// its builds produced (the app bundle under an empty key), each with its
+// version, bundle hash and the warnings the publisher acknowledged before
+// asking, one changelog line each, and the request's release notes. The
+// approval is bound to the hash of exactly these builds (GOV-022).
+func requestEvidence(ctx context.Context, q *dbgen.Queries, r approval.Request, requestID string) (approval.Evidence, error) {
+	id, err := storage.UUID(requestID)
+	if err != nil {
+		return approval.Evidence{}, plxerr.Wrap(plxerr.PreconditionFailed, err, "this request names no release request")
+	}
+	row, err := q.GetReleaseRequest(ctx, dbgen.GetReleaseRequestParams{ID: id, AppID: storage.MustUUID(r.AppID)})
+	if err != nil {
+		return approval.Evidence{}, failure(err, "release request")
+	}
+	var builds []requestBuild
+	if err := json.Unmarshal(row.Builds, &builds); err != nil {
+		return approval.Evidence{}, fmt.Errorf("release: read the builds of release request %s: %w", requestID, err)
+	}
+	parts := make([]requestPart, len(builds))
+	lines := make([]string, len(builds))
+	for i, b := range builds {
+		parts[i] = requestPart(b)
+		name := b.PluginKey
+		if name == "" {
+			name = "app bundle"
+		}
+		lines[i] = fmt.Sprintf("%s version %d", name, b.Version)
+	}
+	diff, err := json.Marshal(parts)
+	if err != nil {
+		return approval.Evidence{}, fmt.Errorf("release: encode the parts: %w", err)
+	}
+	return approval.Evidence{Diff: diff, Changelog: lines, Notes: row.ChangelogNotes}, nil
 }
 
 // changelogLines renders changelog entries one to a line.
