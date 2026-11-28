@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { type DocumentTransport, EditSession, type ServerDocument } from "../editor/edit-session.ts";
 import { applyPatch, type JsonValue } from "../editor/json-patch.ts";
 import type { L10nSessions } from "../localisation/index.ts";
-import { commitInlineText, inlineTextStyle, textValue } from "./inline-text.tsx";
+import { armSharesKey, commitInlineText, inlineTextStyle, textValue } from "./inline-text.tsx";
 import type { Node } from "./plugin-model.ts";
 
 /**
@@ -173,5 +173,38 @@ describe("PC-17 a text edited where it is (#242)", () => {
       unknown
     >;
     expect(style["color"]).toBe("rgb(17 17 17 / 1.000)");
+  });
+});
+
+describe("[STU-103] editing a text in a Variant's arm (build log row 324)", () => {
+  const keyed = (id: string, key: string) => ({ id, type: "Text", props: { data: { $t: key } } });
+  const root = {
+    id: "col",
+    type: "Column",
+    children: [
+      {
+        id: "v",
+        type: "Variant",
+        experiment: "heroCopy",
+        control: keyed("c", "k.hero"),
+        variants: {
+          bold: { id: "b", type: "Card", slots: { child: keyed("bt", "k.hero") } },
+          own: keyed("o", "k.own"),
+        },
+      },
+      keyed("footer", "k.footer"),
+      keyed("footer2", "k.footer"),
+    ],
+  } as unknown as Node;
+
+  test("a text in an arm whose key another node names takes a key of its own", () => {
+    expect(armSharesKey(root, "bt", "k.hero")).toBe(true);
+    expect(armSharesKey(root, "c", "k.hero")).toBe(true);
+  });
+
+  test("a key used once, or a shared key outside any Variant, keeps changing its message", () => {
+    expect(armSharesKey(root, "o", "k.own")).toBe(false);
+    expect(armSharesKey(root, "footer", "k.footer")).toBe(false);
+    expect(armSharesKey(undefined, "bt", "k.hero")).toBe(false);
   });
 });

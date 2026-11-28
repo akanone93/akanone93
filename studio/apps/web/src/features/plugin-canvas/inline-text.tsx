@@ -22,7 +22,9 @@ import { uuidv7 } from "./screens.ts";
 import { type EditFn, findNode } from "./select/edits.ts";
 import type { Box } from "./select/geometry.ts";
 import { type OverlayStore, useOverlayState } from "./select/overlay-store.ts";
+import { childNodes } from "./select/tree.ts";
 import { CANVAS_FONT_FACES, type CanvasSurface } from "./surface.ts";
+import { VARIANT_TYPE } from "./variants.ts";
 
 /** A text being edited in place: the `Text` node, its screen, and where it stands. */
 export interface InlineEdit {
@@ -47,6 +49,42 @@ export function textValue(
     return { text: readMessages(doc)[data["$t"]] ?? "", key: data["$t"] };
   }
   return { text: "" };
+}
+
+/** Whether `value` (a node's props, at any depth) names translation key `key` (`{"$t": key}`). */
+function namesKey(value: unknown, key: string): boolean {
+  if (Array.isArray(value)) {
+    return value.some((v) => namesKey(v, key));
+  }
+  if (!isObj(value)) {
+    return false;
+  }
+  return value["$t"] === key || Object.values(value).some((v) => namesKey(v, key));
+}
+
+/**
+ * Whether an in-place edit of node `id`'s text keyed `key` must take a key of its own (build log row 324): the node is
+ * in an arm of a Variant — its control or a variant — and another node of the page names the same key. A variant arm
+ * starts as a copy of the control, sharing its keys, so changing the shared message would change every arm alike.
+ */
+export function armSharesKey(root: Node | undefined, id: string, key: string): boolean {
+  let inArm = false;
+  let users = 0;
+  const visit = (n: Node, armed: boolean) => {
+    if (n.id === id) {
+      inArm = armed;
+    }
+    if (namesKey(n.props, key)) {
+      users += 1;
+    }
+    for (const c of childNodes(n)) {
+      visit(c, armed || n.type === VARIANT_TYPE);
+    }
+  };
+  if (root !== undefined) {
+    visit(root, false);
+  }
+  return inArm && users > 1;
 }
 
 /** Whether the source locale's messages and the keys can be written now. */
@@ -267,7 +305,10 @@ export function InlineTextHost(props: {
   const screen = props.screens.find((s) => s.id === editing.screen);
   const found = screen?.root === undefined ? null : findNode(screen.root, editing.id);
   const node = found === null ? undefined : (found.node as Node);
-  const current = textValue(node, sessions);
+  const shown = textValue(node, sessions);
+  // A text in a Variant's arm whose key another node names is saved as its own text, then extracted to a new key.
+  const current =
+    shown.key !== undefined && armSharesKey(screen?.root, editing.id, shown.key) ? { text: shown.text } : shown;
   return (
     <InlineText
       key={editing.id}
