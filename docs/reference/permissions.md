@@ -377,16 +377,16 @@ The catalogue is grouped as area, feature, action (`GOV-002`). A restriction pol
 
 ## Predefined roles
 
-- **owner** — May do everything, including managing members, roles, identity providers, keys and the licence.
-- **admin** — May do everything except manage members and keys.
-- **release-manager** — May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code.
-- **developer** — May edit plugins, deploy functions outside production and publish.
-- **designer** — May edit plugins, pages and translations; may not publish.
-- **translator** — May read and edit translations, and nothing else.
-- **reviewer** — May read everything an approver needs and approve or reject changes.
-- **compliance-officer** — May read the audit log and reconstructions, manage approval policies and change freezes, handle data-subject requests and produce compliance reports.
-- **auditor** — Read-only access to everything, including the audit log, reconstructions and compliance reports.
-- **viewer** — May read.
+- **Owner** (`owner`) — May do everything, including managing members, roles, identity providers, keys and the licence.
+- **Admin** (`admin`) — May do everything except manage members and keys.
+- **Release manager** (`release-manager`) — May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code.
+- **Developer** (`developer`) — May edit plugins, deploy functions outside production and publish.
+- **Designer** (`designer`) — May edit plugins, pages and translations; may not publish.
+- **Translator** (`translator`) — May read and edit translations, and nothing else.
+- **Reviewer** (`reviewer`) — May read everything an approver needs and approve or reject changes.
+- **Compliance officer** (`compliance-officer`) — May read the audit log and reconstructions, manage approval policies and change freezes, handle data-subject requests and produce compliance reports.
+- **Auditor** (`auditor`) — Read-only access to everything, including the audit log, reconstructions and compliance reports.
+- **Viewer** (`viewer`) — May read.
 
 A role holds exactly the permissions marked below; there is no inheritance.
 

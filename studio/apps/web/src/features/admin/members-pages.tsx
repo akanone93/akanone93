@@ -29,6 +29,8 @@ export function MembersPage(): ReactElement {
   );
   const roles = useAdminQuery(["roles"], () => governance.listRoles({ page: { pageSize } }));
   const roleOptions = (roles.data?.roles ?? []).map((r) => ({ value: r.key, label: r.name }));
+  // A role is shown by its name (a predefined role's title, build log row 312), its key until the roles load.
+  const roleName = (key: string) => roles.data?.roles.find((r) => r.key === key)?.name || key;
   return (
     <Frame
       id="admin-members"
@@ -51,7 +53,7 @@ export function MembersPage(): ReactElement {
               {x.displayName === "" ? x.userId : x.displayName}
             </Link>,
             x.email,
-            x.role,
+            roleName(x.role),
             fmt(x.addedAt, m.never),
             <Button key="r" variant="danger" size="sm" disabled={!can} onClick={() => setRemoving(x.userId)}>
               {m.removeMember}

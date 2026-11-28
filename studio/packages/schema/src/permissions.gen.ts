@@ -717,6 +717,8 @@ export type RoleName =
 /** One predefined role and the permissions it holds. */
 export interface RoleDefinition {
   readonly name: RoleName;
+  /** The role's display name, as people read it in pickers. */
+  readonly title: string;
   readonly description: string;
   readonly permissions: readonly PermissionName[];
 }
@@ -725,6 +727,7 @@ export interface RoleDefinition {
 export const roles = [
   {
     name: "owner",
+    title: "Owner",
     description: "May do everything, including managing members, roles, identity providers, keys and the licence.",
     permissions: [
       "a11y.waive",
@@ -787,6 +790,7 @@ export const roles = [
   },
   {
     name: "admin",
+    title: "Admin",
     description: "May do everything except manage members and keys.",
     permissions: [
       "a11y.waive",
@@ -822,6 +826,7 @@ export const roles = [
   },
   {
     name: "release-manager",
+    title: "Release manager",
     description: "May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code.",
     permissions: [
       "analytics.manage",
@@ -845,6 +850,7 @@ export const roles = [
   },
   {
     name: "developer",
+    title: "Developer",
     description: "May edit plugins, deploy functions outside production and publish.",
     permissions: [
       "app.read",
@@ -861,6 +867,7 @@ export const roles = [
   },
   {
     name: "designer",
+    title: "Designer",
     description: "May edit plugins, pages and translations; may not publish.",
     permissions: [
       "app.read",
@@ -874,16 +881,19 @@ export const roles = [
   },
   {
     name: "translator",
+    title: "Translator",
     description: "May read and edit translations, and nothing else.",
     permissions: ["app.read", "organization.read", "plugin.read", "translations.edit"],
   },
   {
     name: "reviewer",
+    title: "Reviewer",
     description: "May read everything an approver needs and approve or reject changes.",
     permissions: ["app.read", "approvals.decide", "function.read", "organization.read", "plugin.read", "search.read"],
   },
   {
     name: "compliance-officer",
+    title: "Compliance officer",
     description: "May read the audit log and reconstructions, manage approval policies and change freezes, handle data-subject requests and produce compliance reports.",
     permissions: [
       "analytics.read",
@@ -903,6 +913,7 @@ export const roles = [
   },
   {
     name: "auditor",
+    title: "Auditor",
     description: "Read-only access to everything, including the audit log, reconstructions and compliance reports.",
     permissions: [
       "analytics.read",
@@ -920,6 +931,7 @@ export const roles = [
   },
   {
     name: "viewer",
+    title: "Viewer",
     description: "May read.",
     permissions: ["app.read", "devsession.observe", "function.read", "organization.read", "plugin.read"],
   },

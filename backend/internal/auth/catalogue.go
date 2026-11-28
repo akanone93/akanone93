@@ -59,7 +59,9 @@ type PermissionInfo struct {
 
 // RoleInfo describes a predefined role.
 type RoleInfo struct {
-	Name        Role
+	Name Role
+	// Title is the role's display name (build log row 312).
+	Title       string
 	Description string
 }
 

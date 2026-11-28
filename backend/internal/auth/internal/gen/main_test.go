@@ -43,3 +43,17 @@ func TestCatalogueTypeScriptDeterministic(t *testing.T) {
 		}
 	}
 }
+
+// A predefined role needs a title, the name people read in role pickers
+// (build log row 312).
+func TestRoleNeedsATitle(t *testing.T) {
+	t.Parallel()
+	roles := []role{{Name: "viewer", Description: "Reads.", Permissions: []string{}}}
+	if err := check(nil, roles); err == nil || !strings.Contains(err.Error(), "no title") {
+		t.Errorf("a role without a title: %v", err)
+	}
+	roles[0].Title = "Viewer"
+	if err := check(nil, roles); err != nil {
+		t.Errorf("a role with a title: %v", err)
+	}
+}

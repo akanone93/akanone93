@@ -110,7 +110,7 @@ func predefinedDefinition(info RoleInfo) RoleDefinition {
 		perms[i] = string(p)
 	}
 	slices.Sort(perms)
-	return RoleDefinition{Key: string(info.Name), Name: string(info.Name), Description: info.Description, Predefined: true, Permissions: perms}
+	return RoleDefinition{Key: string(info.Name), Name: info.Title, Description: info.Description, Predefined: true, Permissions: perms}
 }
 
 func customDefinition(row dbgen.CustomRole) RoleDefinition {

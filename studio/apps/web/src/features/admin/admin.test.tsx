@@ -129,6 +129,8 @@ describe("[STU-116] organisation administration", () => {
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Invite" }).getAttribute("aria-disabled")).not.toBe("true"),
     );
+    // A member's role reads as its name, not its key (build log row 312).
+    await screen.findByRole("cell", { name: "Editor" });
     type("Email address to invite", "new@example.org");
     fireEvent.click(screen.getByRole("button", { name: "Invite" }));
     await screen.findByText("invite-secret-1");
@@ -169,6 +171,7 @@ describe("[STU-116] organisation administration", () => {
     open("/members/u2", state);
     await screen.findByRole("heading", { name: "Grace" });
     await screen.findByText("release.*");
+    await screen.findByRole("cell", { name: "Editor" });
     expect(screen.getByText("browser")).toBeTruthy();
     expect(screen.getAllByRole("link", { name: "Explain access" }).length).toBe(2);
     await waitFor(() =>

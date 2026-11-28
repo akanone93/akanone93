@@ -199,6 +199,9 @@ func TestPredefinedRoles_GOV_002(t *testing.T) {
 		if r.Description == "" {
 			t.Errorf("%s has no description", r.Name)
 		}
+		if r.Title == "" || r.Title == string(r.Name) {
+			t.Errorf("%s has no title of its own: %q (build log row 312)", r.Name, r.Title)
+		}
 	}
 	want := []string{
 		"owner", "admin", "release-manager", "developer", "designer", "translator",
@@ -298,7 +301,7 @@ func TestPermissionsDocument_GOV_002(t *testing.T) {
 		}
 	}
 	for _, r := range auth.PredefinedRoles() {
-		if !strings.Contains(doc, "**"+string(r.Name)+"**") {
+		if !strings.Contains(doc, "**"+r.Title+"** (`"+string(r.Name)+"`)") {
 			t.Errorf("docs/reference/permissions.md lacks the role %s; run make gen", r.Name)
 		}
 	}

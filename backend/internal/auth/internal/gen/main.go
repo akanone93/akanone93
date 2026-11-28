@@ -33,7 +33,9 @@ type permission struct {
 }
 
 type role struct {
-	Name        string   `json:"name"`
+	Name string `json:"name"`
+	// Title is the role's display name, as people read it in pickers.
+	Title       string   `json:"title"`
 	Description string   `json:"description"`
 	Permissions []string `json:"permissions"`
 }
@@ -140,6 +142,8 @@ func check(perms []permission, roles []role) error {
 			return fmt.Errorf("role %q is repeated", r.Name)
 		case strings.TrimSpace(r.Description) == "":
 			return fmt.Errorf("role %q has no description", r.Name)
+		case strings.TrimSpace(r.Title) == "":
+			return fmt.Errorf("role %q has no title", r.Name)
 		}
 		seen[r.Name] = true
 		for i, p := range r.Permissions {
@@ -187,7 +191,7 @@ func renderGo(perms []permission, roles []role) string {
 	}
 	b.WriteString("}\n\n// predefined are the predefined roles, in the order the specification lists them.\nvar predefined = []RoleInfo{\n")
 	for _, r := range roles {
-		fmt.Fprintf(&b, "\t{Name: %q, Description: %q},\n", r.Name, r.Description)
+		fmt.Fprintf(&b, "\t{Name: %q, Title: %q, Description: %q},\n", r.Name, r.Title, r.Description)
 	}
 	b.WriteString("}\n\n// grants maps each predefined role to the permissions it holds. A role holds\n// exactly what is listed: there is no inheritance to reason about.\nvar grants = map[Role][]Permission{\n")
 	for _, r := range roles {
@@ -228,7 +232,7 @@ func renderDoc(perms []permission, roles []role) string {
 	renderGroups(&b, perms)
 	b.WriteString("\n## Predefined roles\n\n")
 	for _, r := range roles {
-		fmt.Fprintf(&b, "- **%s** — %s\n", r.Name, r.Description)
+		fmt.Fprintf(&b, "- **%s** (`%s`) — %s\n", r.Title, r.Name, r.Description)
 	}
 	b.WriteString("\nA role holds exactly the permissions marked below; there is no inheritance.\n\n")
 	b.WriteString("| Permission |")
@@ -399,6 +403,8 @@ export const permissions = [
 	b.WriteString(`/** One predefined role and the permissions it holds. */
 export interface RoleDefinition {
   readonly name: RoleName;
+  /** The role's display name, as people read it in pickers. */
+  readonly title: string;
   readonly description: string;
   readonly permissions: readonly PermissionName[];
 }
@@ -408,7 +414,7 @@ export const roles = [
 `)
 	for _, r := range roles {
 		b.WriteString("  {\n")
-		fmt.Fprintf(&b, "    name: %s,\n    description: %s,\n", tsString(r.Name), tsString(r.Description))
+		fmt.Fprintf(&b, "    name: %s,\n    title: %s,\n    description: %s,\n", tsString(r.Name), tsString(r.Title), tsString(r.Description))
 		tsList(&b, "    ", "permissions", expand(r, perms))
 		b.WriteString("  },\n")
 	}

@@ -67,16 +67,16 @@ var catalogue = []PermissionInfo{
 
 // predefined are the predefined roles, in the order the specification lists them.
 var predefined = []RoleInfo{
-	{Name: "owner", Description: "May do everything, including managing members, roles, identity providers, keys and the licence."},
-	{Name: "admin", Description: "May do everything except manage members and keys."},
-	{Name: "release-manager", Description: "May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code."},
-	{Name: "developer", Description: "May edit plugins, deploy functions outside production and publish."},
-	{Name: "designer", Description: "May edit plugins, pages and translations; may not publish."},
-	{Name: "translator", Description: "May read and edit translations, and nothing else."},
-	{Name: "reviewer", Description: "May read everything an approver needs and approve or reject changes."},
-	{Name: "compliance-officer", Description: "May read the audit log and reconstructions, manage approval policies and change freezes, handle data-subject requests and produce compliance reports."},
-	{Name: "auditor", Description: "Read-only access to everything, including the audit log, reconstructions and compliance reports."},
-	{Name: "viewer", Description: "May read."},
+	{Name: "owner", Title: "Owner", Description: "May do everything, including managing members, roles, identity providers, keys and the licence."},
+	{Name: "admin", Title: "Admin", Description: "May do everything except manage members and keys."},
+	{Name: "release-manager", Title: "Release manager", Description: "May publish, promote and roll back releases, run rollouts and flags, and use the kill switch and break-glass; may not edit code."},
+	{Name: "developer", Title: "Developer", Description: "May edit plugins, deploy functions outside production and publish."},
+	{Name: "designer", Title: "Designer", Description: "May edit plugins, pages and translations; may not publish."},
+	{Name: "translator", Title: "Translator", Description: "May read and edit translations, and nothing else."},
+	{Name: "reviewer", Title: "Reviewer", Description: "May read everything an approver needs and approve or reject changes."},
+	{Name: "compliance-officer", Title: "Compliance officer", Description: "May read the audit log and reconstructions, manage approval policies and change freezes, handle data-subject requests and produce compliance reports."},
+	{Name: "auditor", Title: "Auditor", Description: "Read-only access to everything, including the audit log, reconstructions and compliance reports."},
+	{Name: "viewer", Title: "Viewer", Description: "May read."},
 }
 
 // grants maps each predefined role to the permissions it holds. A role holds

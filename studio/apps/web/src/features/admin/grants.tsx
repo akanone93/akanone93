@@ -28,6 +28,8 @@ export function GrantsSection({
   );
   const roles = useAdminQuery(["roles"], () => governance.listRoles({ page: { pageSize } }));
   const roleOptions = (roles.data?.roles ?? []).map((r) => ({ value: r.key, label: r.name }));
+  // A role is shown by its name (a predefined role's title, build log row 312), its key until the roles load.
+  const roleName = (key: string) => roles.data?.roles.find((r) => r.key === key)?.name || key;
   return (
     <section aria-labelledby={`grants-${key}`} className="flex flex-col gap-3">
       <h2 id={`grants-${key}`} className="text-label font-medium">
@@ -40,7 +42,7 @@ export function GrantsSection({
         rows={(grants.data?.grants ?? []).map((g) => ({
           key: g.id,
           cells: [
-            g.role,
+            roleName(g.role),
             g.scope,
             g.appId,
             fmt(g.createdAt, m.never),

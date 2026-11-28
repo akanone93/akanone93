@@ -222,7 +222,7 @@ func TestCustomRoles_GOV_002(t *testing.T) {
 	if err != nil || len(page) != 3 || page[0].Key != roles[5].Key {
 		t.Errorf("ListRoles after %s = %v, %v", roles[4].Key, page, err)
 	}
-	if r, err := g.svc.GetRole(ctx, g.owner, "viewer"); err != nil || !r.Predefined || len(r.Permissions) == 0 {
+	if r, err := g.svc.GetRole(ctx, g.owner, "viewer"); err != nil || !r.Predefined || len(r.Permissions) == 0 || r.Key != "viewer" || r.Name != "Viewer" {
 		t.Errorf("GetRole(viewer) = %+v, %v", r, err)
 	}
 	if _, err := g.svc.GetRole(ctx, g.owner, "no-such-role"); code(err) != plxerr.RoleUnknown {

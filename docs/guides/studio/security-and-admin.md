@@ -100,6 +100,9 @@ author's own approval. A **Policy** names the resources, environments, actions a
 lets you try it against a sample change before saving. **Break-glass reviews** list emergency
 actions taken without prior approval, each with its justification and review due date; review them
 before they become overdue ([Approval deadlock and break-glass](../../runbooks/approval-deadlock-and-break-glass.md)).
+Reviewing needs both `audit.read` and `approvals.decide` — an Admin or Owner, or a person granted
+both, such as a Release manager who also holds the Auditor role — and nobody reviews their own
+action.
 
 ## Administration
 

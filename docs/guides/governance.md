@@ -212,8 +212,13 @@ kill switch on a broken page, a rollback, or a disabled function (`GOV-024`).
 - Approvers are alerted at once through the notification channels ([notifications guide](notifications.md)).
 - A post-hoc review is opened. It is due within `governance.breakGlassReviewHours`, which
   defaults to 24. An overdue review escalates (`PLX-8006`).
-- Review: `BreakGlassService.ListBreakGlass` lists the uses; `ReviewBreakGlass` records the
-  post-hoc review.
+- Review: `BreakGlassService.ListBreakGlass` lists the uses and needs `audit.read`;
+  `ReviewBreakGlass` records the post-hoc review and needs `approvals.decide`. Whoever took the
+  action cannot review it (`PLX-8003`). No predefined role below Admin holds both permissions, so
+  a review is an Admin's or an Owner's, or the work of a person granted both — for example a
+  Release manager who is also granted the Auditor role. This is deliberate: the post-hoc review is
+  an audit of an emergency action, kept with the people who may read the audit log (maintainer
+  decision, build log row 314).
 
 Break-glass does not override a restriction (section 6).
 
