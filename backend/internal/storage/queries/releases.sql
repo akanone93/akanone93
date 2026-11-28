@@ -101,11 +101,21 @@ INSERT INTO release_versions (release_id, organization_id, plugin_version_id) VA
 SELECT * FROM releases WHERE app_id = $1 AND sequence = $2;
 
 -- name: ListReleases :many
-SELECT * FROM releases
- WHERE app_id = $1
-   AND (sqlc.narg(environment_id)::uuid IS NULL OR environment_id = sqlc.narg(environment_id)::uuid)
-   AND sequence < sqlc.arg(before_sequence)::bigint
- ORDER BY sequence DESC
+-- An app's releases, or an environment's: those made in it, those promoted
+-- to one of its channels, the one a channel of it points at now and the
+-- candidates of its rollouts (REL-004, build log row 322).
+SELECT r.* FROM releases r
+ WHERE r.app_id = $1
+   AND (sqlc.narg(environment_id)::uuid IS NULL
+        OR r.environment_id = sqlc.narg(environment_id)::uuid
+        OR EXISTS (SELECT 1 FROM channel_promotions p
+                    WHERE p.environment_id = sqlc.narg(environment_id)::uuid AND p.release_id = r.id)
+        OR EXISTS (SELECT 1 FROM channels c
+                    WHERE c.environment_id = sqlc.narg(environment_id)::uuid AND c.release_sequence = r.sequence)
+        OR EXISTS (SELECT 1 FROM rollouts o
+                    WHERE o.environment_id = sqlc.narg(environment_id)::uuid AND o.candidate_sequence = r.sequence))
+   AND r.sequence < sqlc.arg(before_sequence)::bigint
+ ORDER BY r.sequence DESC
  LIMIT sqlc.arg(page_size);
 
 -- name: ListAllReleases :many
@@ -125,6 +135,12 @@ UPDATE releases SET production = true WHERE id = $1;
 
 -- name: GetChannelForUpdate :one
 SELECT * FROM channels WHERE environment_id = $1 AND key = $2 FOR UPDATE;
+
+-- name: RecordChannelPromotion :exec
+-- Notes that a channel was pointed at a release; the first time is kept.
+INSERT INTO channel_promotions (organization_id, app_id, environment_id, channel_id, release_id)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (channel_id, release_id) DO NOTHING;
 
 -- name: PointChannel :one
 UPDATE channels SET release_sequence = $2, updated_at = now() WHERE id = $1 RETURNING *;

@@ -629,9 +629,11 @@ func TestReleases(t *testing.T) {
 	if err != nil || len(list) != 3 || list[0].Sequence != 3 {
 		t.Errorf("ListReleases: %+v %v", list, err)
 	}
+	// Production lists the rollback made there and release 2, promoted there
+	// before it (build log row 322); release 1 never reached it.
 	inProd, err := f.rel.ListReleases(ctx, f.viewer, f.app, prod, 0, 10)
-	if err != nil || len(inProd) != 1 {
-		t.Errorf("releases created in production: %+v %v", inProd, err)
+	if err != nil || len(inProd) != 2 || inProd[0].Sequence != 3 || inProd[1].Sequence != 2 {
+		t.Errorf("releases in production: %+v %v", inProd, err)
 	}
 	f.tenancy.RegisterUsage(f.rel.Usage)
 	appUsage, err := f.tenancy.ListAppLimits(ctx, f.viewer, f.app)

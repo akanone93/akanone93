@@ -378,6 +378,15 @@ type ChannelControl struct {
 	UpdatedAt         pgtype.Timestamptz
 }
 
+type ChannelPromotion struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	ChannelID      pgtype.UUID
+	ReleaseID      pgtype.UUID
+	FirstAt        pgtype.Timestamptz
+}
+
 type ComplianceReport struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID

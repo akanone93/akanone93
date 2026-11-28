@@ -422,8 +422,10 @@ func (*Service) releaseRow(ctx context.Context, q *dbgen.Queries, appID string, 
 	return row, vs, nil
 }
 
-// ListReleases lists an app's releases newest first, or those created
-// in one environment; before is the sequence to continue before.
+// ListReleases lists an app's releases newest first, or one environment's:
+// those made in it, promoted to one of its channels, pointed at by one of
+// them now or rolled out on one (build log row 322); before is the sequence
+// to continue before.
 func (s *Service) ListReleases(ctx context.Context, p auth.Principal, appID, envID string, before int64, size int32) ([]Release, error) {
 	if err := authorize(p, auth.PluginRead, appID); err != nil {
 		return nil, err
@@ -628,6 +630,13 @@ func (s *Service) point(ctx context.Context, tx pgx.Tx, p auth.Principal, env db
 		return failure(err, "channel")
 	}
 	if _, err := q.PointChannel(ctx, dbgen.PointChannelParams{ID: ch.ID, ReleaseSequence: row.Sequence}); err != nil {
+		return failure(err, "channel")
+	}
+	// The environment's timeline lists the release from now on, whatever the
+	// channel points at later (build log row 322).
+	if err := q.RecordChannelPromotion(ctx, dbgen.RecordChannelPromotionParams{
+		OrganizationID: env.OrganizationID, AppID: env.AppID, EnvironmentID: env.ID, ChannelID: ch.ID, ReleaseID: row.ID,
+	}); err != nil {
 		return failure(err, "channel")
 	}
 	if err := s.enqueueManifest(ctx, tx, ch); err != nil {

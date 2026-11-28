@@ -1040,11 +1040,18 @@ func (q *Queries) ListReleaseVersions(ctx context.Context, releaseID pgtype.UUID
 }
 
 const listReleases = `-- name: ListReleases :many
-SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses, confidential FROM releases
- WHERE app_id = $1
-   AND ($2::uuid IS NULL OR environment_id = $2::uuid)
-   AND sequence < $3::bigint
- ORDER BY sequence DESC
+SELECT r.id, r.organization_id, r.app_id, r.environment_id, r.sequence, r.app_version_id, r.rollback_of, r.notes, r.min_runtime, r.required_features, r.size, r.production, r.created_by_kind, r.created_by_id, r.created_by, r.created_at, r.native_uses, r.confidential FROM releases r
+ WHERE r.app_id = $1
+   AND ($2::uuid IS NULL
+        OR r.environment_id = $2::uuid
+        OR EXISTS (SELECT 1 FROM channel_promotions p
+                    WHERE p.environment_id = $2::uuid AND p.release_id = r.id)
+        OR EXISTS (SELECT 1 FROM channels c
+                    WHERE c.environment_id = $2::uuid AND c.release_sequence = r.sequence)
+        OR EXISTS (SELECT 1 FROM rollouts o
+                    WHERE o.environment_id = $2::uuid AND o.candidate_sequence = r.sequence))
+   AND r.sequence < $3::bigint
+ ORDER BY r.sequence DESC
  LIMIT $4
 `
 
@@ -1055,6 +1062,9 @@ type ListReleasesParams struct {
 	PageSize       int32
 }
 
+// An app's releases, or an environment's: those made in it, those promoted
+// to one of its channels, the one a channel of it points at now and the
+// candidates of its rollouts (REL-004, build log row 322).
 func (q *Queries) ListReleases(ctx context.Context, arg ListReleasesParams) ([]Release, error) {
 	rows, err := q.db.Query(ctx, listReleases,
 		arg.AppID,
@@ -1315,6 +1325,32 @@ func (q *Queries) ProgressPublishJob(ctx context.Context, arg ProgressPublishJob
 		&i.Companions,
 	)
 	return i, err
+}
+
+const recordChannelPromotion = `-- name: RecordChannelPromotion :exec
+INSERT INTO channel_promotions (organization_id, app_id, environment_id, channel_id, release_id)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (channel_id, release_id) DO NOTHING
+`
+
+type RecordChannelPromotionParams struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	ChannelID      pgtype.UUID
+	ReleaseID      pgtype.UUID
+}
+
+// Notes that a channel was pointed at a release; the first time is kept.
+func (q *Queries) RecordChannelPromotion(ctx context.Context, arg RecordChannelPromotionParams) error {
+	_, err := q.db.Exec(ctx, recordChannelPromotion,
+		arg.OrganizationID,
+		arg.AppID,
+		arg.EnvironmentID,
+		arg.ChannelID,
+		arg.ReleaseID,
+	)
+	return err
 }
 
 const releaseUnusedSnapshots = `-- name: ReleaseUnusedSnapshots :execrows

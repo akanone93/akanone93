@@ -227,15 +227,13 @@ func (w *rolloutWorld) auditCount(t *testing.T, action audit.Action) int {
 
 func (w *rolloutWorld) releaseCount(t *testing.T) int {
 	t.Helper()
-	n := 0
-	for _, env := range []tenancy.Environment{w.envs["development"], w.prod} {
-		rs, err := w.rel.ListReleases(context.Background(), w.owner, w.app, env.ID, 0, 50)
-		if err != nil {
-			t.Fatal(err)
-		}
-		n += len(rs)
+	// The app's releases, each once: an environment's list also holds the
+	// releases promoted or rolled out there (build log row 322).
+	rs, err := w.rel.ListReleases(context.Background(), w.owner, w.app, "", 0, 50)
+	if err != nil {
+		t.Fatal(err)
 	}
-	return n
+	return len(rs)
 }
 
 func wantCode(t *testing.T, err error, want plxerr.Code) {
