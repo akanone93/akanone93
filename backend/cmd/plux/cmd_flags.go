@@ -117,7 +117,7 @@ func (e env) flagsRun(c common, f flagsFlags, sub string, rest []string) int {
 	if err != nil {
 		return e.fail("flags", err)
 	}
-	client := pluxv1connect.NewFlagServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewFlagServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	t := flagTarget{app: c.app, env: envID}
 	switch sub {
 	case "list":

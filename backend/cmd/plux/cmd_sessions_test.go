@@ -67,6 +67,8 @@ func (s *stepUpServer) check(h http.Header, path string) (string, bool) {
 func (s *stepUpServer) routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle(pluxv1connect.NewIdentityServiceHandler(s))
+	mux.Handle(pluxv1connect.NewRolloutServiceHandler(stepUpRollouts{s: s}))
+	mux.Handle(pluxv1connect.NewExperimentServiceHandler(stepUpExperiments{s: s}))
 	mux.HandleFunc("POST "+stepUpRequestsPath, func(w http.ResponseWriter, r *http.Request) {
 		jkt, ok := s.check(r.Header, stepUpRequestsPath)
 		if !ok {
@@ -142,6 +144,33 @@ func (s *stepUpServer) RevokeAccessToken(_ context.Context, r *connect.Request[p
 	return connect.NewResponse(&pluxv1.RevokeAccessTokenResponse{}), nil
 }
 
+// stepUpRollouts answers a rollout pause only with a step-up, as the server
+// does for the rollout calls that need one.
+type stepUpRollouts struct {
+	pluxv1connect.UnimplementedRolloutServiceHandler
+	s *stepUpServer
+}
+
+func (h stepUpRollouts) PauseRollout(_ context.Context, r *connect.Request[pluxv1.PauseRolloutRequest]) (*connect.Response[pluxv1.PauseRolloutResponse], error) {
+	if err := h.s.needStepUp(r.Header(), pluxv1connect.RolloutServicePauseRolloutProcedure); err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(&pluxv1.PauseRolloutResponse{Rollout: &pluxv1.Rollout{Id: r.Msg.GetId()}}), nil
+}
+
+// stepUpExperiments answers an experiment stop only with a step-up.
+type stepUpExperiments struct {
+	pluxv1connect.UnimplementedExperimentServiceHandler
+	s *stepUpServer
+}
+
+func (h stepUpExperiments) StopExperiment(_ context.Context, r *connect.Request[pluxv1.StopExperimentRequest]) (*connect.Response[pluxv1.StopExperimentResponse], error) {
+	if err := h.s.needStepUp(r.Header(), pluxv1connect.ExperimentServiceStopExperimentProcedure); err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(&pluxv1.StopExperimentResponse{Experiment: &pluxv1.Experiment{Id: r.Msg.GetId(), Key: "homeHero"}}), nil
+}
+
 // start serves the fake and returns a runner for the CLI against it.
 func startStepUpServer(t *testing.T) (*stepUpServer, func(cmd func(env, []string) int, args ...string) (int, string, string)) {
 	t.Helper()
@@ -184,6 +213,24 @@ func TestStepUpIsObtainedAndRetried_SEC_103(t *testing.T) { //nolint:paralleltes
 	}
 	if len(s.revoked) != 2 || s.revoked[0] != "ses1" || s.revoked[1] != "token:tok1" {
 		t.Errorf("revoked = %v", s.revoked)
+	}
+}
+
+// Verifies: SEC-103.
+// The rollout, experiment and flags commands repeat a call the server refuses
+// for want of a step-up after the ceremony, as every other command does:
+// they built their clients without it, so plux rollout create could not
+// complete once a rollout needed a step-up (build log row 321).
+func TestRolloutAndExperimentCommandsStepUp_SEC_103(t *testing.T) { //nolint:paralleltest // the environment is process-wide
+	s, run := startStepUpServer(t)
+	if code, _, stderr := run(env.rollout, "pause", "--app", "app-1", "ro1"); code != exitOK || !strings.Contains(stderr, "/stepup?request=r1") {
+		t.Fatalf("rollout pause: %d %s", code, stderr)
+	}
+	if code, _, stderr := run(env.experiment, "stop", "--app", "app-1", "01a22233-2e83-7765-badf-605e5b9a5d28"); code != exitOK {
+		t.Fatalf("experiment stop: %d %s", code, stderr)
+	}
+	if s.grants < 1 {
+		t.Errorf("grants = %d", s.grants)
 	}
 }
 

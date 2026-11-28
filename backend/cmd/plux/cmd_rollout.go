@@ -128,7 +128,7 @@ func (e env) rolloutRun(c common, f rolloutFlags, sub string, rest []string) int
 	if err != nil {
 		return e.fail("rollout", err)
 	}
-	client := pluxv1connect.NewRolloutServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewRolloutServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	ctx := context.Background()
 	if sub == "list" {
 		return e.rolloutList(ctx, client, c, f)

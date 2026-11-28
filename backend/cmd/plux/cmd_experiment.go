@@ -130,7 +130,7 @@ func (e env) experimentRun(c common, f experimentFlags, sub string, rest []strin
 			return e.fail("experiment", err)
 		}
 	}
-	client := pluxv1connect.NewExperimentServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewExperimentServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	view, text, err := experimentCall(ctx, client, experimentTarget{app: c.app, env: envID}, f, sub, rest)
 	if err != nil {
 		return e.fail("experiment", stepUp(err))
