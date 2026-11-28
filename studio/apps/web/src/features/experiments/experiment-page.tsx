@@ -6,6 +6,7 @@ import { Button, Field, Input, StatusPill } from "@plux/ui";
 import { useParams } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { PageEmpty } from "../../components/page.tsx";
+import { withReason } from "../../components/refusal.tsx";
 import { Frame } from "../releases/frame.tsx";
 import { useGuarded } from "../releases/guarded.tsx";
 import { Table } from "../security/parts.tsx";
@@ -118,10 +119,21 @@ function DecisionPanel({ m, id, state, variants, allowed, actions, guard, onShip
 
 type Results = ReturnType<typeof useResults>["data"];
 
-/** The sample split and the comparison of every primary metric and guardrail. */
-function ResultsPanel({ m, r }: { readonly m: ExperimentsMessages; readonly r: Results }): ReactElement {
+/**
+ * The sample split and the comparison of every primary metric and guardrail. Without results, `empty` says why, in the
+ * server's words when it gave them (not started, too few subjects; SRV-006).
+ */
+function ResultsPanel({
+  m,
+  r,
+  empty,
+}: {
+  readonly m: ExperimentsMessages;
+  readonly r: Results;
+  readonly empty: string;
+}): ReactElement {
   if (r === undefined) {
-    return <PageEmpty icon="funnel" text={m.noResults} />;
+    return <PageEmpty icon="funnel" text={empty} />;
   }
   return (
     <>
@@ -180,7 +192,7 @@ export function ExperimentPage(): ReactElement {
         }))}
       />
       <h2 className="text-heading">{m.results}</h2>
-      <ResultsPanel m={m} r={r} />
+      <ResultsPanel m={m} r={r} empty={withReason(m.noResults, results.error)} />
       <DecisionPanel
         m={m}
         id={id}

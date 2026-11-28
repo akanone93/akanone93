@@ -262,6 +262,11 @@ describe("[ABT-003] experiment results and decision (A8, D48)", () => {
     expect(screen.getByRole("heading", { name: "Primary metric: signup" })).toBeTruthy();
   });
 
+  test("without results, says why in the server's words", async () => {
+    open("/e5", { experiments: { experiments: [{ id: "e5", key: "early", state: RUNNING, definition }] } });
+    await screen.findByText(/No results yet\. PLX-8201: .* has 0 of the 500 subjects needed/);
+  });
+
   test("warns on a sample ratio mismatch", async () => {
     open("/e3", { experiments: { experiments: [{ id: "e3", key: "mismatch", state: RUNNING, definition }] } });
     await screen.findByText(/Sample ratio mismatch/);

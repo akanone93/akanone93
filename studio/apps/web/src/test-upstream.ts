@@ -1918,16 +1918,24 @@ function experimentsServices(
       data.calls?.push(`ship:${req.id}:${req.variant}:${req.label}`);
       return { publishJobId: "job-1" };
     },
-    getResults: (req) => ({
-      experimentId: req.id,
-      sampleRatioMismatch: find(req.id)?.key === "mismatch",
-      variants: [
-        { name: "control", control: true, subjects: 500n, share: 0.5 },
-        { name: "bold", subjects: 500n, share: 0.5 },
-      ],
-      primary: result("purchase"),
-      primaries: find(req.id)?.key === "multi" ? [result("purchase"), result("signup")] : [],
-    }),
+    getResults: (req) => {
+      if (find(req.id)?.key === "early") {
+        throw new ConnectError(
+          'PLX-8201: variant "control" of experiment "early" has 0 of the 500 subjects needed before a result is read',
+          Code.FailedPrecondition,
+        );
+      }
+      return {
+        experimentId: req.id,
+        sampleRatioMismatch: find(req.id)?.key === "mismatch",
+        variants: [
+          { name: "control", control: true, subjects: 500n, share: 0.5 },
+          { name: "bold", subjects: 500n, share: 0.5 },
+        ],
+        primary: result("purchase"),
+        primaries: find(req.id)?.key === "multi" ? [result("purchase"), result("signup")] : [],
+      };
+    },
   });
   const flag = (f: NonNullable<ExperimentsFixture["flags"]>[number]) => ({
     id: `flag-${f.key}`,
