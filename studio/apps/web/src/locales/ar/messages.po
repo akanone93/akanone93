@@ -1708,6 +1708,12 @@ msgstr "الإقرار بالتحذيرات"
 msgid "publish.warningsTitle"
 msgstr "الإقرار بالتحذيرات"
 
+#. Column heading: the warnings the publisher acknowledged for a part.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colWarnings"
+msgstr "التحذيرات المؤكدة"
+
 #. Text in the installation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/installation/installation.messages.ts
@@ -1725,6 +1731,12 @@ msgstr "الإجراء"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.sampleAction"
 msgstr "الإجراء"
+
+#. The kind of a changed document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.kindAction"
+msgstr "إجراء"
 
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
@@ -2230,6 +2242,12 @@ msgstr "مضاف"
 msgid "publish.evidence.changeAdded"
 msgstr "مضاف"
 
+#. A change in a release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.changeAdded"
+msgstr "مضاف"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -2672,6 +2690,12 @@ msgstr "إصدار التطبيق"
 #: apps/web/src/features/approvals/approvals.messages.ts
 msgid "approvals.colBuild"
 msgstr "إصدار التطبيق"
+
+#. The app's own bundle (theme, translations, settings) among a release request's parts.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.appBundle"
+msgstr "حزمة التطبيق"
 
 #. Accessible name of the canvas that shows the plugins of an app.
 #. js-lingui-explicit-id
@@ -3594,6 +3618,12 @@ msgstr "الحزمة {sha}"
 msgid "releases.bundle"
 msgstr "SHA-256 للحزمة"
 
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colBundle"
+msgstr "SHA-256 للحزمة"
+
 #. Label of the bundle size of a build.
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
@@ -3918,6 +3948,12 @@ msgstr "تثبيتات الشهادات"
 msgid "approvals.colSubject"
 msgstr "التغيير"
 
+#. Column heading: added, removed or changed.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colChange"
+msgstr "التغيير"
+
 #. One of five short stories under the sample screen on the sign-in page. Its sentence.
 #. js-lingui-explicit-id
 #: apps/web/src/features/auth/auth.messages.ts
@@ -3977,6 +4013,12 @@ msgstr "متغيّر"
 #: apps/web/src/features/publish/publish.messages.ts
 msgid "publish.diffChanged"
 msgstr "تغيّر"
+
+#. A change in a release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.changeChanged"
+msgstr "معدّل"
 
 #. Column heading: when a secret was last set.
 #. js-lingui-explicit-id
@@ -9720,6 +9762,12 @@ msgstr "النوع"
 msgid "data.kind"
 msgstr "النوع"
 
+#. Column heading: page, action or translation.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colKind"
+msgstr "النوع"
+
 #. Text in the organisation administration area.
 #. js-lingui-explicit-id
 #: apps/web/src/features/admin/admin.messages.ts
@@ -13373,6 +13421,12 @@ msgstr "الصفحة"
 msgid "experiments.scopePage"
 msgstr "صفحة"
 
+#. The kind of a changed document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.kindPage"
+msgstr "صفحة"
+
 #. Column heading: the page.
 #. js-lingui-explicit-id
 #: apps/web/src/features/analytics/analytics.messages.ts
@@ -13492,6 +13546,12 @@ msgstr "المعاملات"
 #: apps/web/src/features/library/canvas/canvas.messages.ts
 msgid "library.canvas.expose"
 msgstr "المعاملات المطلوبة عند إدراج القالب"
+
+#. Column heading: a plugin or the app bundle of a release request.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colPart"
+msgstr "الجزء"
 
 #. Status.
 #. js-lingui-explicit-id
@@ -13851,6 +13911,12 @@ msgstr "الإضافة"
 #. js-lingui-explicit-id
 #: apps/web/src/features/data/data.messages.ts
 msgid "data.pickPlugin"
+msgstr "الإضافة"
+
+#. Column heading.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.colPlugin"
 msgstr "الإضافة"
 
 #. Column heading: the plugin.
@@ -15170,6 +15236,12 @@ msgstr "محذوف"
 #. js-lingui-explicit-id
 #: apps/web/src/features/publish/evidence.messages.ts
 msgid "publish.evidence.changeRemoved"
+msgstr "محذوف"
+
+#. A change in a release.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.changeRemoved"
 msgstr "محذوف"
 
 #. Text in the organisation administration area.
@@ -20895,6 +20967,12 @@ msgstr "مترجم في هذه اللغة"
 #: apps/web/src/features/panels/page-settings.messages.ts
 msgid "pageSettings.titleKey"
 msgstr "مترجم: {key}"
+
+#. The kind of a changed document.
+#. js-lingui-explicit-id
+#: apps/web/src/features/approvals/approvals.messages.ts
+msgid "approvals.kindTranslation"
+msgstr "ترجمة"
 
 #. Column heading: the message of the locale being edited.
 #. js-lingui-explicit-id

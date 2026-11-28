@@ -93,7 +93,8 @@ key (step-up).
 **Approvals** has an **Inbox** of requests waiting for a decision, **History**, **Break-glass
 reviews** and **Policies**. The **App** filter's **All apps** shows the organisation's own requests
 and those of every app you can read, newest first. Open a request for its summary, the policies that apply, its risk, the
-changes, the reports, the golden-image differences and the audit records, then **Approve** or
+changes (for a promotion, each page, action or translation added, removed or changed; for a release
+request, each part with its version, bundle hash and acknowledged warnings), the reports, the golden-image differences and the audit records, then **Approve** or
 **Reject** with a comment. You need the permission to decide approvals, and a policy can exclude the
 author's own approval. A **Policy** names the resources, environments, actions and approvers and
 lets you try it against a sample change before saving. **Break-glass reviews** list emergency

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { afterEach, describe, expect, mock, test } from "bun:test";
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 
 afterEach(cleanup);
@@ -124,6 +124,34 @@ describe("[STU-102] request and decision", () => {
     cleanup();
     open("/r1?app=app1", { approvals: { requests } });
     await screen.findByText('{"op":"add"}');
+  });
+
+  test("O8 shows a promotion's changes and a release request's parts as tables, not JSON (build log row 313)", async () => {
+    const changes = JSON.stringify([
+      { Kind: "page", Change: "added", PluginKey: "explore", Name: "category" },
+      { Kind: "translation", Change: "changed", PluginKey: "", Name: "en" },
+    ]);
+    const parts = JSON.stringify([
+      { pluginKey: "", version: 5, bundleSha256: "ab12", warnings: [] },
+      { pluginKey: "explore", version: 4, bundleSha256: "cd34", warnings: ["PLX-4001 no label"] },
+    ]);
+    const shaped = [
+      { id: "p1", appId: "app1", status: "open", requestedBy: "u2", summary: "Promote release 2", diff: changes },
+      { id: "q1", appId: "app1", status: "open", requestedBy: "u2", summary: "Release 2 plugin(s)", diff: parts },
+    ];
+    open("/p1?app=app1", { approvals: { requests: shaped } });
+    const table = await screen.findByRole("table", { name: "Changes" });
+    expect(within(table).getByRole("columnheader", { name: "Change" })).toBeTruthy();
+    expect(within(table).getByRole("cell", { name: "Added" })).toBeTruthy();
+    expect(within(table).getByRole("cell", { name: "category" })).toBeTruthy();
+    expect(within(table).getByRole("cell", { name: "Translation" })).toBeTruthy();
+    expect(screen.queryByText(changes)).toBeNull();
+    cleanup();
+    open("/q1?app=app1", { approvals: { requests: shaped } });
+    const partsTable = await screen.findByRole("table", { name: "Changes" });
+    expect(within(partsTable).getByRole("cell", { name: "App bundle" })).toBeTruthy();
+    expect(within(partsTable).getByRole("cell", { name: "cd34" })).toBeTruthy();
+    expect(within(partsTable).getByRole("cell", { name: "PLX-4001 no label" })).toBeTruthy();
   });
 
   test("D47 sends the decision with its comment only after the step-up [SEC-103]", async () => {

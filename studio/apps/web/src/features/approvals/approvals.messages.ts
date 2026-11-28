@@ -427,5 +427,42 @@ export function approvalsMessages(i18n: I18n) {
       comment: "Risk attribute.",
     }),
     never: i18n._({ id: "approvals.never", message: "never", comment: "Shown for a missing time." }),
+    colChange: i18n._({
+      id: "approvals.colChange",
+      message: "Change",
+      comment: "Column heading: added, removed or changed.",
+    }),
+    colKind: i18n._({
+      id: "approvals.colKind",
+      message: "Kind",
+      comment: "Column heading: page, action or translation.",
+    }),
+    colPlugin: i18n._({ id: "approvals.colPlugin", message: "Plugin", comment: "Column heading." }),
+    colPart: i18n._({
+      id: "approvals.colPart",
+      message: "Part",
+      comment: "Column heading: a plugin or the app bundle of a release request.",
+    }),
+    colBundle: i18n._({ id: "approvals.colBundle", message: "Bundle SHA-256", comment: "Column heading." }),
+    colWarnings: i18n._({
+      id: "approvals.colWarnings",
+      message: "Acknowledged warnings",
+      comment: "Column heading: the warnings the publisher acknowledged for a part.",
+    }),
+    appBundle: i18n._({
+      id: "approvals.appBundle",
+      message: "App bundle",
+      comment: "The app's own bundle (theme, translations, settings) among a release request's parts.",
+    }),
+    changeAdded: i18n._({ id: "approvals.changeAdded", message: "Added", comment: "A change in a release." }),
+    changeRemoved: i18n._({ id: "approvals.changeRemoved", message: "Removed", comment: "A change in a release." }),
+    changeChanged: i18n._({ id: "approvals.changeChanged", message: "Changed", comment: "A change in a release." }),
+    kindPage: i18n._({ id: "approvals.kindPage", message: "Page", comment: "The kind of a changed document." }),
+    kindAction: i18n._({ id: "approvals.kindAction", message: "Action", comment: "The kind of a changed document." }),
+    kindTranslation: i18n._({
+      id: "approvals.kindTranslation",
+      message: "Translation",
+      comment: "The kind of a changed document.",
+    }),
   };
 }
