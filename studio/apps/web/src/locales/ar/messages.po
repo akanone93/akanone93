@@ -12323,6 +12323,12 @@ msgstr "العقد"
 msgid "panelTabs.perfPage"
 msgstr "العقد في الصفحة"
 
+#. Stands for an empty list of declared user attributes in the message about an undeclared one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.noUserAttributes"
+msgstr "لا شيء"
+
 #. Shown for a setting that has no value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -18884,6 +18890,12 @@ msgstr "أيقونات التطبيق الخاصة والمجموعات المد
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.gridCaption"
 msgstr "مفاتيح الترجمة في التطبيق حسب اللغة. ينتمي المفتاح إلى التطبيق، لذا يمكن لأي إضافة استخدامه؛ ويُظهر عمود «مستخدم في» الإضافات التي تستخدمه. صفِّ وابحث وغيِّر حالة رسائل كثيرة دفعة واحدة."
+
+#. Shown when a condition names a user attribute the app does not declare. {names} and {declared} are lists of user.<name> attributes; {declared} may be the word for none.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.undeclaredUserAttributes"
+msgstr "سياق المستخدم في التطبيق لا يعرّف {names}، لذا لا يمكن لأي إصدار استهدافه. عرّفه في إعدادات التطبيق أو استخدم سمة يعرّفها التطبيق: {declared}."
 
 #. Approval expired.
 #. js-lingui-explicit-id

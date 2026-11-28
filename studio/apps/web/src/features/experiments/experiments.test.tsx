@@ -5,7 +5,13 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
 import { variantNames, wrapInVariants } from "./author.ts";
-import { buildDocument, initialDraft, parseAttributes, problems } from "./experiments.schema.ts";
+import {
+  buildDocument,
+  declaredUserAttributes,
+  initialDraft,
+  parseAttributes,
+  problems,
+} from "./experiments.schema.ts";
 import { declaredFlags, flagTypeOf } from "./flags-page.tsx";
 
 afterEach(cleanup);
@@ -214,6 +220,11 @@ describe("[ABT-001] targeting and metrics of a draft", () => {
     expect(problems({ ...draft, segments: many })).toContain("limits");
     expect(problems({ ...draft, segments: "a,a" })).toContain("targeting");
     expect(problems({ ...draft, attributes: "nonsense" })).toContain("targeting");
+    // A user attribute the app does not declare is refused once the app's user context is known (row 325).
+    const declared = declaredUserAttributes({ userContext: [{ name: "segment", type: "string?" }] });
+    expect(problems({ ...draft, attributes: "user.beta eq true" }, declared)).toContain("targeting");
+    expect(problems({ ...draft, attributes: "user.segment eq beta" }, declared)).not.toContain("targeting");
+    expect(problems({ ...draft, attributes: "user.beta eq true" })).not.toContain("targeting");
     expect(problems({ ...draft, primaries: "a\nb\nc" })).toContain("limits");
     expect(problems({ ...draft, guardrails: "Bad Name" })).toContain("metrics");
   });

@@ -159,8 +159,38 @@ export function parseAttributes(text: string): AttributeCondition[] | undefined 
   return out;
 }
 
-/** What keeps a draft from being created (ABT-001: one control, weights summing to 100, targeting and metrics within the limits). */
-export function problems(d: Draft): readonly DraftProblem[] {
+/**
+ * The user attributes the app declares (`app.json` `userContext`): a condition may name `user.<name>` only for one of
+ * them, or the build refuses it (PLX-1704, build log row 325). Undefined while the app's document is not known.
+ */
+export function declaredUserAttributes(app: Record<string, unknown> | undefined): ReadonlySet<string> | undefined {
+  if (app === undefined) {
+    return undefined;
+  }
+  const list = app["userContext"];
+  const names = Array.isArray(list)
+    ? list.flatMap((a: unknown) => {
+        const name = typeof a === "object" && a !== null ? (a as { name?: unknown }).name : undefined;
+        return typeof name === "string" ? [name] : [];
+      })
+    : [];
+  return new Set(names);
+}
+
+/** The `user.<name>` attributes the conditions of `text` name and the app does not declare; none while that is not known. */
+export function undeclaredUserAttributes(text: string, declared: ReadonlySet<string> | undefined): readonly string[] {
+  if (declared === undefined) {
+    return [];
+  }
+  const named = (parseAttributes(text) ?? []).map((c) => c.attribute);
+  return [...new Set(named.filter((a) => a.startsWith("user.") && !declared.has(a.slice("user.".length))))];
+}
+
+/**
+ * What keeps a draft from being created (ABT-001: one control, weights summing to 100, targeting and metrics within the
+ * limits); `declared` is the app's user attributes, when known.
+ */
+export function problems(d: Draft, declared?: ReadonlySet<string>): readonly DraftProblem[] {
   const found: DraftProblem[] = [];
   if (!/^[a-z][a-zA-Z0-9_]*$/.test(d.key)) {
     found.push("key");
@@ -176,7 +206,12 @@ export function problems(d: Draft): readonly DraftProblem[] {
   }
   const keys = segmentKeys(d.segments);
   const attributes = parseAttributes(d.attributes);
-  if (keys.some((k) => !segmentKey.test(k)) || new Set(keys).size !== keys.length || attributes === undefined) {
+  if (
+    keys.some((k) => !segmentKey.test(k)) ||
+    new Set(keys).size !== keys.length ||
+    attributes === undefined ||
+    undeclaredUserAttributes(d.attributes, declared).length > 0
+  ) {
     found.push("targeting");
   }
   if ([...lines(d.primaries), ...lines(d.guardrails)].some((e) => !eventName.test(e))) {

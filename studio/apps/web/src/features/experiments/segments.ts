@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import type { ExperimentsMessages } from "./experiments.messages.ts";
 import { type AttributeCondition, parseAttributes } from "./experiments.schema.ts";
 
 /** A segment document of the app's draft: `segments/<key>.segment.json` (REL-051, ABT-006). */
@@ -96,4 +97,14 @@ export function segmentDocument(form: SegmentForm, newId: () => string): Record<
     ...(form.description.trim() === "" ? {} : { description: form.description.trim() }),
     rule,
   };
+}
+
+/** The refusal of conditions on user attributes the app does not declare, with the ones it does (PLX-1704). */
+export function undeclaredText(
+  m: ExperimentsMessages,
+  undeclared: readonly string[],
+  declared: ReadonlySet<string> | undefined,
+): string {
+  const known = [...(declared ?? [])].sort().map((n) => `user.${n}`);
+  return m.undeclaredUserAttributes(undeclared.join(", "), known.length > 0 ? known.join(", ") : m.noUserAttributes);
 }

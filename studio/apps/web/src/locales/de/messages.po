@@ -12323,6 +12323,12 @@ msgstr "Knoten"
 msgid "panelTabs.perfPage"
 msgstr "Knoten auf der Seite"
 
+#. Stands for an empty list of declared user attributes in the message about an undeclared one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.noUserAttributes"
+msgstr "keine"
+
 #. Shown for a setting that has no value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -18884,6 +18890,12 @@ msgstr "Die eigenen Symbole der App und die integrierten Sätze."
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.gridCaption"
 msgstr "Die Übersetzungsschlüssel der App nach Locale. Ein Schlüssel gehört zur App, daher kann jedes Plugin ihn verwenden; „Verwendet in“ zeigt, welche es tun. Filtern, suchen und den Status vieler Texte auf einmal ändern."
+
+#. Shown when a condition names a user attribute the app does not declare. {names} and {declared} are lists of user.<name> attributes; {declared} may be the word for none.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.undeclaredUserAttributes"
+msgstr "Der Benutzerkontext der App deklariert {names} nicht, daher kann kein Build darauf abzielen. Deklarieren Sie es in den Einstellungen der App oder verwenden Sie eines, das die App deklariert: {declared}."
 
 #. Approval expired.
 #. js-lingui-explicit-id

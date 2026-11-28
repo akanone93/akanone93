@@ -8,20 +8,23 @@ import { type ReactElement, useState } from "react";
 import { withReason } from "../../components/refusal.tsx";
 import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { Frame } from "../releases/frame.tsx";
-import { useEnvironment, useScope } from "../security/use-security.ts";
+import { useAppDocument, useEnvironment, useScope } from "../security/use-security.ts";
 import { type ExperimentTarget, useAuthorExperiment } from "./author.ts";
 import { type ExperimentsMessages, experimentsMessages } from "./experiments.messages.ts";
 import {
   buildDocument,
   type Draft,
   type DraftVariant,
+  declaredUserAttributes,
   initialDraft,
   problems,
   type Scope,
   scopes,
+  undeclaredUserAttributes,
   type WizardStep,
   wizardSteps,
 } from "./experiments.schema.ts";
+import { undeclaredText } from "./segments.ts";
 import { useExperimentActions } from "./use-experiments.ts";
 
 interface PanelProps {
@@ -277,7 +280,9 @@ export function NewExperimentPage(): ReactElement {
   const [authorError, setAuthorError] = useState<{ readonly error: unknown }>();
   const step = search.step ?? "target";
   const index = wizardSteps.indexOf(step);
-  const found = problems(draft);
+  const declared = declaredUserAttributes(useAppDocument(app).data?.json);
+  const undeclared = undeclaredUserAttributes(draft.attributes, declared);
+  const found = problems(draft, declared);
   const go = (to: WizardStep) =>
     void navigate({ to: ".", replace: true, search: (s: object) => ({ ...s, step: to }) } as never);
   const stepNames: Record<WizardStep, string> = {
@@ -320,6 +325,11 @@ export function NewExperimentPage(): ReactElement {
     >
       <h2 className="text-heading">{stepNames[step]}</h2>
       <Panel step={step} m={m} draft={draft} set={(patch) => setDraft((d) => ({ ...d, ...patch }))} />
+      {step === "targeting" && undeclared.length > 0 && (
+        <p role="alert" className="text-body text-danger">
+          {undeclaredText(m, undeclared, declared)}
+        </p>
+      )}
       {step === "schedule" && found.length > 0 && (
         <div role="alert" className="text-body text-danger">
           {problemText(m, found).map((t) => (

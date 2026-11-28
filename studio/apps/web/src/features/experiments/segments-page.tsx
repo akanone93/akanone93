@@ -14,8 +14,9 @@ import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { Frame } from "../releases/frame.tsx";
 import { ExperimentsTabs } from "../releases/tabs.tsx";
 import { Table } from "../security/parts.tsx";
-import { usePermissions, useScope } from "../security/use-security.ts";
+import { useAppDocument, usePermissions, useScope } from "../security/use-security.ts";
 import { type ExperimentsMessages, experimentsMessages } from "./experiments.messages.ts";
+import { declaredUserAttributes, undeclaredUserAttributes } from "./experiments.schema.ts";
 import {
   readSegment,
   ruleOf,
@@ -25,6 +26,7 @@ import {
   segmentDocument,
   segmentKeyPattern,
   segmentPath,
+  undeclaredText,
 } from "./segments.ts";
 
 const blank: SegmentForm = { key: "", name: "", description: "", conditions: "", existing: undefined };
@@ -106,11 +108,14 @@ function SegmentFields({
   m,
   form,
   setForm,
+  declared,
 }: {
   readonly m: ExperimentsMessages;
   readonly form: SegmentForm;
   readonly setForm: (f: SegmentForm) => void;
+  readonly declared: ReadonlySet<string> | undefined;
 }): ReactElement {
+  const undeclared = undeclaredUserAttributes(form.conditions, declared);
   return (
     <>
       <Field label={m.segmentKeyField}>
@@ -140,6 +145,11 @@ function SegmentFields({
           {m.badSegmentConditions}
         </p>
       )}
+      {undeclared.length > 0 && (
+        <p role="alert" className="text-body text-danger">
+          {undeclaredText(m, undeclared, declared)}
+        </p>
+      )}
     </>
   );
 }
@@ -153,7 +163,9 @@ export function SegmentsPage(): ReactElement {
   const allowed = usePermissions().has("app.manage");
   const [form, setForm] = useState<SegmentForm>(blank);
   const [failed, setFailed] = useState(false);
-  const doc = segmentDocument(form, () => uuidv7());
+  const declared = declaredUserAttributes(useAppDocument(app).data?.json);
+  const undeclared = undeclaredUserAttributes(form.conditions, declared);
+  const doc = undeclared.length > 0 ? undefined : segmentDocument(form, () => uuidv7());
   const run = (change: Promise<unknown>, after?: () => void) => {
     setFailed(false);
     change.then(
@@ -223,7 +235,7 @@ export function SegmentsPage(): ReactElement {
       <h2 className="text-heading">
         {form.existing === undefined ? m.newSegmentHeading : m.editSegmentHeading(form.key)}
       </h2>
-      <SegmentFields m={m} form={form} setForm={setForm} />
+      <SegmentFields m={m} form={form} setForm={setForm} declared={declared} />
       {failed && (
         <p role="alert" className="text-body text-danger">
           {m.actionFailed}

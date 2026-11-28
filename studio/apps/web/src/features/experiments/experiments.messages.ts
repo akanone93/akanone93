@@ -443,6 +443,20 @@ export function experimentsMessages(i18n: I18n) {
       comment:
         "Shown when a line of the conditions is not a condition. Do not translate the attributes or the operators.",
     }),
+    undeclaredUserAttributes: (names: string, declared: string) =>
+      i18n._({
+        id: "experiments.undeclaredUserAttributes",
+        message:
+          "The app's user context does not declare {names}, so no build can target it. Declare it in the app's settings or use one the app declares: {declared}.",
+        comment:
+          "Shown when a condition names a user attribute the app does not declare. {names} and {declared} are lists of user.<name> attributes; {declared} may be the word for none.",
+        values: { names, declared },
+      }),
+    noUserAttributes: i18n._({
+      id: "experiments.noUserAttributes",
+      message: "none",
+      comment: "Stands for an empty list of declared user attributes in the message about an undeclared one.",
+    }),
     segmentRuleHead: i18n._({
       id: "experiments.segmentRuleHead",
       message: "Conditions",

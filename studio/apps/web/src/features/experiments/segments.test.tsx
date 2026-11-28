@@ -4,6 +4,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp } from "../../test-harness.tsx";
+import { declaredUserAttributes, undeclaredUserAttributes } from "./experiments.schema.ts";
 import { readSegment, ruleOf, ruleText, segmentDocument, segmentKeyOf } from "./segments.ts";
 
 afterEach(cleanup);
@@ -59,6 +60,18 @@ describe("[ABT-006] segment documents", () => {
     expect(segmentDocument({ ...form, name: " " }, () => "x")).toBeUndefined();
     expect(segmentDocument({ ...form, conditions: "nonsense" }, () => "x")).toBeUndefined();
   });
+
+  test("names the user attributes a condition uses that the app does not declare (row 325)", () => {
+    const declared = declaredUserAttributes({ userContext: [{ name: "segment", type: "string?" }, { type: "int" }] });
+    expect([...(declared ?? [])]).toEqual(["segment"]);
+    expect(declaredUserAttributes({})?.size).toBe(0);
+    expect(declaredUserAttributes(undefined)).toBeUndefined();
+    expect(undeclaredUserAttributes("user.beta eq true\nuser.segment eq beta\nuser.beta neq false", declared)).toEqual([
+      "user.beta",
+    ]);
+    expect(undeclaredUserAttributes("region in DE, AT", declared)).toEqual([]);
+    expect(undeclaredUserAttributes("user.beta eq true", undefined)).toEqual([]);
+  });
 });
 
 describe("[STU-103] segments page", () => {
@@ -66,7 +79,7 @@ describe("[STU-103] segments page", () => {
   const docs = [
     { kind: "segment", path: "segments/beta.segment.json", json: beta },
     { kind: "segment", path: "segments/mixed.segment.json", json: grouped },
-    { kind: "app", path: "app.json", json: {} },
+    { kind: "app", path: "app.json", json: { userContext: [{ name: "segment", type: "string?" }] } },
   ];
 
   test("lists the app's segments and creates one", async () => {
@@ -97,6 +110,21 @@ describe("[STU-103] segments page", () => {
     expect(screen.getByRole("button", { name: "Save segment" }).getAttribute("aria-disabled")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: "Delete beta" }));
     await waitFor(() => expect(deletedDocuments).toEqual(["segments/beta.segment.json"]));
+  });
+
+  test("refuses a user attribute the app does not declare and names the ones it does (row 325)", async () => {
+    renderApp(path, { permissions: ["app.read", "app.manage"], appDocuments: docs });
+    await screen.findByText("Beta testers");
+    fireEvent.change(screen.getByLabelText("Segment key"), { target: { value: "vip" } });
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "VIP" } });
+    fireEvent.change(screen.getByLabelText("Conditions"), { target: { value: "user.beta eq true" } });
+    await screen.findByText(/does not declare user\.beta, .*: user\.segment\./);
+    expect(screen.getByRole("button", { name: "Save segment" }).getAttribute("aria-disabled")).toBe("true");
+    fireEvent.change(screen.getByLabelText("Conditions"), { target: { value: "user.segment eq vip" } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Save segment" }).getAttribute("aria-disabled")).not.toBe("true"),
+    );
+    expect(screen.queryByText(/does not declare/)).toBeNull();
   });
 
   test("a person without app.manage reads but cannot change segments", async () => {

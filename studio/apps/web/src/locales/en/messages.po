@@ -12323,6 +12323,12 @@ msgstr "Nodes"
 msgid "panelTabs.perfPage"
 msgstr "Nodes in the page"
 
+#. Stands for an empty list of declared user attributes in the message about an undeclared one.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.noUserAttributes"
+msgstr "none"
+
 #. Shown for a setting that has no value.
 #. js-lingui-explicit-id
 #: apps/web/src/features/shell-settings/shell-settings.messages.ts
@@ -18884,6 +18890,12 @@ msgstr "The app's own icons, and the built-in sets."
 #: apps/web/src/features/localisation/area.messages.ts
 msgid "l10n.area.gridCaption"
 msgstr "The app's translation keys by locale. A key belongs to the app, so any plugin can use it; Used in shows which do. Filter, search and change the status of many messages at once."
+
+#. Shown when a condition names a user attribute the app does not declare. {names} and {declared} are lists of user.<name> attributes; {declared} may be the word for none.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.undeclaredUserAttributes"
+msgstr "The app's user context does not declare {names}, so no build can target it. Declare it in the app's settings or use one the app declares: {declared}."
 
 #. Approval expired.
 #. js-lingui-explicit-id
