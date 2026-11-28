@@ -257,8 +257,27 @@ function drawnForEach(node: Obj, parent: Obj | undefined, env: Env): Obj {
   };
 }
 
+/** The pick of a Variant's arm in the inspector: `arm:<variant name>`; without one the control is drawn. */
+export const ARM_PICK = "arm:";
+
+/**
+ * A `Variant` as drawn (ABT-001, build log row 304): the arm picked in the inspector, else its control, in its `child`
+ * slot, which the layout shows; the other arms are not drawn.
+ */
+function drawnVariant(node: Obj, env: Env): Obj {
+  const pick = env.picks.get(String(node["id"]));
+  const variants = isObj(node["variants"]) ? node["variants"] : {};
+  const picked = pick?.startsWith(ARM_PICK) === true ? variants[pick.slice(ARM_PICK.length)] : undefined;
+  const arm = isObj(picked) ? picked : node["control"];
+  return isObj(arm)
+    ? { id: node["id"], type: node["type"], slots: { child: arm } }
+    : { id: node["id"], type: node["type"] };
+}
+
 function drawn(node: Obj, parent: Obj | undefined, env: Env): Obj {
   switch (node["type"]) {
+    case "Variant":
+      return drawnVariant(node, env);
     case "If":
       return drawnIf(node, env);
     case "Match":
@@ -296,7 +315,7 @@ export function applyConditions(
 ): Node | undefined {
   const env: Env = { mocks, states, scope, picks };
   const text = root === undefined ? "" : JSON.stringify(root);
-  if (!/"(If|Match|ForEach)"|"visible"/.test(text)) {
+  if (!/"(If|Match|ForEach|Variant)"|"visible"/.test(text)) {
     return root;
   }
   const visit = (n: unknown, parent: Obj | undefined): unknown => {

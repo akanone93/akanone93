@@ -36,6 +36,16 @@ export function conditionMessages(i18n: I18n) {
         values: { result },
         comment: "What a condition is at design time, from page mocks and state defaults.",
       }),
+    experiment: i18n._({
+      id: "condition.experiment",
+      message: "Experiment",
+      comment: "Label of the experiment a Variant node belongs to; its arm chips follow.",
+    }),
+    control: i18n._({
+      id: "condition.control",
+      message: "Control",
+      comment: "The control arm of an experiment, as a chip of the arm the canvas draws.",
+    }),
     pick: (pick: string) =>
       i18n._({
         id: "condition.pick",

@@ -5100,6 +5100,12 @@ msgstr "المتابعة باستخدام {name}"
 msgid "pluginCanvas.a11yContrast"
 msgstr "التباين {ratio}:1، يحتاج {needed}:1"
 
+#. The control arm of an experiment, as a chip of the arm the canvas draws.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.control"
+msgstr "المجموعة الضابطة"
+
 #. Marks the control variant.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -7468,6 +7474,12 @@ msgstr "التوقعات"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.expectsHeading"
 msgstr "التوقعات"
+
+#. Label of the experiment a Variant node belongs to; its arm chips follow.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.experiment"
+msgstr "التجربة"
 
 #. Heading of the experiment page.
 #. js-lingui-explicit-id
@@ -19232,6 +19244,12 @@ msgstr "ترخيص المؤسسة لهذا التثبيت، يُتحقق منه 
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceDefault"
 msgstr "الافتراضي للبيئة"
+
+#. Shown when the wizard registered an experiment but could not write its project files.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.authorFailed"
+msgstr "تم تسجيل التجربة، لكن تعذّرت كتابة مستندها ومتغيّراتها في المسودة."
 
 #. Shown when explain-access fails.
 #. js-lingui-explicit-id

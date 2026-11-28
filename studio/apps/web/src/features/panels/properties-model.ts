@@ -4,6 +4,7 @@
 import { type PropDescriptor, valueTypes, type WidgetDescriptor, widget } from "@plux/schema";
 import type { Problem } from "@plux/validator";
 import { findNode } from "../plugin-canvas/select/edits.ts";
+import { variantArms } from "../plugin-canvas/variants.ts";
 
 /** Window size classes (WGT-010); `compact` is the base. */
 export const breakpoints = ["compact", "medium", "expanded"] as const;
@@ -233,7 +234,9 @@ export function bindingOf(value: unknown): { kind: "expr" | "token" | "t"; text:
 function childPointers(n: Obj): [string, unknown][] {
   const slots = isObj(n.slots) ? Object.entries(n.slots).map(([k, v]): [string, unknown] => [`/slots/${k}`, v]) : [];
   const kids = Array.isArray(n.children) ? n.children.map((v, i): [string, unknown] => [`/children/${i}`, v]) : [];
-  return [...slots, ...kids];
+  // A Variant's arms sit outside slots and children: `/control` and `/variants/<name>` (build log row 304).
+  const arms = variantArms(n).map((a): [string, unknown] => [a.pointer, a.node]);
+  return [...slots, ...kids, ...arms];
 }
 
 /** The JSON Pointer of node `id` in a page document, or null. */

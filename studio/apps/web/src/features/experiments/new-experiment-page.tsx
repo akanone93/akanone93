@@ -5,8 +5,11 @@ import { useLingui } from "@lingui/react";
 import { Button, Field, Input, Select, Textarea } from "@plux/ui";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
+import { withReason } from "../../components/refusal.tsx";
+import { uuidv7 } from "../plugin-canvas/screens.ts";
 import { Frame } from "../releases/frame.tsx";
 import { useEnvironment, useScope } from "../security/use-security.ts";
+import { type ExperimentTarget, useAuthorExperiment } from "./author.ts";
 import { type ExperimentsMessages, experimentsMessages } from "./experiments.messages.ts";
 import {
   buildDocument,
@@ -244,17 +247,34 @@ function problemText(m: ExperimentsMessages, found: readonly string[]): string[]
   return [...new Set(found.map((p) => text[p] ?? ""))];
 }
 
-/** A7: the wizard that creates an experiment; `?target` is the canvas selection that is the variant subject. */
+/** The canvas selection a subtree experiment wraps in Variant nodes: `?plugin` and the node IDs of `?target`. */
+function targetOf(
+  search: { readonly target?: string; readonly plugin?: string },
+  scope: Scope,
+): ExperimentTarget | undefined {
+  const ids = (search.target ?? "").split(",").filter((id) => id !== "");
+  return search.plugin === undefined || scope !== "subtree" || ids.length === 0
+    ? undefined
+    : { pluginId: search.plugin, ids };
+}
+
+/**
+ * A7: the wizard that creates an experiment; `?target` is the canvas selection that is the variant subject and
+ * `?plugin` its plugin. Creating registers the experiment and writes what the compiler builds its variants from: the
+ * project's experiment document and, for a subtree, the selection wrapped in Variant nodes (build log row 304).
+ */
 export function NewExperimentPage(): ReactElement {
   const m = experimentsMessages(useLingui().i18n);
   const { app, env } = useScope();
-  const search = useSearch({ strict: false }) as { target?: string; step?: WizardStep };
+  const search = useSearch({ strict: false }) as { target?: string; plugin?: string; step?: WizardStep };
   const org = (useParams({ strict: false }) as { org?: string }).org ?? "";
   const navigate = useNavigate();
   const environment = useEnvironment(app, env);
   const actions = useExperimentActions(app, environment.environment?.id ?? "");
+  const author = useAuthorExperiment(app);
   const [draft, setDraft] = useState(() => initialDraft(search.target));
   const [failed, setFailed] = useState(false);
+  const [authorError, setAuthorError] = useState<{ readonly error: unknown }>();
   const step = search.step ?? "target";
   const index = wizardSteps.indexOf(step);
   const found = problems(draft);
@@ -270,13 +290,23 @@ export function NewExperimentPage(): ReactElement {
   };
   const submit = () => {
     setFailed(false);
-    actions.create(buildDocument(draft, crypto.randomUUID())).then(
-      (r) =>
+    setAuthorError(undefined);
+    const bytes = buildDocument(draft, uuidv7());
+    const doc = JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
+    actions.create(bytes).then(
+      async (r) => {
+        try {
+          await author(doc, targetOf(search, draft.scope));
+        } catch (error) {
+          setAuthorError({ error });
+          return;
+        }
         void navigate({
           to: "/o/$org/apps/$app/experiments/$expId",
           params: { org, app, expId: r.experiment?.id ?? "" } as never,
           search: { env },
-        } as never),
+        } as never);
+      },
       () => setFailed(true),
     );
   };
@@ -300,6 +330,11 @@ export function NewExperimentPage(): ReactElement {
       {failed && (
         <p role="alert" className="text-body text-danger">
           {m.actionFailed}
+        </p>
+      )}
+      {authorError !== undefined && (
+        <p role="alert" className="text-body text-danger">
+          {withReason(m.authorFailed, authorError.error)}
         </p>
       )}
       <div className="flex gap-2">

@@ -4,6 +4,7 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { orgA, renderApp, type Upstream } from "../../test-harness.tsx";
+import { variantNames, wrapInVariants } from "./author.ts";
 import { buildDocument, initialDraft, parseAttributes, problems } from "./experiments.schema.ts";
 import { declaredFlags, flagTypeOf } from "./flags-page.tsx";
 
@@ -92,6 +93,67 @@ describe("[ABT-001] new experiment wizard (A7)", () => {
     expect(calls[0]).toContain("create:ctaLabel:");
     expect(calls[0]).toContain('"scope":"subtree"');
     expect(calls[0]).toContain('"weight":50');
+  });
+
+  test("writes the experiment and wraps the selected widget in a Variant of its page (STU-103, build log row 304)", async () => {
+    const calls: string[] = [];
+    const putDocuments: { path: string; content: string; ifRevision: bigint }[] = [];
+    const home = {
+      kind: "page",
+      id: "pg",
+      root: { id: "col", type: "Column", children: [{ id: "n1", type: "Text", props: { data: "Welcome" } }] },
+    };
+    open("/new?target=n1&plugin=shop", {
+      experiments: { experiments: [], calls },
+      security: { putDocuments },
+      pluginDocuments: { shop: [{ kind: "page", path: "plugins/shop/pages/home.page.json", json: home }] },
+    });
+    type(await screen.findByLabelText("Experiment key").then(() => "Experiment key"), "heroLayout");
+    for (const step of ["Variants", "Allocation", "Targeting", "Metrics"]) {
+      click("Next");
+      await screen.findByRole("heading", { name: step });
+    }
+    type("Primary metric event", "purchase");
+    click("Next");
+    await screen.findByLabelText("Start");
+    click("Create experiment");
+    await waitFor(() => expect(putDocuments.map((d) => d.path)).toHaveLength(2));
+    const [experiment, page] = putDocuments;
+    expect(experiment?.path).toBe("experiments/heroLayout.experiment.json");
+    expect(JSON.parse(experiment?.content ?? "{}")).toMatchObject({
+      kind: "experiment",
+      key: "heroLayout",
+      scope: "subtree",
+    });
+    expect(page?.path).toBe("plugins/shop/pages/home.page.json");
+    const variant = JSON.parse(page?.content ?? "{}").root.children[0];
+    expect(variant).toMatchObject({
+      type: "Variant",
+      experiment: "heroLayout",
+      control: { id: "n1", type: "Text", props: { data: "Welcome" } },
+      variants: { variant: { type: "Text", props: { data: "Welcome" } } },
+    });
+    expect(variant.variants.variant.id).not.toBe("n1");
+    expect(calls[0]).toContain("create:heroLayout:");
+  });
+
+  test("a Variant replaces a widget among its parent's children or in its slot, never a page's root", () => {
+    let n = 0;
+    const fresh = () => `id${++n}`;
+    const page = {
+      root: {
+        id: "root",
+        type: "Column",
+        children: [{ id: "card", type: "Card", slots: { child: { id: "t", type: "Text" } } }],
+      },
+    };
+    expect(wrapInVariants(page, ["root", "t", "missing"], "e", ["b"], fresh)).toBe(1);
+    expect(page.root.children[0]?.slots.child).toMatchObject({ type: "Variant", control: { id: "t" } });
+    expect(wrapInVariants(page, ["id1"], "e", ["b"], fresh)).toBe(0);
+    expect(variantNames({ variants: [{ name: "base", control: true }, { name: "b" }, { name: "c" }] })).toEqual([
+      "b",
+      "c",
+    ]);
   });
 
   test("blocks a draft whose shares do not add up to 100", async () => {

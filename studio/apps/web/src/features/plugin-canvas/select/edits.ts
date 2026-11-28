@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { widget } from "@plux/schema";
+import { variantArms } from "../variants.ts";
 import { type ArrowKey, nudgeDelta } from "./geometry.ts";
 
 /** Document edits of canvas interactions (STU-067) as recipes for the injected `edit` function. */
@@ -67,7 +68,23 @@ function searchIn(owner: Obj, id: string): Place | null {
       return found;
     }
   }
-  return searchList(owner, Array.isArray(owner.children) ? owner.children : [], null, id);
+  const child = searchList(owner, Array.isArray(owner.children) ? owner.children : [], null, id);
+  return child ?? searchArms(owner, id);
+}
+
+/**
+ * Node `id` in a Variant's arms (row 304). An arm's own root is found with neither a list nor a slot, so a recipe can
+ * change its props but never removes, wraps or moves it: a Variant keeps its control and every variant it names.
+ */
+function searchArms(owner: Obj, id: string): Place | null {
+  for (const arm of variantArms(owner)) {
+    const found = arm.node["id"] === id ? { node: arm.node, parent: owner, list: null, index: -1, slot: null } : null;
+    const place = found ?? searchIn(arm.node, id);
+    if (place !== null) {
+      return place;
+    }
+  }
+  return null;
 }
 
 /** Finds the node `id` below `root` (a draft). */

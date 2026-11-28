@@ -83,6 +83,13 @@ const matchBuilder: WidgetBuilder = (node, ctx) => {
   return show((index >= 0 ? branches[index] : undefined) ?? slot(node, "otherwise") ?? branches[0], ctx);
 };
 
+/**
+ * `Variant` (ABT-001): the arm the canvas draws — the `child` slot the canvas fills with the arm picked in the inspector
+ * — else its `control` subtree, as a device not in the experiment shows it (build log row 304).
+ */
+const variantBuilder: WidgetBuilder = (node, ctx) =>
+  show(slot(node, "child") ?? (node as WidgetNode & { readonly control?: WidgetNode }).control, ctx);
+
 /** `ForEach`: its `item` template once, as the canvas has no items to repeat it over. */
 const forEachBuilder: WidgetBuilder = (node, ctx) => show(slot(node, "item") ?? node.children?.[0], ctx);
 
@@ -244,6 +251,7 @@ export const structuralWidgetBuilders: ReadonlyArray<readonly [string, WidgetBui
   ...wrapperTypes.map((type): readonly [string, WidgetBuilder] => [type, passThrough]),
   ["If", ifBuilder],
   ["Match", matchBuilder],
+  ["Variant", variantBuilder],
   ["ForEach", forEachBuilder],
   ["Slot", slotBuilder],
   ["Responsive", responsive],

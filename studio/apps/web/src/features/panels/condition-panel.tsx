@@ -5,6 +5,8 @@ import { useLingui } from "@lingui/react";
 import { Icon } from "@plux/ui";
 import { Input } from "@plux/ui/components/input";
 import { createContext, type ReactElement, useContext } from "react";
+import { ARM_PICK } from "../plugin-canvas/conditions.ts";
+import { variantArms } from "../plugin-canvas/variants.ts";
 import { type ConditionMessages, conditionMessages } from "./condition-panel.messages.ts";
 import { FoldCard } from "./fold.tsx";
 
@@ -76,6 +78,13 @@ function matchOptions(node: Obj, m: ConditionMessages) {
   ];
 }
 
+/** The arms of a `Variant` the canvas can draw: the control, then each variant by name (build log row 304). */
+function variantOptions(node: Obj, m: ConditionMessages) {
+  return variantArms(node).map((arm) =>
+    arm.name === null ? { value: "auto", label: m.control } : { value: `${ARM_PICK}${arm.name}`, label: arm.name },
+  );
+}
+
 export function ConditionPanel(p: {
   readonly id: string;
   readonly node: Obj;
@@ -97,6 +106,13 @@ export function ConditionPanel(p: {
           <code className="cond-expr">{exprText(props["condition"]) || "—"}</code>
           <Worked result={decided(exprText(props["condition"]))} m={m} />
           <Picks id={p.id} m={m} options={["auto", "then", "else"].map((v) => ({ value: v, label: m.pick(v) }))} />
+        </div>
+      )}
+      {type === "Variant" && (
+        <div className="cond-block">
+          <span className="lay-label">{m.experiment}</span>
+          <code className="cond-expr">{typeof p.node["experiment"] === "string" ? p.node["experiment"] : "—"}</code>
+          <Picks id={p.id} m={m} options={variantOptions(p.node, m)} />
         </div>
       )}
       {type === "Match" && (

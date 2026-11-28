@@ -24,7 +24,22 @@ and the command line are in [Rollouts and experiments](../rollouts-and-experimen
      property**), the direction of **Improvement**, **Guardrail events**, and the **Subjects per
      variant before a result**.
 3. **Create experiment**. Studio marks the fields to fix; a draft over the segment, condition or
-   metric limits is refused ([limits](../../reference/limits.md)).
+   metric limits is refused ([limits](../../reference/limits.md)). Creating registers the
+   experiment for the environment and writes its document into the app's draft
+   (`experiments/<key>.experiment.json`). For a **Component subtree** started from a selection,
+   each selected widget is wrapped in a **Variant** node: the widget itself is the control, and
+   every other variant starts as a copy of it. If the files cannot be written, Studio says so
+   with the server's reason; the experiment stays registered.
+
+## Design the variants
+
+A Variant shows its control on the canvas. Select it to see its experiment in the inspector's
+**Conditions**, and pick an arm (**Control** or a variant's name) to draw that arm instead; what
+you change on the canvas then changes that arm. **Layers** lists every arm under its Variant, by
+name, so a widget in an arm that is not drawn can still be selected. An arm itself cannot be
+deleted, wrapped or moved out of its Variant — a Variant keeps its control and each variant its
+experiment names — but everything inside an arm can. A **Prop value** experiment binds the prop
+to `experiment.<key>.<prop>`, which you write in the JSON editor for now.
 
 ## Run it and read the result
 

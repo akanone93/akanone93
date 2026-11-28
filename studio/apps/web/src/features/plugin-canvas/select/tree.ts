@@ -3,6 +3,7 @@
 
 import { LABEL_SUFFIX } from "@plux/canvas";
 import type { Node } from "../plugin-model.ts";
+import { armLabel, variantArms } from "../variants.ts";
 
 /** Where the part of a widget's item id begins (`LABEL_SUFFIX`, `PAINT_SUFFIX`). */
 const PART_MARK = LABEL_SUFFIX[0] as string;
@@ -21,15 +22,20 @@ export interface NodeIndex {
 export function childNodes(node: Node): readonly Node[] {
   // A slot holds one widget or, in documents, a list of them; the `Node` type names only the first.
   const slots = Object.values(node.slots ?? {}) as readonly (Node | readonly Node[])[];
-  return [...slots.flatMap((v) => (Array.isArray(v) ? v : [v as Node])), ...(node.children ?? [])];
+  // A Variant's arms follow: the control, then each variant by name, as the compiler orders them (row 304).
+  const arms = variantArms(node).map((a) => a.node as unknown as Node);
+  return [...slots.flatMap((v) => (Array.isArray(v) ? v : [v as Node])), ...(node.children ?? []), ...arms];
 }
 
-/** Notes the slot of `n` each of its slotted children is in. */
+/** Notes the slot of `n` each of its slotted children is in; a Variant's arm goes by its variant name, or `control`. */
 function noteSlots(n: Node, slot: Map<string, string | null>): void {
   for (const [name, v] of Object.entries(n.slots ?? {}) as [string, Node | readonly Node[]][]) {
     for (const k of Array.isArray(v) ? v : [v as Node]) {
       slot.set(k.id, name);
     }
+  }
+  for (const arm of variantArms(n)) {
+    slot.set(String(arm.node["id"]), armLabel(arm));
   }
 }
 

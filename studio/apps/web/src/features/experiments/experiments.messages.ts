@@ -61,6 +61,11 @@ export function experimentsMessages(i18n: I18n) {
       message: "The action failed. Nothing was changed.",
       comment: "Shown when an action fails.",
     }),
+    authorFailed: i18n._({
+      id: "experiments.authorFailed",
+      message: "The experiment is registered, but its document and variants could not be written to the draft.",
+      comment: "Shown when the wizard registered an experiment but could not write its project files.",
+    }),
     stateDraft: i18n._({ id: "experiments.stateDraft", message: "Draft", comment: "State of an experiment." }),
     stateRunning: i18n._({ id: "experiments.stateRunning", message: "Running", comment: "State of an experiment." }),
     stateStopped: i18n._({ id: "experiments.stateStopped", message: "Stopped", comment: "State of an experiment." }),

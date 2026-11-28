@@ -1227,7 +1227,7 @@ function PluginCanvasView({
             void navigate({
               to: "/o/$org/apps/$app/experiments/new",
               params: { org: params.org ?? "", app: params.app ?? "" },
-              search: { target: ids.join(",") },
+              search: { target: ids.join(","), plugin: params.plugin },
             } as never);
           }
         },
@@ -1242,6 +1242,7 @@ function PluginCanvasView({
       navigate,
       params.org,
       params.app,
+      params.plugin,
     ],
   );
   useScopedCommands("plugin-canvas", canvasCommandList);

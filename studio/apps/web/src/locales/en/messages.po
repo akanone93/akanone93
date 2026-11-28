@@ -5100,6 +5100,12 @@ msgstr "Continue with {name}"
 msgid "pluginCanvas.a11yContrast"
 msgstr "Contrast {ratio}:1, needs {needed}:1"
 
+#. The control arm of an experiment, as a chip of the arm the canvas draws.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.control"
+msgstr "Control"
+
 #. Marks the control variant.
 #. js-lingui-explicit-id
 #: apps/web/src/features/experiments/experiments.messages.ts
@@ -7468,6 +7474,12 @@ msgstr "Expectations"
 #: apps/web/src/features/tests/tests.messages.ts
 msgid "tests.expectsHeading"
 msgstr "Expectations"
+
+#. Label of the experiment a Variant node belongs to; its arm chips follow.
+#. js-lingui-explicit-id
+#: apps/web/src/features/panels/condition-panel.messages.ts
+msgid "condition.experiment"
+msgstr "Experiment"
 
 #. Heading of the experiment page.
 #. js-lingui-explicit-id
@@ -19232,6 +19244,12 @@ msgstr "The enterprise licence of this installation, verified offline."
 #: apps/web/src/features/functions/functions.messages.ts
 msgid "functions.assuranceDefault"
 msgstr "The environment's default"
+
+#. Shown when the wizard registered an experiment but could not write its project files.
+#. js-lingui-explicit-id
+#: apps/web/src/features/experiments/experiments.messages.ts
+msgid "experiments.authorFailed"
+msgstr "The experiment is registered, but its document and variants could not be written to the draft."
 
 #. Shown when explain-access fails.
 #. js-lingui-explicit-id

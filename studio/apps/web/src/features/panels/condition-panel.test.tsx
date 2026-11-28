@@ -37,4 +37,29 @@ describe("PC-25 the conditions panel [SCH-023]", () => {
     fireEvent.blur(field);
     expect(setVisible).toHaveBeenLastCalledWith({ $expr: "page.items.isNotEmpty" });
   });
+
+  test("a Variant names its experiment and picks the arm the canvas draws, the control first (build log row 304)", async () => {
+    const pick = mock((_id: string, _p: string | undefined) => undefined);
+    const variant = {
+      id: "v",
+      type: "Variant",
+      experiment: "heroLayout",
+      control: { id: "c", type: "Text", props: { data: "Welcome" } },
+      variants: { wide: { id: "w", type: "Text", props: { data: "Welcome back" } } },
+    };
+    render(
+      <I18nProvider studio={createStudioI18n({ load: async () => loadSourceCatalogue(), pseudo: false })}>
+        <BranchPreviewContext.Provider value={{ pickOf: () => undefined, pick }}>
+          <ConditionPanel id="v" node={variant} canEdit decide={() => true} setVisible={() => undefined} />
+        </BranchPreviewContext.Provider>
+      </I18nProvider>,
+    );
+    expect(await screen.findByText("heroLayout")).toBeTruthy();
+    const control = screen.getByRole("radio", { name: "Control" });
+    expect(control.getAttribute("aria-checked")).toBe("true");
+    fireEvent.click(screen.getByRole("radio", { name: "wide" }));
+    expect(pick).toHaveBeenLastCalledWith("v", "arm:wide");
+    fireEvent.click(control);
+    expect(pick).toHaveBeenLastCalledWith("v", undefined);
+  });
 });

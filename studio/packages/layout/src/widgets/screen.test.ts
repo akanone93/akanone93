@@ -259,6 +259,19 @@ describe("layoutScreen [STU-005] [STU-006]", () => {
     expect(shown(match({ $expr: "params.slug" }, false))).toEqual(["Branch A"]);
   });
 
+  test("a Variant shows the arm the canvas drew into its child slot, else its control (build log row 304)", () => {
+    const control = text("c", "Welcome");
+    const wide = text("w", "Welcome back");
+    const shown = (root: WidgetNode) =>
+      layoutScreen(root, { engine, theme })
+        .boxes.filter((b) => b.kind === "text")
+        .map((b) => b.text);
+    const raw = { id: "v", type: "Variant", experiment: "hero", control, variants: { wide } } as unknown as WidgetNode;
+    expect(shown(raw)).toEqual(["Welcome"]);
+    expect(shown({ id: "v", type: "Variant", slots: { child: wide } })).toEqual(["Welcome back"]);
+    expect(layoutScreen(raw, { engine, theme }).boxes.some((b) => b.kind === "placeholder")).toBe(false);
+  });
+
   test("an empty AmountInput shows its label where the amount goes, and no currency or stand-in text (#122)", () => {
     const root: WidgetNode = {
       id: "col",
@@ -924,7 +937,8 @@ describe("builder coverage [STU-005]", () => {
 
   test("the builders name no type the schema lacks, besides the screen's own", () => {
     // The route node is the canvas's own: it presents a dialog or sheet page and is never in a document (PC-13).
-    const own = ["FilledTonalButton", "AlertDialog", "BottomSheet", "PopupMenu", ROUTE_TYPE];
+    // `Variant` is a reserved document node of experiments (ABT-001), not a registry widget.
+    const own = ["FilledTonalButton", "AlertDialog", "BottomSheet", "PopupMenu", ROUTE_TYPE, "Variant"];
     const known = new Set([...schemaWidgetTypes(), ...own]);
     const extra = [...defaultWidgetBuilders.keys()].filter((type) => !known.has(type) && !type.startsWith("Cupertino"));
     expect(extra).toEqual([]);
